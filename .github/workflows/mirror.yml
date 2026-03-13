@@ -1,0 +1,42 @@
+name: Mirror to Personal Account
+
+on:
+  push:
+    branches: [ main, development ]
+  workflow_dispatch:
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "Arif Adnan"
+          git config --global user.email "arifahamedadnan@gmail.com"
+          git config --global user.password "${{ secrets.PERSONAL_REPO_TOKEN }}"
+
+      - name: Test Token Access
+        run: |
+          curl -H "Authorization: token ${{ secrets.PERSONAL_REPO_TOKEN }}" \
+          https://api.github.com/user/repos | grep shadimate-client
+
+      - name: Add Personal Remote
+        run: |
+          git remote add personal https://arifadnan05:${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/arifadnan05/shadimate-client.git
+          git remote -v
+
+      - name: Push to Personal Repo
+        run: |
+          git push -u personal --all
+          git push -u personal --tags
+        continue-on-error: true
+
+      - name: Debug Error
+        if: failure()
+        run: |
+          echo "Token: ${{ secrets.PERSONAL_REPO_TOKEN }}"
+          curl -v https://arifadnan05:${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/arifadnan05/shadimate-client.git/info/refs?service=git-upload-pack
