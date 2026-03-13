@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import FloatingHearts from "@/components/shared/FloatingHearts";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,9 +26,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#120810]`}
       >
-        {children}
+        <div className="relative min-h-screen bg-[radial-gradient(ellipse_at_25%_40%,#2a0a1a_0%,#180a14_50%,#120810_100%)] overflow-x-hidden">
+          <FloatingHearts />
+          <div className="relative z-10">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

@@ -34,10 +34,10 @@ const SpinnerIcon = () => (
     viewBox="0 0 16 16"
     fill="none"
   >
-    <circle cx="8" cy="8" r="6" stroke="rgba(13,14,20,0.3)" strokeWidth="2" />
+    <circle cx="8" cy="8" r="6" stroke="rgb(from var(--on-brand) r g b / 0.3)" strokeWidth="2" />
     <path
       d="M8 2a6 6 0 016 6"
-      stroke="#0d0e14"
+      stroke="var(--on-brand)"
       strokeWidth="2"
       strokeLinecap="round"
     />
@@ -63,13 +63,13 @@ const PhoneIcon = () => (
 /* ══ LOGO ══ */
 const Logo = () => (
   <div className="flex items-center gap-2.5">
-    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-linear-to-br from-[#b3f000] to-[#00f0ff] shadow-[0_0_16px_rgba(179,240,0,0.4)]">
+    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-[var(--shadow-brand-sm)]">
       <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
         <path
           d="M5 4C5 4 4 8 7 11C10 14 13 13 13 13C13 13 10.5 12.2 9 10C7.5 7.8 8.5 4 5 4Z"
-          fill="#0d0e14"
+          fill="var(--on-brand)"
         />
-        <circle cx="9" cy="9" r="2.2" fill="#0d0e14" opacity="0.6" />
+        <circle cx="9" cy="9" r="2.2" fill="var(--on-brand)" opacity="0.6" />
       </svg>
     </div>
     <span className="font-syne text-white font-extrabold text-xl tracking-tight">
@@ -188,14 +188,14 @@ function VerifyOtpContent() {
   if (success)
     return (
       <div
-        className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_25%_40%,#1e0a42_0%,#0F172A_50%,#06101e_100%)]"
+        className="min-h-screen flex items-center justify-center bg-transparent"
       >
         <div className="flex flex-col items-center gap-5 text-center px-6">
-          <div className="animate-[pop_0.5s_ease_both] w-20 h-20 rounded-full flex items-center justify-center bg-linear-to-br from-[#b3f000] to-[#00f0ff] shadow-[0_0_40px_rgba(179,240,0,0.55)]">
+          <div className="animate-[pop_0.5s_ease_both] w-20 h-20 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-[var(--shadow-brand-md)]">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
               <path
                 d="M8 18L15 25L28 11"
-                stroke="#0d0e14"
+                stroke="var(--on-brand)"
                 strokeWidth="3"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -217,18 +217,9 @@ function VerifyOtpContent() {
   /* ══ MAIN OTP SCREEN ══ */
   return (
     <div
-      className="font-outfit relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-5 py-14 bg-[radial-gradient(ellipse_at_25%_40%,#1e0a42_0%,#0F172A_50%,#06101e_100%)]"
+      className="font-outfit relative min-h-screen w-full flex flex-col items-center justify-center px-5 py-14 bg-transparent"
     >
-      {/* BG blobs */}
-      <div
-        className="animate-[floatSimple_8s_ease-in-out_infinite] pointer-events-none absolute top-[-100px] left-[-80px] w-[450px] h-[450px] rounded-full opacity-25 bg-[radial-gradient(circle,rgba(168,85,247,0.55)_0%,transparent_70%)]"
-      />
-      <div
-        className="animate-[floatSimple_11s_ease-in-out_infinite_2s] pointer-events-none absolute bottom-[-80px] right-[-60px] w-[380px] h-[380px] rounded-full opacity-20 bg-[radial-gradient(circle,rgba(6,182,212,0.5)_0%,transparent_70%)]"
-      />
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.025] bg-[radial-gradient(circle,#fff_1px,transparent_1px)] [background-size:32px_32px]"
-      />
+      <div className="noise-layer absolute inset-0 opacity-[0.03] pointer-events-none" />
 
       {/* Logo */}
       <div className="animate-[fadeUp_0.55s_ease_0.05s_both] mb-8 z-10">
@@ -237,20 +228,21 @@ function VerifyOtpContent() {
 
       {/* Card */}
       <div
-        className="relative z-10 w-full max-w-md rounded-[28px] border border-white/[0.09] px-8 py-10 md:px-10 backdrop-blur-2xl bg-[rgba(18,22,40,0.80)]"
+        className="relative z-10 w-full max-w-md rounded-[28px] glass-card px-8 py-10 md:px-10"
       >
+        <div className="noise-layer absolute inset-0 opacity-[0.02] pointer-events-none" />
         {/* top glow */}
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-[28px] bg-[linear-gradient(90deg,transparent,rgba(179,240,0,0.35),transparent)]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-[28px] bg-[linear-gradient(90deg,transparent,rgb(from var(--brand) r g b / 0.4),transparent)]"
         />
 
         {/* Phone icon badge */}
         <div className="animate-[fadeUp_0.55s_ease_0.15s_both] flex justify-center mb-6">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-[#b3f000]"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center text-brand"
             style={{
-              background: "rgba(179,240,0,0.08)",
-              border: "1px solid rgba(179,240,0,0.2)",
+              background: "rgb(from var(--brand) r g b / 0.08)",
+              border: "1px solid rgb(from var(--brand) r g b / 0.2)",
             }}
           >
             <PhoneIcon />
@@ -295,7 +287,7 @@ function VerifyOtpContent() {
                 value={digit}
                 onChange={(e) => handleChange(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
-                className={`font-syne font-bold text-[22px] text-center w-[52px] h-[60px] rounded-2xl text-slate-100 outline-none transition-all duration-[180ms] [caret-color:#b3f000] ${errorMsg ? "border-[1.5px] border-[rgba(248,113,113,0.6)] bg-[rgba(248,113,113,0.05)] shadow-[0_0_0_3px_rgba(248,113,113,0.08)]" : digit ? "border-[1.5px] border-[rgba(179,240,0,0.4)] bg-[rgba(179,240,0,0.06)]" : "border-[1.5px] border-white/10 bg-white/5 focus:border-[rgba(179,240,0,0.6)] focus:bg-[rgba(179,240,0,0.05)] focus:shadow-[0_0_0_3px_rgba(179,240,0,0.1)]"}`}
+                className={`font-syne font-bold text-[22px] text-center w-[52px] h-[60px] rounded-2xl text-slate-100 outline-none transition-all duration-[180ms] [caret-color:var(--brand)] ${errorMsg ? "border-[1.5px] border-[rgba(248,113,113,0.6)] bg-[rgba(248,113,113,0.05)] shadow-[0_0_0_3px_rgba(248,113,113,0.08)]" : digit ? "border-[1.5px] border-brand/40 bg-brand/5" : "border-[1.5px] border-white/10 bg-white/5 focus:border-brand/60 focus:bg-brand/5 focus:shadow-[0_0_0_3px_rgba(232,84,122,0.1)]"}`}
               />
             ))}
           </div>
@@ -309,7 +301,7 @@ function VerifyOtpContent() {
 
           {/* Resend success message */}
           {resendMsg && !errorMsg && (
-            <p className="text-center text-[#b3f000] text-sm mt-3 animate-[fadeUp_0.2s_ease]">
+            <p className="text-center text-accent text-sm mt-3 animate-[fadeUp_0.2s_ease]">
               {resendMsg}
             </p>
           )}
@@ -319,7 +311,7 @@ function VerifyOtpContent() {
             <button
               type="submit"
               disabled={isPending}
-              className="font-outfit w-full flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl font-bold text-sm tracking-[0.06em] text-[#0d0e14] bg-linear-to-r from-[#b3f000] to-[#00f0ff] shadow-[0_0_22px_rgba(179,240,0,0.35)] hover:scale-[1.02] hover:shadow-[0_0_32px_rgba(179,240,0,0.5)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 transition-all duration-200 cursor-pointer border-0"
+              className="font-outfit w-full flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl font-bold text-sm tracking-[0.06em] text-on-brand bg-linear-to-r from-brand to-accent shadow-[var(--shadow-brand-md)] hover:scale-[1.02] hover:shadow-[var(--shadow-btn-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:scale-100 transition-all duration-200 cursor-pointer border-0"
             >
               {isPending ? (
                 <>
@@ -348,7 +340,7 @@ function VerifyOtpContent() {
                 type="button"
                 onClick={handleResend}
                 disabled={resending}
-                className="font-outfit text-[#b3f000] font-semibold hover:text-[#00f0ff] transition-colors duration-150 cursor-pointer bg-transparent border-0 disabled:opacity-50"
+                className="font-outfit text-brand font-semibold hover:text-accent transition-colors duration-150 cursor-pointer bg-transparent border-0 disabled:opacity-50"
               >
                 {resending ? "Sending..." : "Resend OTP"}
               </button>
@@ -369,7 +361,7 @@ function VerifyOtpContent() {
 
         {/* bottom glow */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-px rounded-b-[28px] bg-[linear-gradient(90deg,transparent,rgba(6,182,212,0.2),transparent)]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-px rounded-b-[28px] bg-[linear-gradient(90deg,transparent,rgb(from var(--accent) r g b / 0.2),transparent)]"
         />
       </div>
 

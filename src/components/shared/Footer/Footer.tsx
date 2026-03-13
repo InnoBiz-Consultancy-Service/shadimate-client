@@ -94,19 +94,11 @@ const socials = [
 export default function Footer() {
   return (
     <footer
-      className="font-outfit relative w-full overflow-hidden bg-[linear-gradient(to_bottom,#0F172A_0%,#080d1a_100%)]"
+      className="font-outfit relative w-full overflow-hidden bg-transparent"
     >
-      {/* Top border glow */}
+      {/* Subtle bottom bg glow */}
       <div
-        className="absolute inset-x-0 top-0 h-px"
-        style={{
-          background: `linear-gradient(90deg, transparent 0%, rgb(from var(--brand) r g b / 0.4) 30%, rgb(from var(--accent) r g b / 0.4) 70%, transparent 100%)`,
-        }}
-      />
-
-      {/* Subtle bg glow */}
-      <div
-        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(168,85,247,0.6)_0%,transparent_70%)]"
+        className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(232,84,122,0.4)_0%,transparent_70%)]"
       />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-8">
@@ -122,19 +114,21 @@ export default function Footer() {
             </p>
 
             {/* CTA pill */}
-            <div>
+            <div className="group relative">
               <button
                 className="
-                  inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-                  text-on-brand text-sm font-bold tracking-[0.05em]
+                  inline-flex items-center gap-2 px-6 py-3 rounded-full
+                  text-on-brand text-sm font-bold tracking-[0.06em]
                   bg-linear-to-r from-brand to-accent
                   shadow-[var(--shadow-brand-md)]
-                  hover:scale-[1.04] hover:shadow-[var(--shadow-brand-lg)]
-                  active:scale-[0.97] transition-all duration-200 border-0 cursor-pointer
+                  hover:scale-[1.05] hover:shadow-[var(--shadow-brand-lg)]
+                  active:scale-[0.98] transition-all duration-300 border-0 cursor-pointer
+                  relative overflow-hidden
                 "
               >
-                Start Your Scan
+                <span className="relative z-10">Start Your Scan</span>
                 <ArrowUpRight />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
               </button>
             </div>
 
@@ -180,13 +174,9 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* ── BIG TAGLINE ── */}
-        <div className="py-10 text-center">
+        <div className="py-12 text-center">
           <p
-            className="text-[clamp(32px,7vw,72px)] font-extrabold leading-none tracking-tight bg-clip-text text-transparent animate-[shimmer_5s_linear_infinite] [background-size:200%_auto]"
-            style={{
-              backgroundImage: `linear-gradient(90deg, var(--brand), var(--accent), #A855F7, var(--brand))`,
-            }}
+            className="text-[clamp(36px,8vw,80px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-gradient-rose"
           >
             FIND YOUR SOUL MATE
           </p>

@@ -1,5 +1,6 @@
 "use client";
 
+import FloatingHearts from "../FloatingHearts";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -28,12 +29,13 @@ export default function Navbar() {
       <div
         className={`
           fixed inset-0 z-99 flex flex-col items-center justify-center gap-3
-          bg-[rgba(10,11,18,0.97)] backdrop-blur-3xl
+          bg-[rgba(26,14,18,0.98)] backdrop-blur-3xl
           transition-opacity duration-300
           ${menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}
           md:hidden
         `}
       >
+        <FloatingHearts />
         {NAV_LINKS.map((link) => (
           <button
             key={link}
@@ -94,7 +96,7 @@ export default function Navbar() {
             relative flex items-center justify-between
             w-full max-w-175 overflow-hidden
             rounded-full border border-white/8
-            bg-[rgba(16,18,28,0.82)] backdrop-blur-2xl
+            bg-[rgba(26,14,18,0.85)] backdrop-blur-2xl
             px-3.5 py-2
             shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_12px_40px_rgba(0,0,0,0.5)]
             transition-all duration-300
@@ -126,7 +128,7 @@ export default function Navbar() {
                   nav-pill relative cursor-pointer px-4 py-1.5 rounded-full
                   text-sm font-medium tracking-wide
                   transition-colors duration-200
-                  ${active === link ? "is-active text-white" : "text-[rgba(200,205,220,0.8)] hover:text-white"}
+                  ${active === link ? "is-active text-white" : "text-[rgba(237,232,227,0.75)] hover:text-white"}
                 `}
               >
                 {link}
