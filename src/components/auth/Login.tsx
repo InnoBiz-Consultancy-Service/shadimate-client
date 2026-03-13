@@ -194,17 +194,15 @@ export default function LoginPage() {
         />
       )}
 
-      <div className="font-outfit relative min-h-screen w-full flex items-center justify-center overflow-hidden px-5 py-12 bg-[radial-gradient(ellipse_at_20%_50%,#1a0a3e_0%,#0F172A_45%,#06101e_100%)]">
-        <div className="animate-[float_7s_ease-in-out_infinite] pointer-events-none absolute top-[-80px] left-[-80px] w-[420px] h-[420px] rounded-full opacity-30 bg-[radial-gradient(circle,rgba(168,85,247,0.5)_0%,transparent_70%)]" />
-        <div className="animate-[floatSlow_9s_ease-in-out_infinite_1s] pointer-events-none absolute bottom-[-60px] right-[-60px] w-[380px] h-[380px] rounded-full opacity-20 bg-[radial-gradient(circle,rgba(6,182,212,0.5)_0%,transparent_70%)]" />
-        <div className="animate-[float_11s_ease-in-out_infinite_2s] pointer-events-none absolute top-[40%] right-[15%] w-[200px] h-[200px] rounded-full opacity-15 bg-[radial-gradient(circle,rgba(179,240,0,0.4)_0%,transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle,#fff_1px,transparent_1px)] [background-size:32px_32px]" />
+      <div className="font-outfit relative min-h-screen w-full flex items-center justify-center px-5 py-12 bg-transparent">
+        <div className="noise-layer absolute inset-0 opacity-[0.03] pointer-events-none" />
 
         {/* ── Card ── */}
-        <div className="relative z-10 w-full max-w-md rounded-[28px] border border-white/[0.09] p-8 md:p-10 backdrop-blur-2xl bg-[rgba(18,22,40,0.75)]">
+        <div className="relative z-10 w-full max-w-md rounded-[28px] glass-card p-8 md:p-10">
+          <div className="noise-layer absolute inset-0 opacity-[0.02] pointer-events-none" />
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-[28px]"
-            style={{ background: "linear-gradient(90deg, transparent, rgb(from var(--brand) r g b / 0.3), transparent)" }}
+            style={{ background: "linear-gradient(90deg, transparent, rgb(from var(--brand) r g b / 0.5), transparent)" }}
           />
 
           <div className="animate-[fadeUp_0.6s_ease_0.05s_both] flex justify-center mb-8">

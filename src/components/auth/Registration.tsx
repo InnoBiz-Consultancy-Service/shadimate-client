@@ -311,18 +311,9 @@ export default function RegisterPage() {
       )}
 
       <div
-        className="font-outfit relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-5 py-14 bg-[radial-gradient(ellipse_at_25%_40%,#1e0a42_0%,#0F172A_50%,#06101e_100%)]"
+        className="font-outfit relative min-h-screen w-full flex flex-col items-center justify-center px-5 py-14 bg-transparent"
       >
-        {/* BG blobs */}
-        <div
-          className="animate-[floatSimple_8s_ease-in-out_infinite] pointer-events-none absolute -top-25 -left-20 w-112.5 h-112.5 rounded-full opacity-25 bg-[radial-gradient(circle,rgba(168,85,247,0.55)_0%,transparent_70%)]"
-        />
-        <div
-          className="animate-[floatSimple_11s_ease-in-out_infinite_2s] pointer-events-none absolute bottom-[-80px] right-[-60px] w-[380px] h-[380px] rounded-full opacity-20 bg-[radial-gradient(circle,rgba(6,182,212,0.5)_0%,transparent_70%)]"
-        />
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.025] bg-[radial-gradient(circle,#fff_1px,transparent_1px)] [background-size:32px_32px]"
-        />
+        <div className="noise-layer absolute inset-0 opacity-[0.03] pointer-events-none" />
 
         {/* Logo */}
         <div className="animate-[fadeUp_0.55s_ease_0.05s_both] mb-8 z-10">
@@ -331,8 +322,9 @@ export default function RegisterPage() {
 
         {/* Card */}
         <div
-          className="relative z-10 w-full max-w-md rounded-[28px] border border-white/[0.09] px-8 py-9 md:px-10 backdrop-blur-2xl bg-[rgba(18,22,40,0.80)]"
+          className="relative z-10 w-full max-w-md rounded-[28px] glass-card px-8 py-9 md:px-10"
         >
+          <div className="noise-layer absolute inset-0 opacity-[0.02] pointer-events-none" />
           {/* top glow */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-px rounded-t-[28px]"
