@@ -1,5 +1,3 @@
-"use client";
-
 /* ── Social icon SVGs ── */
 const TwitterX = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -55,19 +53,16 @@ const ArrowUpRight = () => (
 /* ── Logo ── */
 const Logo = () => (
   <div className="flex items-center gap-2.5">
-    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-[#b3f000] to-[#00f0ff] shadow-[0_0_16px_rgba(179,240,0,0.35)]">
+    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-[var(--shadow-brand-sm)]">
       <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
         <path
           d="M5 4C5 4 4 8 7 11C10 14 13 13 13 13C13 13 10.5 12.2 9 10C7.5 7.8 8.5 4 5 4Z"
-          fill="#0d0e14"
+          fill="var(--on-brand)"
         />
-        <circle cx="9" cy="9" r="2.2" fill="#0d0e14" opacity="0.6" />
+        <circle cx="9" cy="9" r="2.2" fill="var(--on-brand)" opacity="0.6" />
       </svg>
     </div>
-    <span
-      className="text-white font-extrabold text-xl tracking-tight"
-      style={{ fontFamily: "'Syne', sans-serif" }}
-    >
+    <span className="font-syne text-white font-extrabold text-xl tracking-tight">
       ShadiMate
     </span>
   </div>
@@ -98,170 +93,124 @@ const socials = [
 
 export default function Footer() {
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap');
-
-        @keyframes shimmer {
-          0%   { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .tagline-shimmer {
-          background: linear-gradient(90deg, #b3f000, #00f0ff, #A855F7, #b3f000);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: shimmer 5s linear infinite;
-        }
-
-        .footer-link {
-          transition: color 0.18s ease;
-        }
-        .footer-link:hover { color: #b3f000; }
-
-        .social-btn {
-          transition: all 0.2s ease;
-        }
-        .social-btn:hover {
-          background: rgba(179,240,0,0.1);
-          border-color: rgba(179,240,0,0.35);
-          color: #b3f000;
-          box-shadow: 0 0 12px rgba(179,240,0,0.2);
-          transform: translateY(-2px);
-        }
-      `}</style>
-
-      <footer
-        className="relative w-full overflow-hidden"
+    <footer
+      className="font-outfit relative w-full overflow-hidden bg-[linear-gradient(to_bottom,#0F172A_0%,#080d1a_100%)]"
+    >
+      {/* Top border glow */}
+      <div
+        className="absolute inset-x-0 top-0 h-px"
         style={{
-          background: "linear-gradient(to bottom, #0F172A 0%, #080d1a 100%)",
-          fontFamily: "'Outfit', sans-serif",
+          background: `linear-gradient(90deg, transparent 0%, rgb(from var(--brand) r g b / 0.4) 30%, rgb(from var(--accent) r g b / 0.4) 70%, transparent 100%)`,
         }}
-      >
-        {/* Top border glow */}
-        <div
-          className="absolute inset-x-0 top-0 h-px"
-          style={{
-            background:
-              "linear-gradient(90deg, transparent 0%, rgba(179,240,0,0.4) 30%, rgba(0,240,255,0.4) 70%, transparent 100%)",
-          }}
-        />
+      />
 
-        {/* Subtle bg glow */}
-        <div
-          className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full opacity-10"
-          style={{
-            background:
-              "radial-gradient(ellipse, rgba(168,85,247,0.6) 0%, transparent 70%)",
-          }}
-        />
+      {/* Subtle bg glow */}
+      <div
+        className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(168,85,247,0.6)_0%,transparent_70%)]"
+      />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-8">
-          {/* ── TOP SECTION ── */}
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-8 pb-14 border-b border-white/[0.07]">
-            {/* Brand col — 2 cols wide on desktop */}
-            <div className="md:col-span-2 flex flex-col gap-5">
-              <Logo />
+      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-8">
+        {/* ── TOP SECTION ── */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-8 pb-14 border-b border-white/[0.07]">
+          {/* Brand col — 2 cols wide on desktop */}
+          <div className="md:col-span-2 flex flex-col gap-5">
+            <Logo />
 
-              <p className="text-slate-400 text-sm leading-relaxed max-w-[260px]">
-                We use behavioral psychology and AI to match you with your true
-                99.9% connection. Traditional dating is dead.
-              </p>
+            <p className="text-slate-400 text-sm leading-relaxed max-w-[260px]">
+              We use behavioral psychology and AI to match you with your true
+              99.9% connection. Traditional dating is dead.
+            </p>
 
-              {/* CTA pill */}
-              <div>
+            {/* CTA pill */}
+            <div>
+              <button
+                className="
+                  inline-flex items-center gap-2 px-5 py-2.5 rounded-full
+                  text-on-brand text-sm font-bold tracking-[0.05em]
+                  bg-linear-to-r from-brand to-accent
+                  shadow-[var(--shadow-brand-md)]
+                  hover:scale-[1.04] hover:shadow-[var(--shadow-brand-lg)]
+                  active:scale-[0.97] transition-all duration-200 border-0 cursor-pointer
+                "
+              >
+                Start Your Scan
+                <ArrowUpRight />
+              </button>
+            </div>
+
+            {/* Socials */}
+            <div className="flex items-center gap-2.5 mt-1">
+              {socials.map(({ icon, label }) => (
                 <button
+                  key={label}
+                  aria-label={label}
                   className="
-                    inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-                    text-[#0d0e14] text-sm font-bold tracking-[0.05em]
-                    bg-gradient-to-r from-[#b3f000] to-[#00f0ff]
-                    shadow-[0_0_18px_rgba(179,240,0,0.3)]
-                    hover:scale-[1.04] hover:shadow-[0_0_28px_rgba(179,240,0,0.5)]
-                    active:scale-[0.97] transition-all duration-200 border-0 cursor-pointer
+                    w-9 h-9 rounded-xl flex items-center justify-center
+                    bg-white/[0.05] border border-white/[0.1]
+                    text-slate-400 cursor-pointer
+                    transition-all duration-200
+                    hover:bg-brand/10 hover:border-brand/35 hover:text-brand hover:shadow-[var(--shadow-brand-xs)] hover:-translate-y-0.5
                   "
                 >
-                  Start Your Scan
-                  <ArrowUpRight />
+                  {icon}
                 </button>
-              </div>
+              ))}
+            </div>
+          </div>
 
-              {/* Socials */}
-              <div className="flex items-center gap-2.5 mt-1">
-                {socials.map(({ icon, label }) => (
-                  <button
-                    key={label}
-                    aria-label={label}
-                    className="
-                      social-btn w-9 h-9 rounded-xl flex items-center justify-center
-                      bg-white/[0.05] border border-white/[0.1]
-                      text-slate-400 cursor-pointer
-                    "
-                  >
-                    {icon}
-                  </button>
+          {/* Link columns */}
+          {footerLinks.map((col) => (
+            <div key={col.heading} className="flex flex-col gap-4">
+              <h4 className="font-syne text-white text-xs font-bold tracking-[0.15em] uppercase">
+                {col.heading}
+              </h4>
+              <ul className="flex flex-col gap-3">
+                {col.links.map((link) => (
+                  <li key={link}>
+                    <a
+                      href="#"
+                      className="text-slate-400 text-sm transition-colors duration-[180ms] hover:text-brand"
+                    >
+                      {link}
+                    </a>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
-
-            {/* Link columns */}
-            {footerLinks.map((col) => (
-              <div key={col.heading} className="flex flex-col gap-4">
-                <h4
-                  className="text-white text-xs font-bold tracking-[0.15em] uppercase"
-                  style={{ fontFamily: "'Syne', sans-serif" }}
-                >
-                  {col.heading}
-                </h4>
-                <ul className="flex flex-col gap-3">
-                  {col.links.map((link) => (
-                    <li key={link}>
-                      <a
-                        href="#"
-                        className="footer-link text-slate-400 text-sm hover:text-[#b3f000]"
-                      >
-                        {link}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-
-          {/* ── BIG TAGLINE ── */}
-          <div className="py-10 text-center">
-            <p
-              className="tagline-shimmer font-extrabold leading-none tracking-tight"
-              style={{
-           
-                fontSize: "clamp(32px, 7vw, 72px)",
-              }}
-            >
-              FIND YOUR SOUL MATE
-            </p>
-          </div>
-
-          {/* ── BOTTOM BAR ── */}
-          <div className="border-t border-white/[0.07] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-            <p className="text-slate-600 text-xs">
-              © {new Date().getFullYear()} ShadiMate Inc. All rights reserved.
-            </p>
-
-            <div className="flex items-center gap-1.5">
-              {/* Status dot */}
-              <span className="w-1.5 h-1.5 rounded-full bg-[#b3f000] shadow-[0_0_6px_rgba(179,240,0,0.8)]" />
-              <span className="text-slate-600 text-xs">
-                All systems operational
-              </span>
-            </div>
-
-            <p className="text-slate-600 text-xs">
-              Built with behavioral science &amp; love
-            </p>
-          </div>
+          ))}
         </div>
-      </footer>
-    </>
+
+        {/* ── BIG TAGLINE ── */}
+        <div className="py-10 text-center">
+          <p
+            className="text-[clamp(32px,7vw,72px)] font-extrabold leading-none tracking-tight bg-clip-text text-transparent animate-[shimmer_5s_linear_infinite] [background-size:200%_auto]"
+            style={{
+              backgroundImage: `linear-gradient(90deg, var(--brand), var(--accent), #A855F7, var(--brand))`,
+            }}
+          >
+            FIND YOUR SOUL MATE
+          </p>
+        </div>
+
+        {/* ── BOTTOM BAR ── */}
+        <div className="border-t border-white/[0.07] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+          <p className="text-slate-600 text-xs">
+            © {new Date().getFullYear()} ShadiMate Inc. All rights reserved.
+          </p>
+
+          <div className="flex items-center gap-1.5">
+            {/* Status dot */}
+            <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-[var(--shadow-brand-dot)]" />
+            <span className="text-slate-600 text-xs">
+              All systems operational
+            </span>
+          </div>
+
+          <p className="text-slate-600 text-xs">
+            Built with behavioral science &amp; love
+          </p>
+        </div>
+      </div>
+    </footer>
   );
 }

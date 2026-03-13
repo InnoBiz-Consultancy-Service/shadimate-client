@@ -1,5 +1,3 @@
-"use client";
-
 import Image from "next/image";
 import MaleAvatar from "../../../public/images/male_shadimate.png";
 
@@ -160,16 +158,10 @@ const Gauge = ({ value = 94 }: { value?: number }) => {
         </defs>
       </svg>
       <div className="relative z-10 flex flex-col items-center leading-none">
-        <span
-          className="text-white font-bold text-[26px]"
-          style={{ fontFamily: "'Outfit',sans-serif" }}
-        >
+        <span className="font-outfit text-white font-bold text-[26px]">
           {value}%
         </span>
-        <span
-          className="text-[9px] font-semibold tracking-[0.13em] text-slate-400 mt-1"
-          style={{ fontFamily: "'Outfit',sans-serif" }}
-        >
+        <span className="font-outfit text-[9px] font-semibold tracking-[0.13em] text-slate-400 mt-1">
           MATCH
         </span>
       </div>
@@ -180,8 +172,7 @@ const Gauge = ({ value = 94 }: { value?: number }) => {
 /* ─── Tag pill ─── */
 const Tag = ({ label }: { label: string }) => (
   <span
-    className="text-[10px] font-semibold tracking-[0.08em] text-slate-400 border border-slate-600/40 rounded-[7px] px-2.5 py-1 bg-white/4 whitespace-nowrap"
-    style={{ fontFamily: "'Outfit',sans-serif" }}
+    className="font-outfit text-[10px] font-semibold tracking-[0.08em] text-slate-400 border border-slate-600/40 rounded-[7px] px-2.5 py-1 bg-white/4 whitespace-nowrap"
   >
     {label}
   </span>
@@ -202,30 +193,18 @@ const PersonRow = ({
       <AvatarSmall v={v} size={38} />
     </div>
     <div className="flex-1 min-w-0">
-      <p
-        className="text-[13px] font-semibold text-slate-100 truncate"
-        style={{ fontFamily: "'Outfit',sans-serif" }}
-      >
+      <p className="font-outfit text-[13px] font-semibold text-slate-100 truncate">
         {name}
       </p>
-      <p
-        className="text-[10px] text-slate-500 mt-0.5"
-        style={{ fontFamily: "'Outfit',sans-serif" }}
-      >
+      <p className="font-outfit text-[10px] text-slate-500 mt-0.5">
         Compatible
       </p>
     </div>
     <div className="text-right shrink-0">
-      <p
-        className="text-[15px] font-bold text-[#2DD4BF]"
-        style={{ fontFamily: "'Outfit',sans-serif" }}
-      >
+      <p className="font-outfit text-[15px] font-bold text-[#2DD4BF]">
         {match}%
       </p>
-      <p
-        className="text-[9px] font-semibold tracking-widest text-slate-500"
-        style={{ fontFamily: "'Outfit',sans-serif" }}
-      >
+      <p className="font-outfit text-[9px] font-semibold tracking-widest text-slate-500">
         MATCH
       </p>
     </div>
@@ -246,197 +225,154 @@ export default function HeroSection() {
   ];
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap');
+    <section
+      className="relative min-h-screen flex items-center justify-center overflow-hidden px-5 py-16 md:py-20 bg-[radial-gradient(ellipse_at_25%_40%,#1e0a42_0%,#0F172A_50%,#06101e_100%)]"
+    >
+      {/* BG blobs */}
+      <div
+        className="pointer-events-none absolute top-[5%] left-0 w-120 h-120 rounded-full bg-[radial-gradient(circle,rgba(168,85,247,0.18)_0%,transparent_65%)]"
+      />
+      <div
+        className="pointer-events-none absolute bottom-[5%] right-[5%] w-[320px] h-80 rounded-full bg-[radial-gradient(circle,rgba(6,182,212,0.12)_0%,transparent_65%)]"
+      />
 
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(22px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
-        }
-        @keyframes pulseGlow {
-          0%,100% { box-shadow: 0 0 14px rgba(45,212,191,0.25); }
-          50%      { box-shadow: 0 0 30px rgba(45,212,191,0.6); }
-        }
-
-        .anim-1 { animation: fadeUp 0.65s ease 0.05s both; }
-        .anim-2 { animation: fadeUp 0.65s ease 0.2s  both; }
-        .anim-3 { animation: fadeUp 0.65s ease 0.35s both; }
-        .anim-4 { animation: fadeIn 0.65s ease 0.5s  both; }
-        .anim-5 { animation: fadeIn 0.65s ease 0.65s both; }
-
-        .pulse-teal { animation: pulseGlow 2.5s ease-in-out infinite; }
-      `}</style>
-
-      <section
-        className="relative min-h-screen flex items-center justify-center overflow-hidden px-5 py-16 md:py-20"
-        style={{
-          background:
-            "radial-gradient(ellipse at 25% 40%, #1e0a42 0%, #0F172A 50%, #06101e 100%)",
-        }}
-      >
-        {/* BG blobs */}
-        <div
-          className="pointer-events-none absolute top-[5%] left-0 w-120 h-120 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(168,85,247,0.18) 0%, transparent 65%)",
-          }}
-        />
-        <div
-          className="pointer-events-none absolute bottom-[5%] right-[5%] w-[320px] h-80 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 65%)",
-          }}
-        />
-
-        {/* Grid */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full max-w-5xl items-center">
-          {/* ════ LEFT ════ */}
-          <div className="flex flex-col gap-6">
-            {/* Headline */}
-            <h1
-              className="anim-1 leading-[0.95] tracking-tight text-slate-100"
+      {/* Grid */}
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full max-w-5xl items-center">
+        {/* ════ LEFT ════ */}
+        <div className="flex flex-col gap-6">
+          {/* Headline */}
+          <h1
+            className="animate-[fadeUp_0.65s_ease_0.05s_both] leading-[0.95] tracking-tight text-slate-100"
+            style={{
+              fontWeight: 800,
+              fontSize: "clamp(52px, 11vw, 72px)",
+              letterSpacing: "-0.02em",
+            }}
+          >
+            <span className="block">FIND YOUR</span>
+            <span
+              className="block"
               style={{
-                fontWeight: 800,
-                fontSize: "clamp(52px, 11vw, 72px)",
-                letterSpacing: "-0.02em",
+                background:
+                  "linear-gradient(100deg, #A855F7 0%, #06B6D4 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
               }}
             >
-              <span className="block">FIND YOUR</span>
-              <span
-                className="block"
-                style={{
-                  background:
-                    "linear-gradient(100deg, #A855F7 0%, #06B6D4 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                SOUL MATE
-              </span>
-            </h1>
+              SOUL MATE
+            </span>
+          </h1>
 
-            {/* Sub */}
-            <p
-              className="anim-2 text-slate-400 leading-relaxed max-w-sm"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
+          {/* Sub */}
+          <p
+            className="font-outfit animate-[fadeUp_0.65s_ease_0.2s_both] text-slate-400 leading-relaxed max-w-sm"
+          >
+            Traditional matching is dead. We use behavioral psychology to find
+            your 99.9% true connection.
+          </p>
+
+          {/* CTA */}
+          <div className="animate-[fadeUp_0.65s_ease_0.35s_both] w-full md:w-auto">
+            <button
+              className="
+                font-outfit
+                w-full md:w-auto
+                inline-flex items-center justify-center gap-2.5
+                px-8 py-4 rounded-full
+                font-bold text-[13px] tracking-[0.07em] text-on-brand
+                bg-linear-to-r from-brand to-accent
+                shadow-[var(--shadow-brand-md)]
+                hover:scale-[1.04] hover:shadow-[var(--shadow-btn-hover-lg)]
+                active:scale-[0.97]
+                transition-all duration-200 cursor-pointer border-0
+              "
             >
-              Traditional matching is dead. We use behavioral psychology to find
-              your 99.9% true connection.
+              START MY PERSONALITY SCAN
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M3 8H13M13 8L9 4M13 8L9 12"
+                  stroke="var(--on-brand)"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* ════ RIGHT ════ */}
+        <div className="flex flex-col gap-4">
+          {/* Compatibility Meter */}
+          <div
+            className="animate-[fadeIn_0.65s_ease_0.5s_both] rounded-[20px] border border-white/9 p-5 backdrop-blur-xl"
+            style={{ background: "rgba(28,32,52,0.72)" }}
+          >
+            <p
+              className="font-outfit text-center text-[13px] font-medium text-slate-400 mb-4"
+            >
+              Compatibility Meter
             </p>
 
-            {/* CTA */}
-            <div className="anim-3 w-full md:w-auto">
-              <button
-                className="
-                  w-full md:w-auto
-                  inline-flex items-center justify-center gap-2.5
-                  px-8 py-4 rounded-full
-                  font-bold text-[13px] tracking-[0.07em] text-[#0d0e14]
-                  bg-linear-to-r from-[#b3f000] to-[#00f0ff]
-                  shadow-[0_0_22px_rgba(179,240,0,0.35)]
-                  hover:scale-[1.04] hover:shadow-[0_0_36px_rgba(179,240,0,0.55),0_0_16px_rgba(0,240,255,0.3)]
-                  active:scale-[0.97]
-                  transition-all duration-200 cursor-pointer border-0
-                "
-                style={{ fontFamily: "'Outfit', sans-serif" }}
+            {/* Avatars + Gauge */}
+            <div className="flex items-center justify-center gap-4">
+              {/* Male */}
+              <div
+                className="animate-[pulseGlow_2.5s_ease-in-out_infinite] rounded-full p-0.75"
               >
-                START MY PERSONALITY SCAN
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8H13M13 8L9 4M13 8L9 12"
-                    stroke="#0d0e14"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                <div className="rounded-full overflow-hidden flex">
+                  <Image
+                    alt="male_shadimate"
+                    width={100}
+                    height={100}
+                    src={MaleAvatar}
                   />
-                </svg>
-              </button>
+                </div>
+              </div>
+
+              <Gauge value={94} />
+
+              {/* Female */}
+              <div
+                className="rounded-full p-0.75 shadow-[0_0_18px_rgba(168,85,247,0.45)]"
+                style={{
+                  background: "linear-gradient(135deg, #A855F7, #7C3AED)",
+                }}
+              >
+                <div className="rounded-full overflow-hidden bg-[#141826] flex">
+                  <AvatarFemale size={60} />
+                </div>
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-1.75 mt-5 justify-center">
+              {tags.map((t) => (
+                <Tag key={t} label={t} />
+              ))}
             </div>
           </div>
 
-          {/* ════ RIGHT ════ */}
-          <div className="flex flex-col gap-4">
-            {/* Compatibility Meter */}
-            <div
-              className="anim-4 rounded-[20px] border border-white/9 p-5 backdrop-blur-xl"
-              style={{ background: "rgba(28,32,52,0.72)" }}
+          {/* Compatible Personalities — hidden on mobile */}
+          <div
+            className="animate-[fadeIn_0.65s_ease_0.65s_both] hidden md:block rounded-[20px] border border-white/9 p-4 backdrop-blur-xl"
+            style={{ background: "rgba(28,32,52,0.72)" }}
+          >
+            <p
+              className="font-outfit text-[13px] font-medium text-slate-400 mb-3"
             >
-              <p
-                className="text-center text-[13px] font-medium text-slate-400 mb-4"
-                style={{ fontFamily: "'Outfit', sans-serif" }}
-              >
-                Compatibility Meter
-              </p>
-
-              {/* Avatars + Gauge */}
-              <div className="flex items-center justify-center gap-4">
-                {/* Male */}
-                <div
-                  className="pulse-teal rounded-full p-0.75"
-             
-                >
-                  <div className="rounded-full overflow-hidden flex">
-                    <Image
-                      alt="male_shadimate"
-                      width={100}
-                      height={100}
-                      src={MaleAvatar}
-                    />
-                  </div>
-                </div>
-
-                <Gauge value={94} />
-
-                {/* Female */}
-                <div
-                  className="rounded-full p-0.75 shadow-[0_0_18px_rgba(168,85,247,0.45)]"
-                  style={{
-                    background: "linear-gradient(135deg, #A855F7, #7C3AED)",
-                  }}
-                >
-                  <div className="rounded-full overflow-hidden bg-[#141826] flex">
-                    <AvatarFemale size={60} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.75 mt-5 justify-center">
-                {tags.map((t) => (
-                  <Tag key={t} label={t} />
-                ))}
-              </div>
-            </div>
-
-            {/* Compatible Personalities — hidden on mobile */}
-            <div
-              className="anim-5 hidden md:block rounded-[20px] border border-white/9 p-4 backdrop-blur-xl"
-              style={{ background: "rgba(28,32,52,0.72)" }}
-            >
-              <p
-                className="text-[13px] font-medium text-slate-400 mb-3"
-                style={{ fontFamily: "'Outfit', sans-serif" }}
-              >
-                Compatible Personalities
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                <PersonRow name="Sherry" match={94} v="a" />
-                <PersonRow name="Bruno" match={91} v="b" />
-                <PersonRow name="Sherry" match={89} v="c" />
-                <PersonRow name="Bruno" match={87} v="d" />
-              </div>
+              Compatible Personalities
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <PersonRow name="Sherry" match={94} v="a" />
+              <PersonRow name="Bruno" match={91} v="b" />
+              <PersonRow name="Sherry" match={89} v="c" />
+              <PersonRow name="Bruno" match={87} v="d" />
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
