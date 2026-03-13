@@ -1,0 +1,21 @@
+name: Mirror to Personal Account
+
+on:
+  push:
+    branches: [ main, develop, '**' ]  # Sync all branches
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full history
+      
+      - name: Push to personal repo
+        run: |
+          git config --global user.name "Arif Adnan"
+          git config --global user.email "arifahamedadnan@gmail.com"
+          git remote add personal https://${{ secrets.PERSONAL_REPO_TOKEN }}@github.com/arifadnan05/shadimate-client.git
+          git push -u personal --all
+          git push -u personal --tags
