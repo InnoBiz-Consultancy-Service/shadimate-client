@@ -1,9 +1,8 @@
 import HeroSection from "@/components/hero/Hero";
 import Footer from "@/components/shared/Footer/Footer";
 import Navbar from "@/components/shared/Navbar/Navbar";
-import React from "react";
 
-const page = () => {
+export default function Home() {
   return (
     <div
       className="min-h-screen"
@@ -16,6 +15,4 @@ const page = () => {
       <Footer />
     </div>
   );
-};
-
-export default page;
+}

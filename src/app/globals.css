@@ -1,26 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ═══════════════════════════════════════════════════════
+   THEME — change the 4 values below to retheme the whole site
+   These are registered as Tailwind tokens → bg-brand, text-accent, etc.
+═══════════════════════════════════════════════════════ */
+@theme {
+  --color-brand:    #b3f000;  /* primary accent (lime)  */
+  --color-accent:   #00f0ff;  /* secondary accent (cyan) */
+  --color-on-brand: #0d0e14;  /* text on brand-colored buttons */
+  --color-bg-base:  #06101e;  /* page background */
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans:   var(--font-geist-sans);
+  --font-mono:   var(--font-geist-mono);
+  --font-outfit: 'Outfit', sans-serif;
+  --font-syne:   'Syne', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Shorthand aliases for inline styles & SVG attributes in components */
+:root {
+  --brand:    var(--color-brand);
+  --accent:   var(--color-accent);
+  --on-brand: var(--color-on-brand);
+  --bg-base:  var(--color-bg-base);
+
+  /* Glow shadows — auto-update when theme colors change */
+  --shadow-brand-xs:     0 0  12px rgb(from var(--color-brand) r g b / 0.2);
+  --shadow-brand-sm:     0 0  16px rgb(from var(--color-brand) r g b / 0.4);
+  --shadow-brand-md:     0 0  22px rgb(from var(--color-brand) r g b / 0.35);
+  --shadow-brand-lg:     0 0  30px rgb(from var(--color-brand) r g b / 0.5);
+  --shadow-brand-xl:     0 0  50px rgb(from var(--color-brand) r g b / 0.6);
+  --shadow-brand-dot:    0 0   6px rgb(from var(--color-brand) r g b / 0.8);
+  --shadow-btn-hover:    0 0  32px rgb(from var(--color-brand) r g b / 0.5),  0 0 14px rgb(from var(--color-accent) r g b / 0.25);
+  --shadow-btn-hover-lg: 0 0  36px rgb(from var(--color-brand) r g b / 0.55), 0 0 16px rgb(from var(--color-accent) r g b / 0.3);
+  --shadow-nav-hover:    0 0  28px rgb(from var(--color-brand) r g b / 0.55), 0 0 14px rgb(from var(--color-accent) r g b / 0.3);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-base);
+  color: #e2e8f0;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33%       { transform: translateY(-18px) rotate(2deg); }
+  66%       { transform: translateY(-8px) rotate(-1deg); }
+}
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-24px); }
+}
+@keyframes floatSimple {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-20px); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 14px rgba(45,212,191,0.25); }
+  50%       { box-shadow: 0 0 30px rgba(45,212,191,0.6); }
+}
+@keyframes pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* nav-pill — requires ::after pseudo-element, cannot be expressed in Tailwind */
+.nav-pill { position: relative; }
+.nav-pill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  opacity: 0;
+  background: linear-gradient(90deg, rgb(from var(--color-brand) r g b / 0.13), rgb(from var(--color-accent) r g b / 0.10));
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.nav-pill:hover::after,
+.nav-pill.is-active::after { opacity: 1; }
+.nav-pill.is-active { text-shadow: 0 0 10px rgb(from var(--color-brand) r g b / 0.55); }
+
+/* noise-layer — SVG data URL background, not expressible in Tailwind */
+.noise-layer {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px;
 }
