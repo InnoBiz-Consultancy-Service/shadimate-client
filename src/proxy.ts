@@ -23,7 +23,7 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 /* ─────────────────────────────────────────────────────────────────
    Public routes that do NOT require authentication at all
 ───────────────────────────────────────────────────────────────── */
-const PUBLIC_PATHS = ["/login", "/registration", "/verify-otp"];
+const PUBLIC_PATHS = ["/login", "/registration", "/verify-otp", "/personality-test"];
 
 /** Returns true if the pathname starts with one of the public prefixes. */
 function isPublic(pathname: string) {
