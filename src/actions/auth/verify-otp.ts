@@ -3,13 +3,10 @@
 import { cookies } from "next/headers";
 import { universalApi } from "../universal-api";
 
-/* ── Types ── */
 export interface VerifyOtpState {
   success: boolean;
   message: string;
-  errors?: {
-    otp?: string;
-  };
+  errors?: { otp?: string };
 }
 
 export interface ResendOtpState {
@@ -17,7 +14,6 @@ export interface ResendOtpState {
   message: string;
 }
 
-/* ── Verify OTP Action ── */
 export async function verifyOtpAction(
   _prevState: VerifyOtpState,
   formData: FormData,
@@ -25,7 +21,6 @@ export async function verifyOtpAction(
   const phone = (formData.get("phone") as string)?.trim() ?? "";
   const otp = (formData.get("otp") as string)?.trim() ?? "";
 
-  /* ── Validation ── */
   if (!otp || otp.length !== 6 || !/^\d{6}$/.test(otp)) {
     return {
       success: false,
@@ -41,7 +36,6 @@ export async function verifyOtpAction(
     };
   }
 
-  /* ── Call API ── */
   const res = await universalApi<{
     accessToken?: string;
     token?: string;
@@ -52,7 +46,6 @@ export async function verifyOtpAction(
     data: { phone, otp },
     requireAuth: false,
   });
-  console.log(res)
 
   if (!res.success) {
     return {
@@ -61,7 +54,6 @@ export async function verifyOtpAction(
     };
   }
 
-  /* ── Set cookie if token returned ── */
   const token =
     (res.data as Record<string, unknown>)?.accessToken ??
     (res.data as Record<string, unknown>)?.token;
@@ -73,21 +65,15 @@ export async function verifyOtpAction(
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 7,
     });
   }
 
-  return {
-    success: true,
-    message: "Phone verified successfully!",
-  };
+  return { success: true, message: "Phone verified successfully!" };
 }
 
-/* ── Resend OTP Action ── */
 export async function resendOtpAction(phone: string): Promise<ResendOtpState> {
-  if (!phone) {
-    return { success: false, message: "Phone number is missing." };
-  }
+  if (!phone) return { success: false, message: "Phone number is missing." };
 
   const res = await universalApi<{ message?: string }>({
     endpoint: "/resend-otp",
@@ -103,8 +89,5 @@ export async function resendOtpAction(phone: string): Promise<ResendOtpState> {
     };
   }
 
-  return {
-    success: true,
-    message: "OTP sent successfully!",
-  };
+  return { success: true, message: "OTP sent successfully!" };
 }

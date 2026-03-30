@@ -8,14 +8,15 @@ interface ApiOptions {
   data?: unknown;
   requireAuth?: boolean;
 }
+
 export async function universalApi<T = unknown>({
   endpoint,
   method = "GET",
   data,
   requireAuth = true,
 }: ApiOptions): Promise<{ success: boolean; data?: T; message?: string }> {
-  const apiUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  if (!apiUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not set");
+  const apiUrl = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+  if (!apiUrl) throw new Error("BASE_URL is not set in environment variables");
 
   try {
     const cookieStore = await cookies();

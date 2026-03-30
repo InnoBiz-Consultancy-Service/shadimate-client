@@ -2,6 +2,7 @@ import Image from "next/image";
 import MaleAvatar from "../../../public/images/male_shadimate.png";
 import FemaleAvatar from "../../../public/images/female_shadimate.png";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 const AvatarSmall = ({
   v,
@@ -81,7 +82,6 @@ const AvatarSmall = ({
   );
 };
 
-/* ─── Gauge ─── */
 const Gauge = ({ value = 94 }: { value?: number }) => {
   const r = 44;
   const circ = 2 * Math.PI * r;
@@ -134,14 +134,12 @@ const Gauge = ({ value = 94 }: { value?: number }) => {
   );
 };
 
-/* ─── Tag pill ─── */
 const Tag = ({ label }: { label: string }) => (
   <span className="font-outfit text-[10px] font-semibold tracking-[0.08em] text-slate-400 border border-slate-600/40 rounded-[7px] px-2.5 py-1 bg-white/4 whitespace-nowrap">
     {label}
   </span>
 );
 
-/* ── Person row ── */
 const PersonRow = ({
   name,
   match,
@@ -177,9 +175,6 @@ const PersonRow = ({
   </div>
 );
 
-/* ══════════════════════════════════════════
-   MAIN EXPORT
-   ══════════════════════════════════════════ */
 export default function HeroSection() {
   const tags = [
     "INTROVERT",
@@ -192,110 +187,70 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center px-5 py-16 md:py-20">
-      {/* Grid */}
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full max-w-5xl items-center">
-        {/* ════ LEFT ════ */}
         <div className="flex flex-col gap-6">
-          {/* Headline */}
           <h1
             className="animate-[fadeUp_0.65s_ease_0.05s_both] leading-[0.9] tracking-[-0.04em] text-slate-100"
-            style={{
-              fontWeight: 800,
-              fontSize: "clamp(56px, 12vw, 84px)",
-            }}
+            style={{ fontWeight: 800, fontSize: "clamp(40px, 10vw, 84px)" }}
           >
             <span className="block opacity-90">FIND YOUR</span>
             <span className="block text-gradient-rose">SOUL MATE</span>
           </h1>
 
-          {/* Sub */}
           <p className="font-outfit animate-[fadeUp_0.65s_ease_0.2s_both] text-slate-400/90 leading-relaxed max-w-sm text-[15px] font-medium">
             Traditional matching is dead. We use behavioral psychology to find
             your 99.9% true connection.
           </p>
 
-          {/* CTA */}
           <div className="animate-[fadeUp_0.65s_ease_0.35s_both] w-full md:w-auto">
-            <Link href={"/personality-test"}>
-              <button
-                className="
-                font-outfit
-                w-full md:w-auto
-                inline-flex items-center justify-center gap-2.5
-                px-8 py-4.5 rounded-full
-                font-bold text-[13px] tracking-[0.08em] text-on-brand
-                bg-linear-to-r from-brand to-accent
-                shadow-[var(--shadow-brand-md)]
-                hover:scale-[1.04] hover:shadow-[var(--shadow-btn-hover-lg)]
-                active:scale-[0.97]
-                transition-all duration-300 cursor-pointer border-0
-                relative overflow-hidden group
-              "
-              >
+            <Link href="/personality-test">
+              <button className="font-outfit w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4.5 rounded-full font-bold text-[13px] tracking-[0.08em] text-on-brand bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.04] hover:shadow-(--shadow-btn-hover-lg) active:scale-[0.97] transition-all duration-300 cursor-pointer border-0 relative overflow-hidden group">
                 <span className="relative z-10 uppercase">
                   Start My Personality Scan
                 </span>
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 16 16"
-                  fill="none"
+                <ArrowRight
+                  size={18}
                   className="relative z-10 group-hover:translate-x-1 transition-transform"
-                >
-                  <path
-                    d="M3 8H13M13 8L9 4M13 8L9 12"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                {/* Shimmer overlay */}
-                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </button>
             </Link>
           </div>
         </div>
 
-        {/* ════ RIGHT ════ */}
         <div className="flex flex-col gap-4">
-          {/* Compatibility Meter */}
-          <div className="animate-[fadeIn_0.65s_ease_0.5s_both] glass-card p-6 relative overflow-hidden rounded-[24px]">
+          <div className="animate-[fadeIn_0.65s_ease_0.5s_both] glass-card p-6 relative overflow-hidden rounded-3xl">
             <div className="noise-layer absolute inset-0 opacity-[0.03] pointer-events-none" />
             <p className="font-outfit text-center text-[13px] font-medium text-slate-400 mb-4">
               Compatibility Meter
             </p>
-
-            {/* Avatars + Gauge */}
             <div className="flex items-center justify-center gap-4">
-              {/* Male */}
               <div className="animate-[pulseGlow_2.5s_ease-in-out_infinite] rounded-full p-0.75">
                 <div className="rounded-full overflow-hidden flex">
                   <Image
-                    alt="male_shadimate"
+                    alt="Male avatar"
                     width={100}
                     height={100}
                     src={MaleAvatar}
+                    sizes="100px"
+                    priority
                   />
                 </div>
               </div>
-
               <Gauge value={94} />
-
-              {/* Female */}
               <div className="animate-[pulseGlow_2.5s_ease-in-out_infinite] rounded-full p-0.75">
                 <div className="rounded-full overflow-hidden flex">
                   <Image
-                    alt="female_shadimate"
+                    alt="Female avatar"
                     width={100}
                     height={100}
                     src={FemaleAvatar}
+                    sizes="100px"
+                    priority
                   />
                 </div>
               </div>
             </div>
-
-            {/* Tags */}
             <div className="flex flex-wrap gap-1.75 mt-5 justify-center">
               {tags.map((t) => (
                 <Tag key={t} label={t} />
@@ -303,8 +258,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Compatible Personalities — hidden on mobile */}
-          <div className="animate-[fadeIn_0.65s_ease_0.65s_both] hidden md:block glass-card p-5 relative overflow-hidden rounded-[24px]">
+          <div className="animate-[fadeIn_0.65s_ease_0.65s_both] hidden md:block glass-card p-5 relative overflow-hidden rounded-3xl">
             <div className="noise-layer absolute inset-0 opacity-[0.03] pointer-events-none" />
             <p className="font-outfit text-[13px] font-medium text-slate-400 mb-3">
               Compatible Personalities
