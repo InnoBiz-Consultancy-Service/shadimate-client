@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { universalApi } from "../universal-api";
-
+import { isValidEmail, isValidPhone } from "@/lib/validators";
 
 export interface LoginState {
   success: boolean;
@@ -13,16 +13,6 @@ export interface LoginState {
   };
 }
 
-function isEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-function isPhone(value: string): boolean {
-  // Supports: +8801XXXXXXXXX, 01XXXXXXXXX, 8801XXXXXXXXX (BD format + international)
-  return /^(\+?\d{1,4})?[\s-]?\d{7,15}$/.test(value.replace(/[\s()-]/g, ""));
-}
-
-/* ── Server Action ── */
 export async function loginAction(
   _prevState: LoginState,
   formData: FormData,
@@ -33,7 +23,7 @@ export async function loginAction(
 
   if (!identifier) {
     errors.identifier = "Email or phone number is required.";
-  } else if (!isEmail(identifier) && !isPhone(identifier)) {
+  } else if (!isValidEmail(identifier) && !isValidPhone(identifier)) {
     errors.identifier = "Please enter a valid email or phone number.";
   }
 
@@ -47,37 +37,27 @@ export async function loginAction(
     return { success: false, message: "", errors };
   }
 
-  const payload = {
-    identifier,
-    password,
-  };
-
-  const res = await universalApi<{
-    accessToken?: string;
-    message?: string;
-  }>({
+  const res = await universalApi<{ accessToken?: string; message?: string }>({
     endpoint: "/auth/login",
     method: "POST",
-    data: payload,
+    data: { identifier, password },
     requireAuth: false,
   });
+
   if (!res.success) {
     return {
       success: false,
       message: res.message || "Login failed. Please check your credentials.",
     };
   }
- 
+
   const rawData = res.data as Record<string, unknown> | undefined;
   const token =
     rawData?.accessToken ??
     (rawData?.data as Record<string, unknown> | undefined)?.token;
 
   if (!token || typeof token !== "string") {
-    return {
-      success: false,
-      message: "Login failed. No token received.",
-    };
+    return { success: false, message: "Login failed. No token received." };
   }
 
   const cookieStore = await cookies();
@@ -89,8 +69,5 @@ export async function loginAction(
     maxAge: 60 * 60 * 24 * 7,
   });
 
-  return {
-    success: true,
-    message: "Login successful! Redirecting...",
-  };
+  return { success: true, message: "Login successful! Redirecting..." };
 }

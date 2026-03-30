@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import FloatingHearts from "@/components/shared/FloatingHearts";
+import { Outfit, Syne } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,9 +13,44 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const outfit = Outfit({
+  variable: "--font-outfit",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["700", "800"],
+});
+
 export const metadata: Metadata = {
-  title: "Shadimate",
-  description: "ShadiMate – Find your soul's connection.",
+  title: {
+    default: "ShadiMate – Find Your Soul's Connection",
+    template: "%s | ShadiMate",
+  },
+  description:
+    "ShadiMate uses behavioral psychology and AI to match you with your true 99.9% connection.",
+  openGraph: {
+    title: "ShadiMate – Find Your Soul's Connection",
+    description:
+      "Traditional matching is dead. We use behavioral psychology to find your 99.9% true connection.",
+    type: "website",
+    siteName: "ShadiMate",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ShadiMate – Find Your Soul's Connection",
+    description:
+      "Traditional matching is dead. We use behavioral psychology to find your 99.9% true connection.",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -26,13 +61,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#120810]`}
+        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} ${syne.variable} antialiased bg-bg-base`}
       >
         <div className="relative min-h-screen bg-[radial-gradient(ellipse_at_25%_40%,#2a0a1a_0%,#180a14_50%,#120810_100%)] overflow-x-hidden">
-          <FloatingHearts />
-          <div className="relative z-10">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-200 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-brand focus:text-on-brand"
+          >
+            Skip to content
+          </a>
+          <main id="main-content" className="relative z-10">
             {children}
-          </div>
+          </main>
         </div>
       </body>
     </html>

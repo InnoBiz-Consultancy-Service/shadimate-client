@@ -1,8 +1,8 @@
 "use client";
 
-import FloatingHearts from "../FloatingHearts";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { ArrowRight } from "lucide-react";
 
 const NAV_LINKS = ["Features", "Psychology", "Matches"];
 
@@ -35,7 +35,6 @@ export default function Navbar() {
           md:hidden
         `}
       >
-        <FloatingHearts />
         {NAV_LINKS.map((link) => (
           <button
             key={link}
@@ -62,14 +61,15 @@ export default function Navbar() {
           onClick={() => setMenuOpen(false)}
           className="
             mt-7 font-outfit font-bold tracking-widest text-base text-on-brand
-            px-14 py-4 rounded-full cursor-pointer
+            px-14 py-4 rounded-full cursor-pointer no-underline
             bg-linear-to-r from-brand to-accent
-            shadow-[var(--shadow-brand-lg)]
-            hover:scale-[1.04] hover:shadow-[var(--shadow-brand-xl)]
+            shadow-(--shadow-brand-lg)
+            hover:scale-[1.04] hover:shadow-(--shadow-brand-xl)
             active:scale-[0.97] transition-all duration-200
+            inline-flex items-center gap-2
           "
         >
-          Login →
+          Login <ArrowRight size={16} />
         </Link>
 
         <span className="absolute bottom-10 font-outfit text-[11px] uppercase tracking-[0.12em] text-white/20">
@@ -99,25 +99,27 @@ export default function Navbar() {
             bg-[rgba(26,14,18,0.85)] backdrop-blur-2xl
             px-3.5 py-2
             shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_12px_40px_rgba(0,0,0,0.5)]
-            transition-all duration-300
-            font-outfit
+            transition-all duration-300 font-outfit
           "
+          aria-label="Main navigation"
         >
-          <div
-            className="
-              w-8 h-8 rounded-full shrink-0 flex items-center justify-center cursor-pointer
-              bg-linear-to-br from-brand to-accent
-              shadow-[var(--shadow-brand-sm)]
-            "
-          >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path
-                d="M5 4C5 4 4 8 7 11C10 14 13 13 13 13C13 13 10.5 12.2 9 10C7.5 7.8 8.5 4 5 4Z"
-                fill="var(--on-brand)"
-              />
-              <circle cx="9" cy="9" r="2.2" fill="var(--on-brand)" opacity="0.6" />
-            </svg>
-          </div>
+          <Link href="/" className="no-underline" aria-label="ShadiMate home">
+            <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center cursor-pointer bg-linear-to-br from-brand to-accent shadow-(--shadow-brand-sm)">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path
+                  d="M5 4C5 4 4 8 7 11C10 14 13 13 13 13C13 13 10.5 12.2 9 10C7.5 7.8 8.5 4 5 4Z"
+                  fill="var(--on-brand)"
+                />
+                <circle
+                  cx="9"
+                  cy="9"
+                  r="2.2"
+                  fill="var(--on-brand)"
+                  opacity="0.6"
+                />
+              </svg>
+            </div>
+          </Link>
 
           <div className="hidden md:flex items-center gap-0.5">
             {NAV_LINKS.map((link) => (
@@ -126,8 +128,7 @@ export default function Navbar() {
                 onClick={() => setActive(link)}
                 className={`
                   nav-pill relative cursor-pointer px-4 py-1.5 rounded-full
-                  text-sm font-medium tracking-wide
-                  transition-colors duration-200
+                  text-sm font-medium tracking-wide transition-colors duration-200
                   ${active === link ? "is-active text-white" : "text-[rgba(237,232,227,0.75)] hover:text-white"}
                 `}
               >
@@ -140,15 +141,14 @@ export default function Navbar() {
             <Link
               href="/login"
               className="
-                hidden md:flex items-center font-outfit font-semibold text-sm tracking-[0.04em] text-on-brand
-                px-5 py-2 rounded-full cursor-pointer shrink-0
-                bg-linear-to-r from-brand to-accent
-                shadow-[var(--shadow-brand-md)]
-                hover:scale-[1.05] hover:shadow-[var(--shadow-nav-hover)]
+                hidden md:flex items-center gap-1.5 font-outfit font-semibold text-sm tracking-[0.04em] text-on-brand
+                px-5 py-2 rounded-full cursor-pointer shrink-0 no-underline
+                bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md)
+                hover:scale-[1.05] hover:shadow-(--shadow-nav-hover)
                 active:scale-[0.97] transition-all duration-200
               "
             >
-              Login →
+              Login <ArrowRight size={14} />
             </Link>
 
             <button
@@ -158,18 +158,17 @@ export default function Navbar() {
                 md:hidden flex flex-col justify-center items-center gap-1.5
                 w-9 h-9 rounded-[10px] cursor-pointer shrink-0
                 bg-white/6 border border-white/10
-                hover:bg-brand/10 hover:border-brand/30
-                transition-all duration-200
+                hover:bg-brand/10 hover:border-brand/30 transition-all duration-200
               "
             >
               <span
-                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-transform duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`}
+                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-transform duration-300 ${menuOpen ? "translate-y-1.75 rotate-45" : ""}`}
               />
               <span
                 className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-all duration-300 ${menuOpen ? "opacity-0 scale-x-0" : ""}`}
               />
               <span
-                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-transform duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
+                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-transform duration-300 ${menuOpen ? "-translate-y-1.75 -rotate-45" : ""}`}
               />
             </button>
           </div>

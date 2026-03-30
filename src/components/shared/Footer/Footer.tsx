@@ -1,4 +1,7 @@
-/* ── Social icon SVGs ── */
+import Link from "next/link";
+import Logo from "@/components/ui/Logo";
+import { ArrowUpRight } from "lucide-react";
+
 const TwitterX = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.632 5.905-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
@@ -34,41 +37,6 @@ const Discord = () => (
   </svg>
 );
 
-/* ── Arrow icon ── */
-const ArrowUpRight = () => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M2.5 9.5L9.5 2.5M9.5 2.5H4M9.5 2.5V8" />
-  </svg>
-);
-
-/* ── Logo ── */
-const Logo = () => (
-  <div className="flex items-center gap-2.5">
-    <div className="w-9 h-9 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-[var(--shadow-brand-sm)]">
-      <svg width="20" height="20" viewBox="0 0 18 18" fill="none">
-        <path
-          d="M5 4C5 4 4 8 7 11C10 14 13 13 13 13C13 13 10.5 12.2 9 10C7.5 7.8 8.5 4 5 4Z"
-          fill="var(--on-brand)"
-        />
-        <circle cx="9" cy="9" r="2.2" fill="var(--on-brand)" opacity="0.6" />
-      </svg>
-    </div>
-    <span className="font-syne text-white font-extrabold text-xl tracking-tight">
-      ShadiMate
-    </span>
-  </div>
-);
-
-/* ── Nav columns ── */
 const footerLinks = [
   {
     heading: "Product",
@@ -93,58 +61,31 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer
-      className="font-outfit relative w-full overflow-hidden bg-transparent"
-    >
-      {/* Subtle bottom bg glow */}
-      <div
-        className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(232,84,122,0.4)_0%,transparent_70%)]"
-      />
+    <footer className="font-outfit relative w-full overflow-hidden bg-transparent">
+      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-150 h-50 rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(232,84,122,0.4)_0%,transparent_70%)]" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-8">
-        {/* ── TOP SECTION ── */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-8 pb-14 border-b border-white/[0.07]">
-          {/* Brand col — 2 cols wide on desktop */}
           <div className="md:col-span-2 flex flex-col gap-5">
             <Logo />
-
-            <p className="text-slate-400 text-sm leading-relaxed max-w-[260px]">
+            <p className="text-slate-400 text-sm leading-relaxed max-w-65">
               We use behavioral psychology and AI to match you with your true
               99.9% connection. Traditional dating is dead.
             </p>
 
-            {/* CTA pill */}
-            <div className="group relative">
-              <button
-                className="
-                  inline-flex items-center gap-2 px-6 py-3 rounded-full
-                  text-on-brand text-sm font-bold tracking-[0.06em]
-                  bg-linear-to-r from-brand to-accent
-                  shadow-[var(--shadow-brand-md)]
-                  hover:scale-[1.05] hover:shadow-[var(--shadow-brand-lg)]
-                  active:scale-[0.98] transition-all duration-300 border-0 cursor-pointer
-                  relative overflow-hidden
-                "
-              >
-                <span className="relative z-10">Start Your Scan</span>
-                <ArrowUpRight />
-                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-              </button>
-            </div>
+            <Link
+              href="/personality-test"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-on-brand text-sm font-bold tracking-[0.06em] no-underline bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.05] hover:shadow-(--shadow-brand-lg) active:scale-[0.98] transition-all duration-300 w-fit"
+            >
+              Start Your Scan <ArrowUpRight size={14} />
+            </Link>
 
-            {/* Socials */}
             <div className="flex items-center gap-2.5 mt-1">
               {socials.map(({ icon, label }) => (
                 <button
                   key={label}
                   aria-label={label}
-                  className="
-                    w-9 h-9 rounded-xl flex items-center justify-center
-                    bg-white/[0.05] border border-white/[0.1]
-                    text-slate-400 cursor-pointer
-                    transition-all duration-200
-                    hover:bg-brand/10 hover:border-brand/35 hover:text-brand hover:shadow-[var(--shadow-brand-xs)] hover:-translate-y-0.5
-                  "
+                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/5 text-slate-400 cursor-pointer transition-all duration-200 hover:bg-brand/10 hover:border-brand/35 hover:text-brand hover:shadow-(--shadow-brand-xs) hover:-translate-y-0.5"
                 >
                   {icon}
                 </button>
@@ -152,7 +93,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Link columns */}
           {footerLinks.map((col) => (
             <div key={col.heading} className="flex flex-col gap-4">
               <h4 className="font-syne text-white text-xs font-bold tracking-[0.15em] uppercase">
@@ -163,7 +103,7 @@ export default function Footer() {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-slate-400 text-sm transition-colors duration-[180ms] hover:text-brand"
+                      className="text-slate-400 text-sm transition-colors duration-180 hover:text-brand"
                     >
                       {link}
                     </a>
@@ -175,28 +115,22 @@ export default function Footer() {
         </div>
 
         <div className="py-12 text-center">
-          <p
-            className="text-[clamp(36px,8vw,80px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-gradient-rose"
-          >
+          <p className="text-[clamp(36px,8vw,80px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-gradient-rose">
             FIND YOUR SOUL MATE
           </p>
         </div>
 
-        {/* ── BOTTOM BAR ── */}
         <div className="border-t border-white/[0.07] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-slate-600 text-xs">
+          <p className="text-slate-500 text-xs">
             © {new Date().getFullYear()} ShadiMate Inc. All rights reserved.
           </p>
-
           <div className="flex items-center gap-1.5">
-            {/* Status dot */}
-            <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-[var(--shadow-brand-dot)]" />
-            <span className="text-slate-600 text-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-(--shadow-brand-dot)" />
+            <span className="text-slate-500 text-xs">
               All systems operational
             </span>
           </div>
-
-          <p className="text-slate-600 text-xs">
+          <p className="text-slate-500 text-xs">
             Built with behavioral science &amp; love
           </p>
         </div>
