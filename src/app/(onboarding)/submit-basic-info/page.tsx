@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useBasicInfoForm, STEPS } from "@/hooks/onboarding/useBasicInfoForm";
+import SearchableDropdown from "@/components/onboarding/SearchableDropdown";
 
 /* ── Heart SVG ── */
 const HeartIcon = () => (
@@ -56,7 +56,7 @@ const Step = ({
   </div>
 );
 
-/* ── Input field ── */
+/* ── Input field (for non-searchable fields) ── */
 const Field = ({
   label,
   name,
@@ -72,16 +72,8 @@ const Field = ({
   required?: boolean;
   options?: string[];
 }) => {
-  const [focused, setFocused] = useState(false);
-
   const base =
-    "font-outfit w-full px-4 py-3.5 rounded-2xl text-sm text-slate-100 placeholder-slate-600 border transition-all duration-200 outline-none";
-  const idle = "border-white/10 bg-white/5";
-  const focusStyle = {
-    borderColor: "rgb(from var(--brand) r g b / 0.5)",
-    background: "rgb(from var(--brand) r g b / 0.04)",
-    boxShadow: "0 0 0 3px rgb(from var(--brand) r g b / 0.08)",
-  };
+    "font-outfit w-full px-4 py-3.5 rounded-2xl text-sm text-slate-100 placeholder-slate-600 border transition-all duration-200 outline-none border-white/10 bg-white/5 focus:border-[rgb(from_var(--brand)_r_g_b_/_0.5)] focus:bg-[rgb(from_var(--brand)_r_g_b_/_0.04)] focus:shadow-[0_0_0_3px_rgb(from_var(--brand)_r_g_b_/_0.08)]";
 
   if (options) {
     return (
@@ -92,10 +84,7 @@ const Field = ({
         <select
           name={name}
           required={required}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
-          className={`${base} ${idle} appearance-none`}
-          style={focused ? focusStyle : undefined}
+          className={`${base} appearance-none`}
         >
           <option value="" disabled>
             {placeholder ?? "Select…"}
@@ -120,66 +109,38 @@ const Field = ({
         type={type}
         placeholder={placeholder}
         required={required}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        className={`${base} ${idle}`}
-        style={focused ? focusStyle : undefined}
+        className={base}
       />
     </div>
   );
 };
 
-const STEPS = ["Basic Info", "Appearance", "Preferences", "Submit"];
+/* ── University Type Badge ── */
+const UniversityBadge = ({ type }: { type: string }) => (
+  <span
+    className={`text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${
+      type === "govt"
+        ? "bg-emerald-500/15 text-emerald-400"
+        : "bg-violet-500/15 text-violet-400"
+    }`}
+  >
+    {type === "govt" ? "Govt" : "Private"}
+  </span>
+);
+
+/* ══════════════════════════════════════════════════════════
+   Page Component
+══════════════════════════════════════════════════════════ */
 
 export default function SubmitBasicInfoPage() {
-  const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  // Prevent navigating away using browser back
-  useEffect(() => {
-    const handlePopState = () => {
-      window.history.pushState(null, "", window.location.href);
-    };
-    window.history.pushState(null, "", window.location.href);
-    window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
-  }, []);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (step < STEPS.length) {
-      setStep((s) => s + 1);
-      return;
-    }
-
-    setSubmitting(true);
-    try {
-      const data = new FormData(e.currentTarget);
-      const payload = Object.fromEntries(data.entries());
-
-      const res = await fetch("/api/profile/basic-info", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setSubmitted(true);
-        // Refresh cookies/session then redirect to dashboard
-        setTimeout(() => router.replace("/dashboard"), 1500);
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  }
+  const { step, submitting, submitted, geo, uni, prevStep, handleSubmit } =
+    useBasicInfoForm();
 
   /* ── Success Screen ── */
   if (submitted) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-center px-6">
-        <div className="animate-[pop_0.5s_ease_both] w-24 h-24 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-[var(--shadow-brand-lg)]">
+        <div className="animate-[pop_0.5s_ease_both] w-24 h-24 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-(--shadow-brand-lg)">
           <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
             <path
               d="M8 20L16 28L32 12"
@@ -251,11 +212,60 @@ export default function SubmitBasicInfoPage() {
                   required
                 />
                 <Field label="Date of Birth" name="dob" type="date" required />
-                <Field
-                  label="City / Location"
-                  name="city"
-                  placeholder="e.g. Dhaka"
-                  required
+
+                {/* Division */}
+                <SearchableDropdown
+                  label="Division"
+                  placeholder="Select division"
+                  name="divisionId"
+                  options={geo.divisions}
+                  loading={geo.divisionsLoading}
+                  selectedId={geo.selection.divisionId}
+                  selectedName={geo.selection.divisionName}
+                  searchValue={geo.divisionSearch}
+                  onSearchChange={geo.setDivisionSearch}
+                  onSelect={geo.selectDivision}
+                  onOpen={geo.loadDivisions}
+                />
+
+                {/* District */}
+                <SearchableDropdown
+                  label="District"
+                  placeholder={
+                    geo.selection.divisionId
+                      ? "Select district"
+                      : "Select division first"
+                  }
+                  name="districtId"
+                  options={geo.districts}
+                  loading={geo.districtsLoading}
+                  disabled={!geo.selection.divisionId}
+                  selectedId={geo.selection.districtId}
+                  selectedName={geo.selection.districtName}
+                  searchValue={geo.districtSearch}
+                  onSearchChange={geo.setDistrictSearch}
+                  onSelect={geo.selectDistrict}
+                  onOpen={geo.loadDistricts}
+                />
+
+                {/* Thana */}
+                <SearchableDropdown
+                  label="Thana"
+                  placeholder={
+                    geo.selection.districtId
+                      ? "Select thana"
+                      : "Select district first"
+                  }
+                  name="thanaId"
+                  options={geo.thanas}
+                  loading={geo.thanasLoading}
+                  disabled={!geo.selection.districtId}
+                  selectedId={geo.selection.thanaId}
+                  selectedName={geo.selection.thanaName}
+                  searchValue={geo.thanaSearch}
+                  onSearchChange={geo.setThanaSearch}
+                  onSelect={geo.selectThana}
+                  onOpen={geo.loadThanas}
                 />
               </>
             )}
@@ -301,6 +311,57 @@ export default function SubmitBasicInfoPage() {
                   ]}
                   placeholder="Select education"
                 />
+
+                {/* University — with type filter */}
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-[11px] font-semibold tracking-[0.12em] uppercase">
+                      University
+                    </span>
+                    <div className="flex gap-1.5">
+                      {(
+                        [
+                          { label: "All", value: undefined },
+                          { label: "Govt", value: "govt" as const },
+                          { label: "Private", value: "private" as const },
+                        ] as const
+                      ).map((f) => (
+                        <button
+                          key={f.label}
+                          type="button"
+                          onClick={() => uni.setFilterType(f.value)}
+                          className={`text-[10px] px-2.5 py-1 rounded-full font-semibold transition-colors cursor-pointer border ${
+                            uni.filterType === f.value
+                              ? "bg-brand/15 text-brand border-brand/30"
+                              : "bg-white/5 text-slate-500 border-white/10 hover:bg-white/8"
+                          }`}
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <SearchableDropdown
+                    label=""
+                    placeholder="Search university…"
+                    name="universityId"
+                    options={uni.universities}
+                    loading={uni.loading}
+                    selectedId={uni.selection.universityId}
+                    selectedName={uni.selection.universityName}
+                    searchValue={uni.search}
+                    onSearchChange={uni.setSearch}
+                    onSelect={uni.selectUniversity}
+                    onOpen={uni.loadUniversities}
+                    renderExtra={(opt) => {
+                      const typedOpt = opt as { type?: string };
+                      return typedOpt.type ? (
+                        <UniversityBadge type={typedOpt.type} />
+                      ) : null;
+                    }}
+                  />
+                </div>
+
                 <Field
                   label="Profession"
                   name="profession"
@@ -337,7 +398,7 @@ export default function SubmitBasicInfoPage() {
               {step > 1 && (
                 <button
                   type="button"
-                  onClick={() => setStep((s) => s - 1)}
+                  onClick={prevStep}
                   className="flex-1 py-3.5 rounded-2xl border border-white/10 text-slate-300 text-sm font-semibold hover:bg-white/5 transition-all duration-200 cursor-pointer bg-transparent"
                 >
                   ← Back
@@ -346,7 +407,7 @@ export default function SubmitBasicInfoPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className={`flex-1 py-3.5 rounded-2xl font-bold text-sm tracking-[0.05em] text-on-brand bg-linear-to-r from-brand to-accent shadow-[var(--shadow-brand-md)] hover:scale-[1.02] hover:shadow-[var(--shadow-btn-hover)] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer border-0 relative overflow-hidden group ${
+                className={`flex-1 py-3.5 rounded-2xl font-bold text-sm tracking-[0.05em] text-on-brand bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.02] hover:shadow-(--shadow-btn-hover) active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer border-0 relative overflow-hidden group ${
                   step === 1 ? "w-full" : ""
                 }`}
               >
@@ -357,7 +418,7 @@ export default function SubmitBasicInfoPage() {
                       ? "Continue →"
                       : "Submit Profile"}
                 </span>
-                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </button>
             </div>
           </form>
