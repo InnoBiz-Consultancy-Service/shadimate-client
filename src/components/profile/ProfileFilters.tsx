@@ -1,0 +1,206 @@
+"use client";
+
+import { useState } from "react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+import {
+  FAITH_OPTIONS,
+  PRACTICE_LEVEL_OPTIONS,
+  PERSONALITY_OPTIONS,
+  EDUCATION_VARIETY_OPTIONS,
+} from "@/constants/profile";
+import type { ProfileFilters as Filters } from "@/types";
+
+interface Props {
+  onApply: (filters: Filters) => void;
+  isPending?: boolean;
+}
+
+export default function ProfileFilters({ onApply, isPending }: Props) {
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [search, setSearch] = useState("");
+  const [gender, setGender] = useState("");
+  const [minAge, setMinAge] = useState("");
+  const [maxAge, setMaxAge] = useState("");
+  const [faith, setFaith] = useState("");
+  const [practiceLevel, setPracticeLevel] = useState("");
+  const [personality, setPersonality] = useState("");
+  const [educationVariety, setEducationVariety] = useState("");
+
+  const handleApply = () => {
+    const f: Filters = {};
+    if (search.trim()) f.search = search.trim();
+    if (gender) f.gender = gender;
+    if (minAge) f.minAge = Number(minAge);
+    if (maxAge) f.maxAge = Number(maxAge);
+    if (faith) f.faith = faith;
+    if (practiceLevel) f.practiceLevel = practiceLevel;
+    if (personality) f.personality = personality;
+    if (educationVariety) f.educationVariety = educationVariety;
+    f.page = 1;
+    onApply(f);
+  };
+
+  const handleReset = () => {
+    setSearch("");
+    setGender("");
+    setMinAge("");
+    setMaxAge("");
+    setFaith("");
+    setPracticeLevel("");
+    setPersonality("");
+    setEducationVariety("");
+    onApply({ page: 1 });
+  };
+
+  const sc =
+    "font-outfit w-full px-3 py-2.5 rounded-xl text-sm text-slate-100 bg-white/5 border border-white/10 outline-none transition-all duration-200 focus:border-brand/50 focus:bg-brand/4 appearance-none";
+
+  return (
+    <div className="glass-card rounded-2xl p-4 md:p-5 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-3">
+        <div className="flex-1 relative">
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+          />
+          <input
+            type="text"
+            placeholder="নাম, ভার্সিটি বা ঠিকানা..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleApply()}
+            className="font-outfit w-full pl-9 pr-4 py-2.5 rounded-xl text-sm text-slate-100 placeholder-slate-500 bg-white/5 border border-white/10 outline-none focus:border-brand/50 transition-all duration-200"
+          />
+        </div>
+        <select
+          value={gender}
+          onChange={(e) => setGender(e.target.value)}
+          className={`${sc} sm:w-36`}
+        >
+          <option value="">সব লিঙ্গ</option>
+          <option value="male">পুরুষ</option>
+          <option value="female">মহিলা</option>
+        </select>
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="font-outfit flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/8 cursor-pointer transition-all duration-200 sm:w-auto"
+        >
+          <SlidersHorizontal size={14} /> ফিল্টার
+        </button>
+      </div>
+
+      {showAdvanced && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-3 border-t border-white/5 animate-[fadeUp_0.25s_ease]">
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              বয়স (মিন)
+            </label>
+            <input
+              type="number"
+              placeholder="১৮"
+              value={minAge}
+              onChange={(e) => setMinAge(e.target.value)}
+              className={sc}
+            />
+          </div>
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              বয়স (ম্যাক্স)
+            </label>
+            <input
+              type="number"
+              placeholder="৩৫"
+              value={maxAge}
+              onChange={(e) => setMaxAge(e.target.value)}
+              className={sc}
+            />
+          </div>
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              ধর্ম
+            </label>
+            <select
+              value={faith}
+              onChange={(e) => setFaith(e.target.value)}
+              className={sc}
+            >
+              <option value="">সব</option>
+              {FAITH_OPTIONS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              ধর্ম পালন
+            </label>
+            <select
+              value={practiceLevel}
+              onChange={(e) => setPracticeLevel(e.target.value)}
+              className={sc}
+            >
+              <option value="">সব</option>
+              {PRACTICE_LEVEL_OPTIONS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              ব্যক্তিত্ব
+            </label>
+            <select
+              value={personality}
+              onChange={(e) => setPersonality(e.target.value)}
+              className={sc}
+            >
+              <option value="">সব</option>
+              {PERSONALITY_OPTIONS.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
+              শিক্ষা
+            </label>
+            <select
+              value={educationVariety}
+              onChange={(e) => setEducationVariety(e.target.value)}
+              className={sc}
+            >
+              <option value="">সব</option>
+              {EDUCATION_VARIETY_OPTIONS.map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 mt-3">
+        <button
+          onClick={handleApply}
+          disabled={isPending}
+          className="font-outfit flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold text-on-brand bg-linear-to-r from-brand to-accent border-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
+        >
+          {isPending ? "খোঁজা হচ্ছে..." : "খুঁজুন"}
+        </button>
+        <button
+          onClick={handleReset}
+          className="font-outfit flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm text-slate-400 bg-white/5 border border-white/10 cursor-pointer hover:bg-white/8 transition-all duration-200"
+        >
+          <X size={12} /> রিসেট
+        </button>
+      </div>
+    </div>
+  );
+}
