@@ -123,23 +123,17 @@
 //     "/((?!_next/static|_next/image|favicon.ico).*)",
 //   ],
 // };
-
-
 import { type NextRequest, NextResponse } from "next/server";
 
-/* ─────────────────────────────────────────────────────────────────
-   Helpers
-───────────────────────────────────────────────────────────────── */
-
-/** Decode a JWT payload without verifying the signature. */
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
-
-    // Base64-url → Base64 → decode
     const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     const json = atob(padded);
     return JSON.parse(json) as Record<string, unknown>;
   } catch {
@@ -147,135 +141,73 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   Route categories
-───────────────────────────────────────────────────────────────── */
-
-/**
- * ALWAYS_PUBLIC — these routes are accessible by EVERYONE:
- *   - No token? → allowed
- *   - Has token, verified, profile done? → still allowed (NO redirect)
- *   - Basically: middleware never redirects away from these.
- */
 const ALWAYS_PUBLIC_PATHS = ["/", "/personality-test"];
-
-/**
- * AUTH_PAGES — login/register/otp flow pages.
- *   - No token? → allowed
- *   - Has token + fully onboarded? → redirect to /dashboard
- */
 const AUTH_PATHS = ["/login", "/registration", "/verify-otp"];
 
 function isAlwaysPublic(pathname: string) {
-  return ALWAYS_PUBLIC_PATHS.some(
-    (p) => p === "/" ? pathname === "/" : pathname === p || pathname.startsWith(p + "/")
+  return ALWAYS_PUBLIC_PATHS.some((p) =>
+    p === "/"
+      ? pathname === "/"
+      : pathname === p || pathname.startsWith(p + "/"),
   );
 }
 
 function isAuthPage(pathname: string) {
-  return AUTH_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/")
-  );
+  return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
-const PROFILE_SETUP_PATH = "/submit-basic-info";
-
-/* ─────────────────────────────────────────────────────────────────
-   Proxy (middleware)
-───────────────────────────────────────────────────────────────── */
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Always allow Next.js internals and static files
+  // Skip Next.js internals and static files
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
     pathname.startsWith("/favicon") ||
-    /\.\w+$/.test(pathname) // e.g. .png .svg .ico
+    /\.\w+$/.test(pathname)
   ) {
     return NextResponse.next();
   }
 
-  // ── Always-public routes → let through no matter what ────────────
+  // Always-public routes
   if (isAlwaysPublic(pathname)) {
     return NextResponse.next();
   }
 
   const token = request.cookies.get("accessToken")?.value;
 
-  // ── No token at all ──────────────────────────────────────────────
+  // No token → allow auth pages, redirect others to login
   if (!token) {
-    // Let auth pages through; redirect everything else to login
     if (isAuthPage(pathname)) return NextResponse.next();
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // ── Decode token ─────────────────────────────────────────────────
+  // Decode token
   const payload = decodeJwtPayload(token);
 
   if (!payload) {
-    // Corrupt token → clear it and send to login
     const res = NextResponse.redirect(new URL("/login", request.url));
     res.cookies.delete("accessToken");
     return res;
   }
 
-  const isProfileCompleted = payload["isProfileCompleted"] === true;
   const isVerified = payload["isVerified"] === true;
 
-  // ── User is on an auth page with a valid token ───────────────────
+  // User on auth page with valid token → redirect to dashboard
   if (isAuthPage(pathname)) {
-    // If not verified, stay in the auth flow
     if (!isVerified) return NextResponse.next();
-
-    // Verified but profile incomplete → force them to complete profile
-    if (!isProfileCompleted) {
-      return NextResponse.redirect(new URL(PROFILE_SETUP_PATH, request.url));
-    }
-
-    // Fully onboarded → send away from auth pages
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // ── Accessing profile-setup page ─────────────────────────────────
-  if (
-    pathname === PROFILE_SETUP_PATH ||
-    pathname.startsWith(PROFILE_SETUP_PATH + "/")
-  ) {
-    // Profile already done → redirect to dashboard
-    if (isProfileCompleted) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-    // Profile incomplete → allow access
-    return NextResponse.next();
-  }
-
-  // ── Authenticated, normal protected pages ────────────────────────
+  // Protected pages — must be verified
   if (!isVerified) {
-    // Not verified yet → back to OTP verification
     return NextResponse.redirect(new URL("/verify-otp", request.url));
   }
 
-  if (!isProfileCompleted) {
-    // Profile incomplete → lock them to profile-setup
-    return NextResponse.redirect(new URL(PROFILE_SETUP_PATH, request.url));
-  }
-
-  // All good — let the request through
+  // All good
   return NextResponse.next();
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   Matcher — run the proxy on every page route
-───────────────────────────────────────────────────────────────── */
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths EXCEPT:
-     *  - _next/static  (static files)
-     *  - _next/image   (image optimization)
-     *  - favicon.ico
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
 };
