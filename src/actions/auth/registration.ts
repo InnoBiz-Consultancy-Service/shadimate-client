@@ -57,6 +57,7 @@ export async function registerAction(
     data: { name, email, phone, password, gender },
     requireAuth: false,
   });
+  console.log(res)
 
   if (!res.success) {
     return {
