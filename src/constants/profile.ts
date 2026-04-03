@@ -55,7 +55,13 @@ export const HABIT_OPTIONS = [
   "others",
 ] as const;
 
-export const ECONOMICAL_STATUS_OPTIONS = ["Low", "Medium", "High"] as const;
+export const ECONOMICAL_STATUS_OPTIONS = [
+  "Low",
+  "Medium",
+  "High",
+  "Upper Middle Class",
+  "Middle Class",
+] as const;
 
 export const GENDER_OPTIONS = ["male", "female"] as const;
 
@@ -71,4 +77,14 @@ export const SKIN_TONE_OPTIONS = [
   "Olive",
   "Tan",
   "Dark",
+] as const;
+
+export const DREAM_PARTNER_HABIT_OPTIONS = [
+  "Reading Books",
+  "Traveling",
+  "Cooking",
+  "Sports",
+  "Music",
+  "Photography",
+  "Gaming",
 ] as const;

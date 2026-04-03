@@ -66,7 +66,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (!state.success) return;
     const timer = setTimeout(() => {
-      router.push("/dashboard");
+      router.push("/feed");
       router.refresh();
     }, 1000);
     return () => clearTimeout(timer);

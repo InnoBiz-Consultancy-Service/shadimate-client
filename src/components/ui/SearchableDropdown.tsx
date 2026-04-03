@@ -1,10 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-
-/* ─────────────────────────────────────────────────────────
-   Types
-───────────────────────────────────────────────────────── */
+import { ChevronDown, Check, Loader2 } from "lucide-react";
 
 export interface DropdownOption {
   _id: string;
@@ -18,22 +15,15 @@ interface SearchableDropdownProps {
   options: DropdownOption[];
   loading?: boolean;
   disabled?: boolean;
-  required?: boolean;
   selectedId: string;
   selectedName: string;
   searchValue: string;
   onSearchChange: (value: string) => void;
   onSelect: (id: string, name: string) => void;
   onOpen?: () => void;
-  /** Hidden input name for form submission */
   name?: string;
-  /** Extra info shown after option name */
   renderExtra?: (option: DropdownOption) => React.ReactNode;
 }
-
-/* ─────────────────────────────────────────────────────────
-   Component
-───────────────────────────────────────────────────────── */
 
 export default function SearchableDropdown({
   label,
@@ -54,7 +44,6 @@ export default function SearchableDropdown({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ── Click outside to close ──
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -71,44 +60,35 @@ export default function SearchableDropdown({
     }
   }, [isOpen]);
 
-  // ── Open handler (lazy load trigger) ──
   const handleOpen = useCallback(() => {
     if (disabled) return;
     setIsOpen(true);
     onOpen?.();
-    // Focus input after a tick
     setTimeout(() => inputRef.current?.focus(), 50);
   }, [disabled, onOpen]);
 
-  // ── Select handler ──
   const handleSelect = useCallback(
-    (id: string, name: string) => {
-      onSelect(id, name);
+    (id: string, optName: string) => {
+      onSelect(id, optName);
       setIsOpen(false);
       onSearchChange("");
     },
     [onSelect, onSearchChange],
   );
 
-  const inputBaseClass =
-    "font-outfit w-full px-4 py-3.5 rounded-2xl text-sm text-slate-100 placeholder-slate-600 border transition-all duration-200 outline-none";
-
   return (
     <div className="flex flex-col gap-1.5" ref={containerRef}>
-      <label className="text-slate-400 text-[11px] font-semibold tracking-[0.12em] uppercase">
+      <label className="font-outfit text-slate-400 text-[10px] font-semibold tracking-[0.12em] uppercase">
         {label}
       </label>
-
-      {/* Hidden input for form data */}
       {name && <input type="hidden" name={name} value={selectedId} />}
 
       <div className="relative">
-        {/* ── Trigger / Display ── */}
         <button
           type="button"
           onClick={handleOpen}
           disabled={disabled}
-          className={`${inputBaseClass} text-left bg-white/5 border-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-between gap-2`}
+          className="font-outfit w-full px-4 py-3.5 rounded-2xl text-sm text-left border transition-all duration-200 outline-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-between gap-2"
           style={
             isOpen
               ? {
@@ -116,31 +96,23 @@ export default function SearchableDropdown({
                   background: "rgb(from var(--brand) r g b / 0.04)",
                   boxShadow: "0 0 0 3px rgb(from var(--brand) r g b / 0.08)",
                 }
-              : undefined
+              : {
+                  borderColor: "rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.05)",
+                }
           }
         >
           <span className={selectedName ? "text-slate-100" : "text-slate-600"}>
             {selectedName || placeholder}
           </span>
-          <svg
-            className={`w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
+          <ChevronDown
+            size={16}
+            className={`text-slate-500 transition-transform duration-200 shrink-0 ${isOpen ? "rotate-180" : ""}`}
+          />
         </button>
 
-        {/* ── Dropdown Panel ── */}
         {isOpen && (
           <div className="absolute z-50 top-full left-0 right-0 mt-1.5 rounded-2xl border border-white/10 bg-[#1a1015] backdrop-blur-xl shadow-lg shadow-black/40 overflow-hidden animate-[fadeUp_0.15s_ease_both]">
-            {/* Search input */}
             <div className="p-2.5 border-b border-white/5">
               <input
                 ref={inputRef}
@@ -148,15 +120,14 @@ export default function SearchableDropdown({
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={`Search ${label.toLowerCase()}…`}
-                className="w-full px-3 py-2.5 rounded-xl text-sm text-slate-100 placeholder-slate-600 bg-white/5 border border-white/10 outline-none focus:border-brand/40 transition-colors"
+                className="font-outfit w-full px-3 py-2.5 rounded-xl text-sm text-slate-100 placeholder-slate-600 bg-white/5 border border-white/10 outline-none focus:border-brand/40 transition-colors"
               />
             </div>
 
-            {/* Options list */}
             <div className="max-h-52 overflow-y-auto overscroll-contain">
               {loading ? (
                 <div className="flex items-center justify-center gap-2 py-6">
-                  <div className="w-4 h-4 border-2 border-brand/30 border-t-brand rounded-full animate-spin" />
+                  <Loader2 size={16} className="animate-spin text-brand" />
                   <span className="text-slate-500 text-sm">Loading…</span>
                 </div>
               ) : options.length === 0 ? (
@@ -184,19 +155,7 @@ export default function SearchableDropdown({
                       </span>
                     ) : null}
                     {option._id === selectedId && (
-                      <svg
-                        className="w-4 h-4 text-brand shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2.5}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <Check size={16} className="text-brand shrink-0" />
                     )}
                   </button>
                 ))

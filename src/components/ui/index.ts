@@ -6,3 +6,4 @@ export { default as GradientButton } from "./GradientButton";
 export { default as GenderSelector } from "./GenderSelector";
 export { default as PasswordInput } from "./PasswordInput";
 export { default as PageShell } from "./PageShell";
+export { default as SearchableDropdown } from "./SearchableDropdown";
