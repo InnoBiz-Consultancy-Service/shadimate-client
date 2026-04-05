@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { Logo, GlassCard } from "@/components/ui";
 import ProfileCompletionCard from "@/components/profile/ProfileCompletionCard";
+import LikeButton from "@/components/like/LikeButton";
+import { getLikeCount } from "@/actions/profile-like/like";
 
 export const metadata = { title: "Profile" };
 
@@ -61,10 +63,26 @@ export default async function ProfileViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const res = await fetchProfileById(id);
+
+  const [res] = await Promise.all([fetchProfileById(id)]);
+
   if (!res.success || !res.data) notFound();
 
   const p = res.data;
+  const targetUserId = p.userId?._id || p.user?._id || id;
+
+  const [likeCountRes] = await Promise.all([
+    getLikeCount(targetUserId).catch(() => ({
+      success: false,
+      data: undefined,
+    })),
+  ]);
+
+  const likeCount =
+    likeCountRes.success && likeCountRes.data
+      ? (likeCountRes.data as { count: number }).count
+      : 0;
+
   const name = p.userId?.name || p.user?.name || "Unknown";
   const gender = p.userId?.gender || p.user?.gender || p.gender;
   const age = getAge(p.birthDate);
@@ -88,21 +106,33 @@ export default async function ProfileViewPage({
       </div>
 
       <GlassCard className="p-6 mb-5">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-start gap-4 mb-4">
           <div className="w-16 h-16 rounded-full bg-linear-to-br from-brand/30 to-accent/30 flex items-center justify-center shrink-0">
             <span className="font-syne text-white text-2xl font-bold">
               {name.charAt(0).toUpperCase()}
             </span>
           </div>
-          <div>
-            <h1 className="font-syne text-white text-xl font-extrabold tracking-tight">
-              {name}
-            </h1>
-            <p className="text-slate-400 text-sm">
-              {age ? `${age} years` : ""}
-              {gender ? ` · ${gender === "male" ? "Male" : "Female"}` : ""}
-              {p.personality ? ` · ${p.personality}` : ""}
-            </p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h1 className="font-syne text-white text-xl font-extrabold tracking-tight">
+                  {name}
+                </h1>
+                <p className="text-slate-400 text-sm mt-0.5">
+                  {age ? `${age} years` : ""}
+                  {gender ? ` · ${gender === "male" ? "Male" : "Female"}` : ""}
+                  {p.personality ? ` · ${p.personality}` : ""}
+                </p>
+              </div>
+              <div className="shrink-0">
+                <LikeButton
+                  targetUserId={targetUserId}
+                  likeCount={likeCount}
+                  showCount
+                  size="md"
+                />
+              </div>
+            </div>
           </div>
         </div>
         {p.aboutMe && (

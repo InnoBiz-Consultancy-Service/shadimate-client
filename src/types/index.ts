@@ -40,8 +40,8 @@ export interface MissingField {
 
 export interface Profile {
   _id: string;
-  userId?: { name: string; phone?: string; gender: string };
-  user?: { name: string; gender: string };
+  userId?: { _id: string; name: string; phone?: string; gender: string };
+  user?: { _id: string; name: string; gender: string };
   relation?: string;
   fatherOccupation?: string;
   motherOccupation?: string;

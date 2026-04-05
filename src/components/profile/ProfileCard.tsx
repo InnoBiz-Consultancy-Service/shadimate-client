@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, GraduationCap, Heart } from "lucide-react";
 import type { Profile } from "@/types";
+import LikeButton from "@/components/like/LikeButton";
 
 function getAge(birthDate?: string): number | null {
   if (!birthDate) return null;
@@ -21,7 +22,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
       href={`/profiles/${profile._id}`}
       className="no-underline block group"
     >
-      <div className="glass-card rounded-2xl p-5 transition-all duration-200 hover:border-brand/30 hover:shadow-[var(--shadow-brand-xs)] group-hover:scale-[1.01]">
+      <div className="glass-card rounded-2xl p-5 transition-all duration-200 hover:border-brand/30 hover:shadow-(--shadow-brand-xs) group-hover:scale-[1.01]">
         <div className="flex items-center gap-3 mb-3">
           <div className="w-11 h-11 rounded-full bg-linear-to-br from-brand/30 to-accent/30 flex items-center justify-center shrink-0">
             <span className="font-syne text-white text-sm font-bold">
@@ -67,10 +68,20 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
           </div>
         )}
 
+        {/* Bottom bar — View Profile + Like Button */}
         <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between">
           <span className="font-outfit text-[11px] text-brand font-semibold flex items-center gap-1">
             <Heart size={11} className="fill-brand" /> View Profile
           </span>
+          {/* Stop click propagating to the Link */}
+          <div onClick={(e) => e.preventDefault()}>
+            <LikeButton
+              targetUserId={
+                profile.userId?._id || profile.user?._id || profile._id
+              }
+              size="sm"
+            />
+          </div>
         </div>
       </div>
     </Link>
