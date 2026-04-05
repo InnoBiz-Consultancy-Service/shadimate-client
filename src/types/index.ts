@@ -99,3 +99,16 @@ export interface ProfileFilters {
   limit?: number;
   sort?: string;
 }
+
+
+export interface DreamPartnerPreference {
+  _id: string;
+  userId: string;
+  practiceLevel: string;
+  economicalStatus: string;
+  habits: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export type DreamPartnerMatch = Profile; // matches are Profile objects from backend

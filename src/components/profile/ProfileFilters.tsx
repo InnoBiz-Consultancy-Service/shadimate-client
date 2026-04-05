@@ -65,7 +65,7 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           />
           <input
             type="text"
-            placeholder="নাম, ভার্সিটি বা ঠিকানা..."
+            placeholder="Name, university or address..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleApply()}
@@ -77,15 +77,15 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           onChange={(e) => setGender(e.target.value)}
           className={`${sc} sm:w-36`}
         >
-          <option value="">সব লিঙ্গ</option>
-          <option value="male">পুরুষ</option>
-          <option value="female">মহিলা</option>
+          <option value="">All Genders</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
         </select>
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="font-outfit flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-white/5 border border-white/10 hover:bg-white/8 cursor-pointer transition-all duration-200 sm:w-auto"
         >
-          <SlidersHorizontal size={14} /> ফিল্টার
+          <SlidersHorizontal size={14} /> Filter
         </button>
       </div>
 
@@ -93,11 +93,11 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-3 border-t border-white/5 animate-[fadeUp_0.25s_ease]">
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              বয়স (মিন)
+              Min Age
             </label>
             <input
               type="number"
-              placeholder="১৮"
+              placeholder="18"
               value={minAge}
               onChange={(e) => setMinAge(e.target.value)}
               className={sc}
@@ -105,11 +105,11 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           </div>
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              বয়স (ম্যাক্স)
+              Max Age
             </label>
             <input
               type="number"
-              placeholder="৩৫"
+              placeholder="35"
               value={maxAge}
               onChange={(e) => setMaxAge(e.target.value)}
               className={sc}
@@ -117,14 +117,14 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           </div>
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              ধর্ম
+              Religion
             </label>
             <select
               value={faith}
               onChange={(e) => setFaith(e.target.value)}
               className={sc}
             >
-              <option value="">সব</option>
+              <option value="">All</option>
               {FAITH_OPTIONS.map((f) => (
                 <option key={f} value={f}>
                   {f}
@@ -134,14 +134,14 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           </div>
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              ধর্ম পালন
+              Practice Level
             </label>
             <select
               value={practiceLevel}
               onChange={(e) => setPracticeLevel(e.target.value)}
               className={sc}
             >
-              <option value="">সব</option>
+              <option value="">All</option>
               {PRACTICE_LEVEL_OPTIONS.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -151,14 +151,14 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           </div>
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              ব্যক্তিত্ব
+              Personality
             </label>
             <select
               value={personality}
               onChange={(e) => setPersonality(e.target.value)}
               className={sc}
             >
-              <option value="">সব</option>
+              <option value="">All</option>
               {PERSONALITY_OPTIONS.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -168,14 +168,14 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           </div>
           <div>
             <label className="font-outfit text-[10px] text-slate-500 uppercase tracking-wider mb-1 block">
-              শিক্ষা
+              Education
             </label>
             <select
               value={educationVariety}
               onChange={(e) => setEducationVariety(e.target.value)}
               className={sc}
             >
-              <option value="">সব</option>
+              <option value="">All</option>
               {EDUCATION_VARIETY_OPTIONS.map((e) => (
                 <option key={e} value={e}>
                   {e}
@@ -192,13 +192,13 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
           disabled={isPending}
           className="font-outfit flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold text-on-brand bg-linear-to-r from-brand to-accent border-0 cursor-pointer hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50"
         >
-          {isPending ? "খোঁজা হচ্ছে..." : "খুঁজুন"}
+          {isPending ? "Searching..." : "Search"}
         </button>
         <button
           onClick={handleReset}
           className="font-outfit flex items-center gap-1 px-4 py-2.5 rounded-xl text-sm text-slate-400 bg-white/5 border border-white/10 cursor-pointer hover:bg-white/8 transition-all duration-200"
         >
-          <X size={12} /> রিসেট
+          <X size={12} /> Reset
         </button>
       </div>
     </div>

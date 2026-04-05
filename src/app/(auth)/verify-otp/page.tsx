@@ -52,7 +52,7 @@ function VerifyOtpContent() {
     if (state.success) {
       setSuccess(true);
       const timer = setTimeout(() => {
-        router.push("/dashboard");
+        router.push("/feed");
         router.refresh();
       }, 1500);
       return () => clearTimeout(timer);
@@ -132,7 +132,7 @@ function VerifyOtpContent() {
             Phone Verified!
           </h2>
           <p className="font-outfit animate-[fadeUp_0.5s_ease_0.5s_both] text-slate-400 text-sm">
-            Redirecting you to your dashboard...
+            Redirecting you...
           </p>
         </div>
       </div>
