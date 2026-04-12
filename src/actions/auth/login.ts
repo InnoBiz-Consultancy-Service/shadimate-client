@@ -1,9 +1,37 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { universalApi } from "../universal-api";
 import { isValidEmail, isValidPhone } from "@/lib/validators";
 
+export async function clearAuthCookies() {
+  const cookieStore = await cookies();
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+}
+
+// ─── Logout Action ────────────────────────────────────────────────────────────
+export async function logoutAction() {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const userId = cookieStore.get("userId")?.value;
+
+  if (accessToken) {
+    await universalApi({
+      endpoint: "/auth/logout",
+      method: "POST",
+      requireAuth: true,
+    }).catch(() => {}); 
+  }
+
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+
+  redirect("/login");
+}
+
+// ─── Login Action ─────────────────────────────────────────────────────────────
 export interface LoginState {
   success: boolean;
   message: string;
@@ -37,7 +65,9 @@ export async function loginAction(
     return { success: false, message: "", errors };
   }
 
-  const res = await universalApi<{ accessToken?: string; message?: string }>({
+  const res = await universalApi<{
+    data?: { accessToken?: string; user?: { _id?: string } };
+  }>({
     endpoint: "/auth/login",
     method: "POST",
     data: { identifier, password },
@@ -51,22 +81,20 @@ export async function loginAction(
     };
   }
 
-  const rawData = res.data as Record<string, unknown> | undefined;
-  const token =
-    rawData?.accessToken ??
-    (rawData?.data as Record<string, unknown> | undefined)?.token;
+  const accessToken = res.data?.data?.accessToken;
 
-  if (!token || typeof token !== "string") {
+  if (!accessToken || typeof accessToken !== "string") {
     return { success: false, message: "Login failed. No token received." };
   }
 
   const cookieStore = await cookies();
-  cookieStore.set("accessToken", token, {
+
+  cookieStore.set("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24 * 2,
   });
 
   return { success: true, message: "Login successful! Redirecting..." };
