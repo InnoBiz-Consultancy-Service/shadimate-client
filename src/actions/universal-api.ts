@@ -33,9 +33,9 @@ export async function universalApi<T = unknown>({
       "Content-Type": "application/json",
     };
 
-    if (requireAuth && accessToken) {
-      headers["Authorization"] = `${accessToken}`;
-    }
+   if (requireAuth && accessToken) {
+  headers["Authorization"] = `Bearer ${accessToken}`;
+}
 
     const options: RequestInit = {
       method,
