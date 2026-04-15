@@ -10,7 +10,9 @@ function getAge(birthDate?: string): number | null {
 }
 
 export default function ProfileCard({ profile }: { profile: Profile }) {
-  const name = profile.user?.name || profile.userId?.name || "Unknown";
+  const name: string = Array.isArray(profile.user)
+    ? profile.user.map((u) => u.name).join(", ")
+    : profile.user?.name || profile.userId?.name || "Unknown";
   const age = getAge(profile.birthDate);
   const divisionName = profile.division?.[0]?.name;
   const districtName = profile.district?.[0]?.name;
@@ -34,7 +36,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
               {name}
             </p>
             <p className="font-outfit text-[11px] text-slate-500">
-              {age ? `${age} বছর` : ""}
+              {age ? `${age} years old` : ""}
               {profile.personality && ` · ${profile.personality}`}
             </p>
           </div>

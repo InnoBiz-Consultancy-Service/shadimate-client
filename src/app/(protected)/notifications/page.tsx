@@ -15,17 +15,17 @@ function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return "just now";
-  if (mins < 60) return `${mins} মিনিট আগে`;
+  if (mins < 60) return `${mins} minutes ago`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} ঘণ্টা আগে`;
-  return `${Math.floor(hrs / 24)} দিন আগে`;
+  if (hrs < 24) return `${hrs} hours ago`;
+  return `${Math.floor(hrs / 24)} days ago`;
 }
 
 function senderName(n: NotificationItem): string {
   if (n.senderName) return n.senderName;
   if (typeof n.senderId === "object" && n.senderId !== null)
     return (n.senderId as { name: string }).name;
-  return "কেউ";
+  return "Someone";
 }
 
 export default function NotificationsPage() {
@@ -83,7 +83,7 @@ export default function NotificationsPage() {
             className="flex items-center gap-1.5 font-outfit text-xs text-brand hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
           >
             <CheckCheck size={14} />
-            সব পড়া ({unread})
+            Mark all as read ({unread})
           </button>
         )}
       </div>
@@ -98,10 +98,10 @@ export default function NotificationsPage() {
         <GlassCard className="p-10 text-center">
           <Bell size={44} className="text-slate-600 mx-auto mb-4" />
           <h2 className="font-syne text-white text-lg font-bold mb-2">
-            কোনো Notification নেই
+            No Notifications
           </h2>
           <p className="text-slate-500 text-sm max-w-xs mx-auto">
-            নতুন like পেলে এখানে দেখাবে।
+            You will see new likes here.
           </p>
         </GlassCard>
       )}
@@ -129,7 +129,7 @@ export default function NotificationsPage() {
                   <span className="font-semibold text-white">
                     {senderName(n)}
                   </span>{" "}
-                  তোমার profile like করেছে
+                  liked your profile
                 </p>
                 <p className="font-outfit text-[11px] text-slate-500 mt-0.5">
                   {timeAgo(n.createdAt)}

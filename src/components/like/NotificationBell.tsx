@@ -3,7 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { Bell, Heart, CheckCheck, X } from "lucide-react";
 import type { NotificationItem } from "@/types/like";
-import { getNotifications, getUnreadNotificationCount, markAllNotificationsRead, markNotificationRead } from "@/actions/profile-like/like";
+import {
+  getNotifications,
+  getUnreadNotificationCount,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from "@/actions/profile-like/like";
 
 interface NotificationBellProps {
   userId?: string;
@@ -121,7 +126,7 @@ export default function NotificationBell({
     if (n.senderName) return n.senderName;
     if (typeof n.senderId === "object" && n.senderId !== null)
       return (n.senderId as { name: string }).name;
-    return "কেউ";
+    return "Someone";
   };
 
   const timeAgo = (d: string) => {
@@ -192,7 +197,7 @@ export default function NotificationBell({
                     onClick={handleMarkAll}
                     className="font-outfit text-[11px] text-brand hover:text-accent transition-colors cursor-pointer flex items-center gap-1"
                   >
-                    <CheckCheck size={11} /> সব পড়া
+                    <CheckCheck size={11} /> Marks all read
                   </button>
                 )}
                 <button
@@ -216,7 +221,7 @@ export default function NotificationBell({
                 <div className="py-8 text-center">
                   <Bell size={22} className="text-slate-600 mx-auto mb-2" />
                   <p className="font-outfit text-slate-500 text-xs">
-                    কোনো notification নেই
+                    No notification
                   </p>
                 </div>
               )}
@@ -238,7 +243,7 @@ export default function NotificationBell({
                         <span className="font-semibold text-white">
                           {senderName(n)}
                         </span>{" "}
-                        তোমার profile like করেছে
+                        liked your profile
                       </p>
                       <p className="font-outfit text-[10px] text-slate-600 mt-0.5">
                         {timeAgo(n.createdAt)}
