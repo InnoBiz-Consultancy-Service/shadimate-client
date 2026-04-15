@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
 import type { Message } from "@/types/chat";
 
 interface UseSocketProps {
@@ -25,76 +24,113 @@ export function useSocket({
   onTyping,
   onStopTyping,
 }: UseSocketProps) {
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<import("socket.io-client").Socket | null>(null);
   const [connected, setConnected] = useState(false);
 
-  // ─── Connect ─────────────────────────────────────────────
+  // Stable callback refs — prevent re-connect on every render
+  const onNewMessageRef    = useRef(onNewMessage);
+  const onMessageSentRef   = useRef(onMessageSent);
+  const onMessageSeenRef   = useRef(onMessageSeen);
+  const onTypingRef        = useRef(onTyping);
+  const onStopTypingRef    = useRef(onStopTyping);
+
+  useEffect(() => { onNewMessageRef.current    = onNewMessage;   }, [onNewMessage]);
+  useEffect(() => { onMessageSentRef.current   = onMessageSent;  }, [onMessageSent]);
+  useEffect(() => { onMessageSeenRef.current   = onMessageSeen;  }, [onMessageSeen]);
+  useEffect(() => { onTypingRef.current        = onTyping;       }, [onTyping]);
+  useEffect(() => { onStopTypingRef.current    = onStopTyping;   }, [onStopTyping]);
+
   useEffect(() => {
     if (!token || !myUserId) return;
+    let mounted = true;
 
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
-      auth: { token },
-      transports: ["websocket"],
-    });
+    const setup = async () => {
+      try {
+        const { io } = await import("socket.io-client");
+        const serverUrl =
+          process.env.NEXT_PUBLIC_SOCKET_URL ||
+          process.env.NEXT_PUBLIC_BASE_URL ||
+          "";
+        if (!serverUrl || !mounted) return;
 
-    socketRef.current = socket;
+        const socket = io(serverUrl, {
+          // Backend: presence.handlers.ts reads token from query
+          query: { token, userId: myUserId },
+          transports: ["websocket"],
+          reconnection: true,
+          reconnectionDelay: 1500,
+          reconnectionAttempts: 5,
+        });
 
-    socket.on("connect", () => {
-      setConnected(true);
-      console.log("✅ Socket connected");
-    });
+        socketRef.current = socket;
 
-    socket.on("disconnect", () => {
-      setConnected(false);
-      console.log("❌ Socket disconnected");
-    });
+        socket.on("connect", () => {
+          if (mounted) setConnected(true);
+        });
 
-    // ─── Events ────────────────────────────────────────────
+        socket.on("disconnect", () => {
+          if (mounted) setConnected(false);
+        });
 
-    socket.on("new_message", (msg: Message) => {
-      onNewMessage?.(msg);
-    });
+        // ── Backend emits exactly these event names ──────────────────────────
+        // chat.handlers.ts  → "receive-message", "message-sent"
+        // seen.handlers.ts  → "message-seen"
+        // typing.handlers.ts → "typing", "stop-typing"
 
-    socket.on("message_sent", (msg: Message) => {
-      onMessageSent?.(msg);
-    });
+        socket.on("receive-message", (msg: Message) => {
+          if (mounted) onNewMessageRef.current?.(msg);
+        });
 
-    socket.on("message_seen", (payload) => {
-      onMessageSeen?.(payload);
-    });
+        socket.on("message-sent", (msg: Message) => {
+          if (mounted) onMessageSentRef.current?.(msg);
+        });
 
-    socket.on("typing", (userId: string) => {
-      onTyping?.(userId);
-    });
+        socket.on("message-seen", (payload: { messageId: string; conversationWith: string }) => {
+          if (mounted) onMessageSeenRef.current?.(payload);
+        });
 
-    socket.on("stop_typing", (userId: string) => {
-      onStopTyping?.(userId);
-    });
+        // Backend typing.handlers.ts emits: { fromUserId }
+        socket.on("typing", ({ fromUserId }: { fromUserId: string }) => {
+          if (mounted) onTypingRef.current?.(fromUserId);
+        });
+
+        socket.on("stop-typing", ({ fromUserId }: { fromUserId: string }) => {
+          if (mounted) onStopTypingRef.current?.(fromUserId);
+        });
+
+      } catch {
+        // socket.io-client unavailable or SSR
+      }
+    };
+
+    setup();
 
     return () => {
-      socket.disconnect();
+      mounted = false;
+      socketRef.current?.disconnect();
+      socketRef.current = null;
+      setConnected(false);
     };
-  }, [token, myUserId]);
+  }, [token, myUserId]); // only reconnect if token/userId changes
 
-  // ─── Emitters ────────────────────────────────────────────
-
-  const sendMessage = useCallback((receiverId: string, content: string) => {
-    socketRef.current?.emit("send_message", {
-      receiverId,
-      content,
-    });
+  // ── Emitters — match backend event names exactly ─────────────────────────
+  // chat.handlers.ts listens on: "send-message"
+  const sendMessage = useCallback((receiverId: string, message: string, type = "text") => {
+    socketRef.current?.emit("send-message", { receiverId, message, type });
   }, []);
 
+  // seen.handlers.ts listens on: "seen"
   const markSeen = useCallback((messageId: string) => {
-    socketRef.current?.emit("mark_seen", { messageId });
+    socketRef.current?.emit("seen", { messageId });
   }, []);
 
+  // typing.handlers.ts listens on: "typing", "stop-typing"
   const emitTyping = useCallback((toUserId: string) => {
     socketRef.current?.emit("typing", { toUserId });
   }, []);
 
   const emitStopTyping = useCallback((toUserId: string) => {
-    socketRef.current?.emit("stop_typing", { toUserId });
+    socketRef.current?.emit("stop-typing", { toUserId });
   }, []);
 
   return {

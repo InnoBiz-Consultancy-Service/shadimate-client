@@ -13,6 +13,7 @@ import {
   Ruler,
   Weight,
   Palette,
+  MessageCircle,
 } from "lucide-react";
 import { Logo, GlassCard } from "@/components/ui";
 import ProfileCompletionCard from "@/components/profile/ProfileCompletionCard";
@@ -95,6 +96,7 @@ export default async function ProfileViewPage({
 
   return (
     <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-2xl mx-auto">
+      {/* Back */}
       <div className="flex items-center justify-between mb-6">
         <Link
           href="/profiles"
@@ -105,13 +107,16 @@ export default async function ProfileViewPage({
         <Logo size="small" />
       </div>
 
+      {/* Hero card */}
       <GlassCard className="p-6 mb-5">
         <div className="flex items-start gap-4 mb-4">
+          {/* Avatar */}
           <div className="w-16 h-16 rounded-full bg-linear-to-br from-brand/30 to-accent/30 flex items-center justify-center shrink-0">
             <span className="font-syne text-white text-2xl font-bold">
               {name.charAt(0).toUpperCase()}
             </span>
           </div>
+
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -124,6 +129,8 @@ export default async function ProfileViewPage({
                   {p.personality ? ` · ${p.personality}` : ""}
                 </p>
               </div>
+
+              {/* Like button */}
               <div className="shrink-0">
                 <LikeButton
                   targetUserId={targetUserId}
@@ -135,13 +142,29 @@ export default async function ProfileViewPage({
             </div>
           </div>
         </div>
+
         {p.aboutMe && (
-          <p className="text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3">
+          <p className="text-slate-300 text-sm leading-relaxed border-t border-white/5 pt-3 mb-4">
             {p.aboutMe}
           </p>
         )}
+
+        {/* ── Chat CTA ── */}
+        <Link
+          href={`/chat/${targetUserId}`}
+          className="no-underline flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl
+            text-sm font-bold font-outfit
+            text-on-brand bg-linear-to-r from-brand to-accent
+            shadow-(--shadow-brand-md)
+            hover:scale-[1.02] hover:shadow-(--shadow-btn-hover)
+            active:scale-[0.98] transition-all duration-200"
+        >
+          <MessageCircle size={17} />
+          Message {name.split(" ")[0]}
+        </Link>
       </GlassCard>
 
+      {/* Completion (only visible to profile owner — already filtered server-side) */}
       {p.completionPercentage !== undefined && (
         <div className="mb-5">
           <ProfileCompletionCard
@@ -152,105 +175,62 @@ export default async function ProfileViewPage({
         </div>
       )}
 
+      {/* Personal */}
       <GlassCard className="p-5 mb-4">
         <h2 className="font-syne text-white text-base font-bold mb-3">
           Personal Information
         </h2>
         <InfoRow icon={Briefcase} label="Profession" value={p.profession} />
-        <InfoRow
-          icon={Calendar}
-          label="Date of Birth"
-          value={p.birthDate?.split("T")[0]}
-        />
-        <InfoRow
-          icon={MapPin}
-          label="Address"
-          value={location || p.address?.details}
-        />
+        <InfoRow icon={Calendar} label="Date of Birth" value={p.birthDate?.split("T")[0]} />
+        <InfoRow icon={MapPin} label="Address" value={location || p.address?.details} />
         <InfoRow icon={Ruler} label="Height" value={p.height} />
         <InfoRow icon={Weight} label="Weight" value={p.weight} />
         <InfoRow icon={Palette} label="Skin Tone" value={p.skinTone} />
         <InfoRow icon={User} label="Marital Status" value={p.maritalStatus} />
-        <InfoRow
-          icon={Briefcase}
-          label="Economic Status"
-          value={p.economicalStatus}
-        />
+        <InfoRow icon={Briefcase} label="Economic Status" value={p.economicalStatus} />
         <InfoRow icon={Briefcase} label="Salary Range" value={p.salaryRange} />
       </GlassCard>
 
+      {/* Education */}
       {(uniName || p.education?.graduation?.variety) && (
         <GlassCard className="p-5 mb-4">
           <h2 className="font-syne text-white text-base font-bold mb-3">
             Education
           </h2>
           <InfoRow icon={GraduationCap} label="University" value={uniName} />
-          <InfoRow
-            icon={BookOpen}
-            label="Education Type"
-            value={p.education?.graduation?.variety}
-          />
-          <InfoRow
-            icon={BookOpen}
-            label="Department"
-            value={p.education?.graduation?.department}
-          />
-          <InfoRow
-            icon={BookOpen}
-            label="Institution"
-            value={p.education?.graduation?.institution}
-          />
-          <InfoRow
-            icon={Calendar}
-            label="Passing Year"
-            value={p.education?.graduation?.passingYear}
-          />
+          <InfoRow icon={BookOpen} label="Education Type" value={p.education?.graduation?.variety} />
+          <InfoRow icon={BookOpen} label="Department" value={p.education?.graduation?.department} />
+          <InfoRow icon={BookOpen} label="Institution" value={p.education?.graduation?.institution} />
+          <InfoRow icon={Calendar} label="Passing Year" value={p.education?.graduation?.passingYear} />
         </GlassCard>
       )}
 
+      {/* Religion */}
       {p.religion?.faith && (
         <GlassCard className="p-5 mb-4">
           <h2 className="font-syne text-white text-base font-bold mb-3">
             Religious Information
           </h2>
           <InfoRow icon={Heart} label="Religion" value={p.religion.faith} />
-          <InfoRow
-            icon={Heart}
-            label="Religious Practice"
-            value={p.religion.practiceLevel}
-          />
-          <InfoRow
-            icon={Heart}
-            label="Sect/Clan"
-            value={p.religion.sectOrCaste}
-          />
-          <InfoRow
-            icon={Heart}
-            label="Daily Lifestyle"
-            value={p.religion.dailyLifeStyleSummary}
-          />
+          <InfoRow icon={Heart} label="Religious Practice" value={p.religion.practiceLevel} />
+          <InfoRow icon={Heart} label="Sect/Clan" value={p.religion.sectOrCaste} />
+          <InfoRow icon={Heart} label="Daily Lifestyle" value={p.religion.dailyLifeStyleSummary} />
         </GlassCard>
       )}
 
+      {/* Family */}
       {(p.relation || p.fatherOccupation || p.motherOccupation) && (
         <GlassCard className="p-5 mb-4">
           <h2 className="font-syne text-white text-base font-bold mb-3">
             Family Information
           </h2>
           <InfoRow icon={User} label="Guardian Relation" value={p.relation} />
-          <InfoRow
-            icon={Briefcase}
-            label="Father's Occupation"
-            value={p.fatherOccupation}
-          />
-          <InfoRow
-            icon={Briefcase}
-            label="Mother's Occupation"
-            value={p.motherOccupation}
-          />
+          <InfoRow icon={Briefcase} label="Father's Occupation" value={p.fatherOccupation} />
+          <InfoRow icon={Briefcase} label="Mother's Occupation" value={p.motherOccupation} />
         </GlassCard>
       )}
 
+      {/* Habits */}
       {p.habits && p.habits.length > 0 && (
         <GlassCard className="p-5 mb-4">
           <h2 className="font-syne text-white text-base font-bold mb-3">
@@ -268,6 +248,20 @@ export default async function ProfileViewPage({
           </div>
         </GlassCard>
       )}
+
+      {/* Floating chat button — sticky bottom for mobile */}
+      <div className="fixed bottom-24 right-5 md:hidden z-30">
+        <Link
+          href={`/chat/${targetUserId}`}
+          className="no-underline flex items-center justify-center w-14 h-14 rounded-full
+            text-on-brand bg-linear-to-br from-brand to-accent
+            shadow-[0_0_22px_rgba(232,84,122,0.5)]
+            hover:scale-110 active:scale-95 transition-all duration-200"
+          aria-label="Open chat"
+        >
+          <MessageCircle size={22} />
+        </Link>
+      </div>
 
       <div className="h-8" />
     </div>

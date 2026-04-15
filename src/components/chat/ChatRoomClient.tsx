@@ -18,6 +18,7 @@ import {
   CheckCheck,
   Check,
   Clock,
+  MessageCircle,
 } from "lucide-react";
 import { getChatHistory } from "@/actions/chat/chat";
 import type { Message } from "@/types/chat";
@@ -68,29 +69,30 @@ function StatusTick({ status }: { status: Message["status"] | undefined }) {
 }
 
 // ─── MessageBubble ────────────────────────────────────────────────────────────
-function MessageBubble({
-  msg,
-  isMine,
-}: {
-  msg: Message;
-  isMine: boolean;
-}) {
+function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
   return (
     <div
       className={`flex ${isMine ? "justify-end" : "justify-start"} animate-[fadeIn_0.15s_ease]`}
     >
       <div
         className={`max-w-[72%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed
-          ${isMine
-            ? "bg-gradient-to-br from-brand to-[#c93d66] text-white rounded-tr-sm shadow-[0_2px_12px_rgba(232,84,122,0.3)]"
-            : "bg-white/8 border border-white/10 text-slate-200 rounded-tl-sm"
+          ${
+            isMine
+              ? "bg-gradient-to-br from-brand to-[#c93d66] text-white rounded-tr-sm shadow-[0_2px_12px_rgba(232,84,122,0.3)]"
+              : "bg-white/8 border border-white/10 text-slate-200 rounded-tl-sm"
           }
           ${msg._optimistic ? "opacity-70" : "opacity-100"}
         `}
       >
         <p className="break-words whitespace-pre-wrap">{msg.content}</p>
-        <div className={`flex items-center gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
-          <span className={`text-[10px] ${isMine ? "text-white/50" : "text-slate-600"}`}>
+        <div
+          className={`flex items-center gap-1 mt-1 ${
+            isMine ? "justify-end" : "justify-start"
+          }`}
+        >
+          <span
+            className={`text-[10px] ${isMine ? "text-white/50" : "text-slate-600"}`}
+          >
             {formatTime(msg.createdAt)}
           </span>
           {isMine && <StatusTick status={msg.status} />}
@@ -125,7 +127,9 @@ function PremiumGate() {
       <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center mb-4 shadow-[0_0_22px_rgba(232,84,122,0.2)]">
         <Lock size={28} className="text-brand" />
       </div>
-      <h2 className="font-syne text-white text-xl font-bold mb-2">Premium Required</h2>
+      <h2 className="font-syne text-white text-xl font-bold mb-2">
+        Premium Required
+      </h2>
       <p className="text-slate-500 text-sm max-w-xs leading-relaxed mb-6">
         Upgrade to Premium to send and receive messages on ShadiMate.
       </p>
@@ -143,11 +147,11 @@ function PremiumGate() {
 interface Props {
   targetUserId: string;
   targetName: string;
-  currentUserId: string;    // FIX: server থেকে JWT decode করে pass — কখনো empty না
+  currentUserId: string;
   initialMessages: Message[];
   totalPages: number;
   token?: string;
-  isPremium: boolean;       // FIX: server-side JWT subscription field থেকে আসে
+  isPremium: boolean;
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -170,11 +174,11 @@ export default function ChatRoomClient({
   const [hasMore, setHasMore] = useState(totalPages > 1);
   const [loadingMore, startLoadMore] = useTransition();
 
-  const bottomRef    = useRef<HTMLDivElement>(null);
-  const topAnchorRef = useRef<HTMLDivElement>(null); // load-more scroll anchor
-  const typingTimer  = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef     = useRef<HTMLTextAreaElement>(null);
-  const seenSet      = useRef<Set<string>>(new Set()); // 중복 seen emit 방지
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const topAnchorRef = useRef<HTMLDivElement>(null);
+  const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const seenSet = useRef<Set<string>>(new Set());
 
   // ── Socket callbacks ────────────────────────────────────────────────────────
 
@@ -191,15 +195,12 @@ export default function ChatRoomClient({
   );
 
   const handleMessageSent = useCallback((msg: Message) => {
-    // FIX: tempId-based replacement — _optimistic flag দিয়ে temp message খুঁজি
+    // Replace the optimistic placeholder with the real server message
     setMessages((prev) => {
       const tempIdx = prev.findIndex((m) => m._optimistic === true);
-      if (tempIdx === -1) return prev; // fallback: নতুন করে যোগ করো না (duplicate এড়াতে)
+      if (tempIdx === -1) return prev;
       const updated = [...prev];
-      updated[tempIdx] = {
-        ...msg,
-        _optimistic: false,
-      };
+      updated[tempIdx] = { ...msg, _optimistic: false };
       return updated;
     });
   }, []);
@@ -207,7 +208,6 @@ export default function ChatRoomClient({
   const handleMessageSeen = useCallback(
     (payload: { messageId: string; conversationWith: string }) => {
       if (payload.conversationWith !== targetUserId) return;
-      // সব আমার message-কে "seen" করো — backend সব updateMany করেছে
       setMessages((prev) =>
         prev.map((m) =>
           m.senderId === currentUserId && m.status !== "seen"
@@ -236,21 +236,20 @@ export default function ChatRoomClient({
   const { connected, sendMessage, markSeen, emitTyping, emitStopTyping } =
     useSocket({
       token,
-      myUserId: currentUserId, // FIX: stable prop, কখনো empty না
-      onNewMessage:    handleNewMessage,
-      onMessageSent:   handleMessageSent,
-      onMessageSeen:   handleMessageSeen,
-      onTyping:        handleTyping,
-      onStopTyping:    handleStopTyping,
+      myUserId: currentUserId,
+      onNewMessage: handleNewMessage,
+      onMessageSent: handleMessageSent,
+      onMessageSeen: handleMessageSeen,
+      onTyping: handleTyping,
+      onStopTyping: handleStopTyping,
     });
 
-  // ── Auto-scroll to bottom ───────────────────────────────────────────────────
+  // ── Auto-scroll ─────────────────────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages.length, partnerTyping]);
 
   // ── Mark incoming messages as seen ─────────────────────────────────────────
-  // FIX: seenSet দিয়ে duplicate emit আটকাই
   useEffect(() => {
     if (!connected) return;
     messages
@@ -272,20 +271,20 @@ export default function ChatRoomClient({
     const text = input.trim();
     if (!text || !connected) return;
 
-    // Optimistic message — _optimistic: true flag দিয়ে track করি
     const optimistic: Message = {
-      _id:          `temp-${Date.now()}`,
-      senderId:     currentUserId,
-      receiverId:   targetUserId,
-      content:      text,
-      type:         "text",
-      status:       "sent",
-      createdAt:    new Date().toISOString(),
-      _optimistic:  true,
+      _id: `temp-${Date.now()}`,
+      senderId: currentUserId,
+      receiverId: targetUserId,
+      content: text,
+      type: "text",
+      status: "sent",
+      createdAt: new Date().toISOString(),
+      _optimistic: true,
     };
 
     setMessages((prev) => [...prev, optimistic]);
     setInput("");
+    // Backend chat.handlers.ts listens on "send-message" with { receiverId, message, type }
     sendMessage(targetUserId, text);
 
     if (typingTimer.current) clearTimeout(typingTimer.current);
@@ -299,7 +298,6 @@ export default function ChatRoomClient({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       setInput(e.target.value);
-
       e.target.style.height = "auto";
       e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
 
@@ -329,16 +327,13 @@ export default function ChatRoomClient({
   // ── Load older messages ─────────────────────────────────────────────────────
   const loadMore = () => {
     const nextPage = page + 1;
-    // FIX: scroll position ধরে রাখো — load হওয়ার আগের top element-এ
     const anchor = topAnchorRef.current;
-
     startLoadMore(async () => {
       const res = await getChatHistory(targetUserId, nextPage, 30);
       if (res.success && res.data && res.data.length > 0) {
         setMessages((prev) => [...res.data!, ...prev]);
         setPage(nextPage);
         setHasMore(nextPage < (res.meta?.totalPages ?? 1));
-        // পুরনো message load হওয়ার পর scroll position restore করো
         requestAnimationFrame(() => {
           anchor?.scrollIntoView({ block: "start" });
         });
@@ -363,6 +358,7 @@ export default function ChatRoomClient({
           <ArrowLeft size={18} />
         </button>
 
+        {/* Avatar */}
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand/40 to-accent/30 border border-white/10 flex items-center justify-center shrink-0">
           <span className="font-syne text-white font-bold text-sm">
             {targetName.charAt(0).toUpperCase()}
@@ -370,23 +366,34 @@ export default function ChatRoomClient({
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-syne text-white font-bold text-sm truncate">{targetName}</p>
-          <p className={`text-[11px] transition-colors duration-300 ${
-            partnerTyping
-              ? "text-brand"
+          <p className="font-syne text-white font-bold text-sm truncate">
+            {targetName}
+          </p>
+          <p
+            className={`text-[11px] transition-colors duration-300 ${
+              partnerTyping
+                ? "text-brand"
+                : connected
+                ? "text-emerald-400"
+                : "text-slate-600"
+            }`}
+          >
+            {partnerTyping
+              ? "typing..."
               : connected
-              ? "text-emerald-400"
-              : "text-slate-600"
-          }`}>
-            {partnerTyping ? "typing..." : connected ? "online" : "connecting..."}
+              ? "online"
+              : "connecting..."}
           </p>
         </div>
 
-        <div className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${
-          connected
-            ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]"
-            : "bg-slate-600"
-        }`} />
+        {/* Connection dot */}
+        <div
+          className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${
+            connected
+              ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.7)]"
+              : "bg-slate-600"
+          }`}
+        />
       </div>
 
       {/* ── Body ── */}
@@ -396,8 +403,7 @@ export default function ChatRoomClient({
         <>
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-4 overscroll-contain">
-
-            {/* Load more */}
+            {/* Load more button */}
             {hasMore && (
               <div className="flex justify-center pb-4">
                 <button
@@ -405,27 +411,33 @@ export default function ChatRoomClient({
                   disabled={loadingMore}
                   className="font-outfit flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs text-slate-400 bg-white/5 border border-white/10 hover:bg-white/8 transition-all cursor-pointer disabled:opacity-50"
                 >
-                  {loadingMore
-                    ? <><Loader2 size={12} className="animate-spin" /> Loading...</>
-                    : <><ChevronUp size={12} /> Load older messages</>
-                  }
+                  {loadingMore ? (
+                    <>
+                      <Loader2 size={12} className="animate-spin" /> Loading...
+                    </>
+                  ) : (
+                    <>
+                      <ChevronUp size={12} /> Load older messages
+                    </>
+                  )}
                 </button>
               </div>
             )}
 
-            {/* Scroll anchor for load-more position restore */}
             <div ref={topAnchorRef} />
 
-            {/* Empty conversation */}
+            {/* Empty state */}
             {groups.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
                 <div className="w-14 h-14 rounded-2xl bg-brand/8 border border-brand/15 flex items-center justify-center mb-3">
-                  <span className="text-2xl">💬</span>
+                  <MessageCircle size={24} className="text-brand/60" />
                 </div>
                 <p className="font-syne text-white font-bold text-sm mb-1">
                   Start the conversation
                 </p>
-                <p className="text-slate-600 text-xs">Say hello to {targetName}!</p>
+                <p className="text-slate-600 text-xs">
+                  Say hello to {targetName}!
+                </p>
               </div>
             )}
 
@@ -441,7 +453,7 @@ export default function ChatRoomClient({
                   <MessageBubble
                     key={msg._id}
                     msg={msg}
-                    isMine={msg.senderId === currentUserId} // FIX: stable prop
+                    isMine={msg.senderId === currentUserId}
                   />
                 ))}
               </div>
@@ -457,7 +469,7 @@ export default function ChatRoomClient({
             <div ref={bottomRef} />
           </div>
 
-          {/* Input */}
+          {/* ── Input bar ── */}
           <div className="px-4 py-3 border-t border-white/8 bg-[rgba(18,8,16,0.9)] backdrop-blur-xl shrink-0">
             <div className="flex items-end gap-2.5">
               <textarea
@@ -466,7 +478,9 @@ export default function ChatRoomClient({
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder={connected ? `Message ${targetName}...` : "Connecting..."}
+                placeholder={
+                  connected ? `Message ${targetName}...` : "Connecting..."
+                }
                 disabled={!connected}
                 className="font-outfit flex-1 px-4 py-3 rounded-2xl text-sm text-slate-100 placeholder-slate-600 bg-white/7 border border-white/10 outline-none focus:border-brand/40 transition-all duration-200 resize-none disabled:opacity-50 leading-relaxed"
                 style={{ minHeight: "48px", maxHeight: "120px" }}

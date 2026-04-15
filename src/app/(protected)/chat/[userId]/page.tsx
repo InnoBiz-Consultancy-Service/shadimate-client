@@ -5,12 +5,16 @@ import { fetchProfileById } from "@/actions/profile/profile";
 import ChatRoomClient from "@/components/chat/ChatRoomClient";
 import { Message } from "@/types/chat";
 
+// ── JWT decode (no external library needed) ──────────────────────────────────
 function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const part = token.split(".")[1];
     if (!part) return null;
     const base64 = part.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     return JSON.parse(atob(padded));
   } catch {
     return null;
@@ -23,7 +27,10 @@ export async function generateMetadata({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const res = await fetchProfileById(userId).catch(() => ({ success: false, data: undefined }));
+  const res = await fetchProfileById(userId).catch(() => ({
+    success: false,
+    data: undefined,
+  }));
   const name = res.data?.userId?.name ?? res.data?.user?.name ?? "Chat";
   return { title: `${name} – Messages` };
 }
@@ -38,14 +45,13 @@ export default async function ChatRoomPage({
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
 
-  // currentUserId — JWT decode, server-side, stable
+  // Decode JWT server-side — stable, never changes per render
   const payload = token ? decodeJwt(token) : null;
   const currentUserId = (payload?.id as string) ?? "";
-  // subscription — isPremium check এখানেই করি, client-এ prop pass
   const subscription = (payload?.subscription as string) ?? "free";
   const isPremium = subscription === "premium";
 
-  // Profile fetch — header-এ নাম দেখাতে
+  // Fetch target profile for the header name
   const profileRes = await fetchProfileById(userId).catch(() => ({
     success: false,
     data: undefined,
@@ -54,9 +60,10 @@ export default async function ChatRoomPage({
   if (!profileRes.success || !profileRes.data) notFound();
 
   const profile = profileRes.data;
-  const targetName = profile.userId?.name ?? profile.user?.name ?? "Unknown";
+  const targetName =
+    profile.userId?.name ?? profile.user?.name ?? "Unknown";
 
-  // Initial messages — premium না হলে empty pass করব, ChatRoomClient gate দেখাবে
+  // Initial messages (only for premium users)
   let initialMessages: Message[] = [];
   let totalPages = 1;
 
