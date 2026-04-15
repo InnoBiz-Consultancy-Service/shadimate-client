@@ -17,7 +17,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/dream-partner", label: "Dream", icon: HeartHandshake },
   { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/subscription", label: "Premium", icon: Crown, mobileHidden: true },
-  { href: "/profile/edit", label: "Profile", icon: User },
+  { href: "/profile", label: "Profile", icon: User },
 ];
 
 export default function AppBar() {
