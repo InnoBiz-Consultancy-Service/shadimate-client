@@ -66,7 +66,7 @@ export const ECONOMICAL_STATUS_OPTIONS = [
 export const GENDER_OPTIONS = ["male", "female"] as const;
 
 export const MARITAL_STATUS_OPTIONS = [
-  "Never Married",
+  "Single",
   "Divorced",
   "Widowed",
 ] as const;
