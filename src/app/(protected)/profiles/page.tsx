@@ -5,6 +5,7 @@ export const metadata = { title: "Find Matches" };
 
 export default async function ProfilesPage() {
   const res = await fetchProfiles({ page: 1, limit: 12, sort: "-createdAt" });
+
   return (
     <ProfilesClient
       initialProfiles={res.data || []}

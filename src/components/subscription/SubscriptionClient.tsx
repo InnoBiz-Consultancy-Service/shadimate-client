@@ -78,7 +78,7 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: "cancelled",
 };
 
-function formatDate(dateStr: string, locale = "bn-BD") {
+function formatDate(dateStr: string, locale = "en-BD") {
   return new Date(dateStr).toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
@@ -89,7 +89,9 @@ function formatDate(dateStr: string, locale = "bn-BD") {
 function getDaysLeft(endDate: string) {
   return Math.max(
     0,
-    Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    Math.ceil(
+      (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+    ),
   );
 }
 
@@ -102,14 +104,19 @@ function getPlanLabel(plan: string) {
   return map[plan] || plan;
 }
 
-export default function SubscriptionClient({ plans, subscription, paymentHistory }: Props) {
-  const router = useRouter();
+export default function SubscriptionClient({
+  plans,
+  subscription,
+  paymentHistory,
+}: Props) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const hideToast = useCallback(() => setToast(null), []);
 
   const isActive = subscription?.status === "active";
-  const daysLeft = subscription?.endDate ? getDaysLeft(subscription.endDate) : 0;
+  const daysLeft = subscription?.endDate
+    ? getDaysLeft(subscription.endDate)
+    : 0;
   const isExpiringSoon = isActive && daysLeft <= 7;
 
   const handleSelectPlan = async (plan: string) => {
@@ -125,7 +132,10 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
     try {
       const result = await initiatePaymentAction(plan);
       if (!result.success || !result.data?.paymentUrl) {
-        setToast({ message: result.message || "Payment initiation failed.", type: "error" });
+        setToast({
+          message: result.message || "Payment initiation failed.",
+          type: "error",
+        });
         return;
       }
       window.location.href = result.data.paymentUrl;
@@ -145,10 +155,11 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
 
   return (
     <>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={hideToast} />
+      )}
 
       <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-3xl mx-auto">
-
         {/* ── Header ── */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-4">
@@ -229,7 +240,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
         {/* ── Plans Grid ── */}
         {plans.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            {plans.map((plan, idx) => {
+            {plans.map((plan) => {
               const saving = getSaving(plan);
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
@@ -279,11 +290,16 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     {/* Features */}
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
-                        <div key={feat.label} className="flex items-center gap-2">
+                        <div
+                          key={feat.label}
+                          className="flex items-center gap-2"
+                        >
                           <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-slate-400 text-xs">{feat.label}</span>
+                          <span className="text-slate-400 text-xs">
+                            {feat.label}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -345,19 +361,27 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     className={`p-5 flex flex-col ${isPopular ? "border-brand/40" : ""}`}
                   >
                     <div className="mb-4">
-                      <h3 className="font-syne text-white text-lg font-extrabold mb-1">{plan.label}</h3>
+                      <h3 className="font-syne text-white text-lg font-extrabold mb-1">
+                        {plan.label}
+                      </h3>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-syne text-3xl font-extrabold text-white">৳{plan.amount}</span>
-                        <span className="text-slate-500 text-sm">/ {plan.months} মাস</span>
+                        <span className="font-syne text-3xl font-extrabold text-white">
+                          ৳{plan.amount}
+                        </span>
                       </div>
                     </div>
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
-                        <div key={feat.label} className="flex items-center gap-2">
+                        <div
+                          key={feat.label}
+                          className="flex items-center gap-2"
+                        >
                           <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-slate-400 text-xs">{feat.label}</span>
+                          <span className="text-slate-400 text-xs">
+                            {feat.label}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -370,7 +394,16 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                           : "text-brand border border-brand/30 bg-brand/8 hover:bg-brand/15"
                       }`}
                     >
-                      {isLoading ? <><Loader2 size={14} className="animate-spin" /> Processing...</> : <>Select Plan <ChevronRight size={14} /></>}
+                      {isLoading ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin" />{" "}
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          Select Plan <ChevronRight size={14} />
+                        </>
+                      )}
                     </button>
                   </GlassCard>
                 </div>
@@ -383,7 +416,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
         <GlassCard className="p-6 mb-6">
           <h2 className="font-syne text-white text-base font-bold mb-4 flex items-center gap-2">
             <Crown size={16} className="text-accent" />
-            What You'll Get with Premium
+            What You&apos;ll Get with Premium
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {PREMIUM_FEATURES.map(({ icon: Icon, label }) => (
@@ -422,14 +455,17 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-white text-sm font-bold">৳{record.amount}</p>
+                    <p className="text-white text-sm font-bold">
+                      ৳{record.amount}
+                    </p>
                     <span
                       className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border mt-0.5 ${
                         STATUS_STYLES[record.paymentStatus] ||
                         STATUS_STYLES["pending"]
                       }`}
                     >
-                      {STATUS_LABELS[record.paymentStatus] || record.paymentStatus}
+                      {STATUS_LABELS[record.paymentStatus] ||
+                        record.paymentStatus}
                     </span>
                   </div>
                 </div>

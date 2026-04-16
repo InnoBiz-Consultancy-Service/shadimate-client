@@ -19,30 +19,40 @@ export async function toggleLike(targetUserId: string) {
 export async function getLikeCount(userId: string) {
   return universalApi<LikeCountResponse>({
     endpoint: `/likes/count/${userId}`,
+    method: "GET",
+    requireAuth: true,
   });
 }
 
 export async function getWhoLikedMe() {
   return universalApi<WhoLikedMeItem[]>({
     endpoint: `/likes/who-liked-me`,
+    method: "GET",
+    requireAuth: true,
   });
 }
 
 export async function getMyLikes() {
   return universalApi<MyLikesItem[]>({
     endpoint: `/likes/my-likes`,
+    method: "GET",
+    requireAuth: true,
   });
 }
 
 export async function getNotifications(page = 1, limit = 20) {
   return universalApi<unknown>({
     endpoint: `/notifications?page=${page}&limit=${limit}`,
+    method: "GET",
+    requireAuth: true,
   });
 }
 
 export async function getUnreadNotificationCount() {
   return universalApi<{ unreadCount: number }>({
     endpoint: `/notifications/unread-count`,
+    method: "GET",
+    requireAuth: true,
   });
 }
 
@@ -50,6 +60,7 @@ export async function markAllNotificationsRead() {
   return universalApi({
     endpoint: `/notifications/mark-all-read`,
     method: "PATCH",
+    requireAuth: true,
   });
 }
 
@@ -57,6 +68,7 @@ export async function markNotificationRead(id: string) {
   return universalApi({
     endpoint: `/notifications/${id}/read`,
     method: "PATCH",
+    requireAuth: true,
   });
 }
 
@@ -64,5 +76,6 @@ export async function deleteNotification(id: string) {
   return universalApi({
     endpoint: `/notifications/${id}`,
     method: "DELETE",
+    requireAuth: true,
   });
 }
