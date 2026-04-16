@@ -26,28 +26,22 @@ import { useSocket } from "@/hooks/useSocket";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Fixed time formatter
 function formatWhatsAppTime(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
-  
-  // Check if date is valid
-  if (isNaN(date.getTime())) {
-    return "";
-  }
-  
+
+  if (isNaN(date.getTime())) return "";
+
   const isToday = date.toDateString() === now.toDateString();
-  
+
   if (isToday) {
-    // Format: "7:22 PM" (properly formatted)
     return date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
     });
   }
-  
-  // For older messages, show date
+
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
@@ -59,24 +53,19 @@ function formatDateSeparator(dateStr: string): string {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  
-  // Reset time part for comparison
+
   today.setHours(0, 0, 0, 0);
   yesterday.setHours(0, 0, 0, 0);
   const msgDate = new Date(date);
   msgDate.setHours(0, 0, 0, 0);
-  
+
   if (msgDate.getTime() === today.getTime()) return "Today";
   if (msgDate.getTime() === yesterday.getTime()) return "Yesterday";
-  
-  // Within current year
+
   if (date.getFullYear() === today.getFullYear()) {
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-    });
+    return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
   }
-  
+
   return date.toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
@@ -86,70 +75,56 @@ function formatDateSeparator(dateStr: string): string {
 
 function groupByDate(messages: Message[]): { label: string; msgs: Message[] }[] {
   const groups = new Map<string, Message[]>();
-  
-  // Sort messages by date first
+
   const sortedMessages = [...messages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
-  
+
   for (const msg of sortedMessages) {
     const label = formatDateSeparator(msg.createdAt);
     if (!groups.has(label)) groups.set(label, []);
     groups.get(label)!.push(msg);
   }
-  
+
   return Array.from(groups.entries()).map(([label, msgs]) => ({ label, msgs }));
 }
 
-// ─── WhatsApp Style Status Icons ──────────────────────────────────────────────
-function WhatsAppStatusIcon({ status, isMine }: { status: Message["status"] | undefined; isMine: boolean }) {
+// ─── Status Icons ─────────────────────────────────────────────────────────────
+
+function StatusIcon({ status, isMine }: { status: Message["status"] | undefined; isMine: boolean }) {
   if (!isMine) return null;
-  
-  if (status === "seen") {
-    return <CheckCheck size={14} className="text-[#53bdeb] shrink-0" />;
-  }
-  
-  if (status === "delivered") {
-    return <CheckCheck size={14} className="text-[#8696a0] shrink-0" />;
-  }
-  
-  if (status === "sent") {
-    return <Check size={14} className="text-[#8696a0] shrink-0" />;
-  }
-  
-  if (status === "error") {
+
+  if (status === "seen")
+    return <CheckCheck size={16} className="text-[#88d9f9] shrink-0" />;
+  if (status === "delivered")
+    return <CheckCheck size={14} className="text-[#b08890] shrink-0" />;
+  if (status === "error")
     return <Clock size={12} className="text-red-400 shrink-0" />;
-  }
-  
-  return <Check size={14} className="text-[#8696a0] shrink-0" />;
+
+  return <Check size={14} className="text-[#b08890] shrink-0" />;
 }
 
-// ─── WhatsApp Style Message Bubble ────────────────────────────────────────────
-function WhatsAppMessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
-  if (!msg.content || msg.content.trim() === "") {
-    return null;
-  }
-  
-  // Ensure we have a valid time
+// ─── Message Bubble ───────────────────────────────────────────────────────────
+
+function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
+  if (!msg.content || msg.content.trim() === "") return null;
+
   const timeString = formatWhatsAppTime(msg.createdAt);
-  
+
   return (
     <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1`}>
-      <div className={`relative flex ${isMine ? "justify-end" : "justify-start"} max-w-[75%]`}>
+      <div className={`relative max-w-[75%]`}>
         <div
           className={`relative px-3 py-2 text-sm leading-relaxed ${
             isMine
-              ? "bg-[#005c4b] text-white rounded-l-lg rounded-br-lg"
-              : "bg-[#202c33] text-white rounded-r-lg rounded-bl-lg"
+              ? "bg-[#7a1d30] text-[#f5e8eb] rounded-tl-2xl rounded-bl-2xl rounded-br-sm rounded-tr-2xl border border-[rgba(232,84,122,0.2)] shadow-sm"
+              : "bg-[#1e0c10] text-[#f5e8eb] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl border border-[rgba(232,84,122,0.1)] shadow-sm"
           }`}
         >
-          <p className="break-words whitespace-pre-wrap pr-12">{msg.content}</p>
-          
-          <div className="absolute bottom-1 right-2 flex items-center gap-0.5">
-            <span className="text-[9px] text-white/50">
-              {timeString}
-            </span>
-            <WhatsAppStatusIcon status={msg.status} isMine={isMine} />
+          <p className="break-words whitespace-pre-wrap pr-14">{msg.content}</p>
+          <div className="absolute bottom-1.5 right-2.5 flex items-center gap-0.5">
+            <span className="text-[9px] text-[#b08890]/70">{timeString}</span>
+            <StatusIcon status={msg.status} isMine={isMine} />
           </div>
         </div>
       </div>
@@ -157,38 +132,44 @@ function WhatsAppMessageBubble({ msg, isMine }: { msg: Message; isMine: boolean 
   );
 }
 
-// ─── Typing Indicator ────────────────────────────────────────────────────────
-function WhatsAppTypingIndicator({ name }: { name: string }) {
+// ─── Typing Indicator ─────────────────────────────────────────────────────────
+
+function TypingIndicator({ name }: { name: string }) {
   return (
-    <div className="flex justify-start mb-1">
-      <div className="bg-[#202c33] rounded-r-lg rounded-bl-lg px-4 py-2.5">
+    <div className="flex justify-start items-center gap-2 mb-1">
+      <div className="bg-[#1e0c10] border border-[rgba(232,84,122,0.1)] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl px-4 py-3 shadow-sm">
         <div className="flex items-center gap-1">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce" style={{ animationDelay: "0s", animationDuration: "1s" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce" style={{ animationDelay: "0.2s", animationDuration: "1s" }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-[#8696a0] animate-bounce" style={{ animationDelay: "0.4s", animationDuration: "1s" }} />
+          {[0, 200, 400].map((delay) => (
+            <div
+              key={delay}
+              className="w-1.5 h-1.5 rounded-full bg-[#b08890] animate-bounce"
+              style={{ animationDelay: `${delay}ms`, animationDuration: "1s" }}
+            />
+          ))}
         </div>
       </div>
-      <span className="text-[10px] text-[#8696a0] ml-2 mt-2">{name} is typing...</span>
+      <span className="text-[10px] text-[#b08890]">{name} is typing...</span>
     </div>
   );
 }
 
-// ─── PremiumGate ──────────────────────────────────────────────────────────────
+// ─── Premium Gate ─────────────────────────────────────────────────────────────
+
 function PremiumGate() {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-6 py-12 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center mb-4 shadow-[0_0_22px_rgba(232,84,122,0.2)]">
-        <Lock size={28} className="text-brand" />
+      <div className="w-16 h-16 rounded-2xl bg-[#e8547a]/10 border border-[#e8547a]/20 flex items-center justify-center mb-4 shadow-[0_0_22px_rgba(232,84,122,0.2)]">
+        <Lock size={28} className="text-[#e8547a]" />
       </div>
-      <h2 className="font-syne text-white text-xl font-bold mb-2">
+      <h2 className="font-syne text-[#f5e8eb] text-xl font-bold mb-2">
         Premium Required
       </h2>
-      <p className="text-slate-500 text-sm max-w-xs leading-relaxed mb-6">
+      <p className="text-[#b08890] text-sm max-w-xs leading-relaxed mb-6">
         Upgrade to Premium to send and receive messages on ShadiMate.
       </p>
       <Link
         href="/subscription"
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-on-brand bg-gradient-to-r from-brand to-accent no-underline hover:scale-[1.02] transition-all duration-200 shadow-[0_0_22px_rgba(232,84,122,0.35)]"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#e8547a] to-[#c04060] no-underline hover:scale-[1.02] transition-all duration-200 shadow-[0_0_22px_rgba(232,84,122,0.35)]"
       >
         Upgrade to Premium
       </Link>
@@ -197,6 +178,7 @@ function PremiumGate() {
 }
 
 // ─── Props ────────────────────────────────────────────────────────────────────
+
 interface Props {
   targetUserId: string;
   targetName: string;
@@ -207,7 +189,8 @@ interface Props {
   isPremium: boolean;
 }
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 export default function ChatRoomClient({
   targetUserId,
   targetName,
@@ -219,44 +202,18 @@ export default function ChatRoomClient({
 }: Props) {
   const router = useRouter();
 
-  // Debug logs
-  console.log("=== ChatRoomClient Initialization ===");
-  console.log("Target User ID:", targetUserId);
-  console.log("Current User ID:", currentUserId);
-  console.log("Initial Messages Count:", initialMessages?.length || 0);
-  console.log("Total Pages:", totalPages);
-  console.log("Is Premium:", isPremium);
-  
-  if (initialMessages && initialMessages.length > 0) {
-    console.log("Sample initial message:", {
-      id: initialMessages[0]._id,
-      content: initialMessages[0].content,
-      senderId: initialMessages[0].senderId,
-      createdAt: initialMessages[0].createdAt
-    });
-  }
-
-  // Initialize messages state
   const [messages, setMessages] = useState<Message[]>(() => {
-    if (!initialMessages || !Array.isArray(initialMessages)) {
-      console.log("No initial messages provided");
-      return [];
-    }
-    
-    // Filter out invalid messages
+    if (!initialMessages || !Array.isArray(initialMessages)) return [];
+
     const validMessages = initialMessages.filter(
-      msg => msg && msg.content && typeof msg.content === 'string' && msg.content.trim() !== ""
+      (msg) => msg && msg.content && typeof msg.content === "string" && msg.content.trim() !== ""
     );
-    
-    // Sort by createdAt (oldest first)
-    const sorted = [...validMessages].sort(
+
+    return [...validMessages].sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     );
-    
-    console.log(`Processed ${sorted.length} valid messages from initial`);
-    return sorted;
   });
-  
+
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
@@ -274,86 +231,58 @@ export default function ChatRoomClient({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seenSet = useRef<Set<string>>(new Set());
 
-  // Socket event handlers
+  // ─── Socket Handlers ───────────────────────────────────────────────────────
+
   const handleNewMessage = useCallback(
     (msg: Message) => {
-      console.log("📩 New message received:", msg);
-      
-      if (!msg.content || msg.content.trim() === "") {
-        return;
-      }
-      
-      // Check if message belongs to current conversation
-      if (msg.senderId !== targetUserId && msg.receiverId !== targetUserId) {
-        return;
-      }
-      
+      if (!msg.content || msg.content.trim() === "") return;
+      if (msg.senderId !== targetUserId && msg.receiverId !== targetUserId) return;
+
       setMessages((prev) => {
-        // Check if message already exists
-        if (prev.some((m) => m._id === msg._id)) {
-          return prev;
-        }
-        
-        // Check if this is replacing an optimistic message
+        if (prev.some((m) => m._id === msg._id)) return prev;
+
         const optimisticIndex = prev.findIndex(
-          (m) => m._optimistic === true && 
-          m.content === msg.content && 
-          m.senderId === currentUserId
+          (m) => m._optimistic === true && m.content === msg.content && m.senderId === currentUserId
         );
-        
+
         if (optimisticIndex !== -1) {
-          console.log("Replacing optimistic message");
           const updated = [...prev];
           updated[optimisticIndex] = { ...msg, _optimistic: false };
           return updated;
         }
-        
-        // Add new message
-        console.log("Adding new message to state");
+
         return [...prev, msg];
       });
-      
-      if (msg.senderId === targetUserId) {
-        setPartnerTyping(false);
-      }
-      
-      // Scroll to bottom
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
+
+      if (msg.senderId === targetUserId) setPartnerTyping(false);
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
     },
     [targetUserId, currentUserId]
   );
 
-  const handleMessageSent = useCallback((msg: Message) => {
-    console.log("✅ Message sent confirmation:", msg);
-    
-    setMessages((prev) => {
-      const tempIndex = prev.findIndex(
-        (m) => m._optimistic === true && 
-        m.content === msg.content && 
-        m.senderId === currentUserId
-      );
-      
-      if (tempIndex !== -1) {
-        console.log("Replacing optimistic with confirmed");
-        const updated = [...prev];
-        updated[tempIndex] = { ...msg, _optimistic: false };
-        return updated;
-      }
-      
-      if (!prev.some((m) => m._id === msg._id)) {
-        return [...prev, msg];
-      }
-      
-      return prev;
-    });
-  }, [currentUserId]);
+  const handleMessageSent = useCallback(
+    (msg: Message) => {
+      setMessages((prev) => {
+        const tempIndex = prev.findIndex(
+          (m) => m._optimistic === true && m.content === msg.content && m.senderId === currentUserId
+        );
+
+        if (tempIndex !== -1) {
+          const updated = [...prev];
+          updated[tempIndex] = { ...msg, _optimistic: false };
+          return updated;
+        }
+
+        if (!prev.some((m) => m._id === msg._id)) return [...prev, msg];
+        return prev;
+      });
+    },
+    [currentUserId]
+  );
 
   const handleMessageSeen = useCallback(
     (payload: { messageId: string; conversationWith: string }) => {
       if (payload.conversationWith !== targetUserId) return;
-      
       setMessages((prev) =>
         prev.map((m) =>
           m._id === payload.messageId && m.senderId === currentUserId
@@ -368,7 +297,6 @@ export default function ChatRoomClient({
   const handleMessageDelivered = useCallback(
     (payload: { messageId: string; conversationWith: string }) => {
       if (payload.conversationWith !== targetUserId) return;
-      
       setMessages((prev) =>
         prev.map((m) =>
           m._id === payload.messageId && m.senderId === currentUserId && m.status !== "seen"
@@ -384,11 +312,7 @@ export default function ChatRoomClient({
     (fromUserId: string) => {
       if (fromUserId === targetUserId) {
         setPartnerTyping(true);
-        
-        const timer = setTimeout(() => {
-          setPartnerTyping(false);
-        }, 3000);
-        
+        const timer = setTimeout(() => setPartnerTyping(false), 3000);
         return () => clearTimeout(timer);
       }
     },
@@ -397,44 +321,46 @@ export default function ChatRoomClient({
 
   const handleStopTyping = useCallback(
     (fromUserId: string) => {
-      if (fromUserId === targetUserId) {
-        setPartnerTyping(false);
+      if (fromUserId === targetUserId) setPartnerTyping(false);
+    },
+    [targetUserId]
+  );
+
+  const handleUserOnline = useCallback(
+    (userId: string) => {
+      if (userId === targetUserId) {
+        setIsPartnerOnline(true);
+        setLastSeen(null);
       }
     },
     [targetUserId]
   );
 
-  const handleUserOnline = useCallback((userId: string) => {
-    if (userId === targetUserId) {
-      console.log("Partner came online");
-      setIsPartnerOnline(true);
-      setLastSeen(null);
-    }
-  }, [targetUserId]);
+  const handleUserOffline = useCallback(
+    (payload: { userId: string; lastSeen: string }) => {
+      if (payload.userId === targetUserId) {
+        setIsPartnerOnline(false);
+        setLastSeen(new Date(payload.lastSeen));
+      }
+    },
+    [targetUserId]
+  );
 
-  const handleUserOffline = useCallback((payload: { userId: string; lastSeen: string }) => {
-    if (payload.userId === targetUserId) {
-      console.log("Partner went offline");
-      setIsPartnerOnline(false);
-      setLastSeen(new Date(payload.lastSeen));
-    }
-  }, [targetUserId]);
+  const { connected, sendMessage, markSeen, emitTyping, emitStopTyping } = useSocket({
+    token,
+    myUserId: currentUserId,
+    onNewMessage: handleNewMessage,
+    onMessageSent: handleMessageSent,
+    onMessageSeen: handleMessageSeen,
+    onMessageDelivered: handleMessageDelivered,
+    onTyping: handleTyping,
+    onStopTyping: handleStopTyping,
+    onUserOnline: handleUserOnline,
+    onUserOffline: handleUserOffline,
+  });
 
-  const { connected, sendMessage, markSeen, markDelivered, emitTyping, emitStopTyping } =
-    useSocket({
-      token,
-      myUserId: currentUserId,
-      onNewMessage: handleNewMessage,
-      onMessageSent: handleMessageSent,
-      onMessageSeen: handleMessageSeen,
-      onMessageDelivered: handleMessageDelivered,
-      onTyping: handleTyping,
-      onStopTyping: handleStopTyping,
-      onUserOnline: handleUserOnline,
-      onUserOffline: handleUserOffline,
-    });
+  // ─── Effects ───────────────────────────────────────────────────────────────
 
-  // Show offline indicator when disconnected
   useEffect(() => {
     if (!connected) {
       setShowOffline(true);
@@ -443,17 +369,14 @@ export default function ChatRoomClient({
     }
   }, [connected]);
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     if (messages.length > 0) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages.length]);
 
-  // Mark incoming messages as seen
   useEffect(() => {
     if (!connected) return;
-    
     const unseenMessages = messages.filter(
       (m) =>
         m.senderId === targetUserId &&
@@ -461,14 +384,14 @@ export default function ChatRoomClient({
         !m._optimistic &&
         !seenSet.current.has(m._id)
     );
-    
     unseenMessages.forEach((m) => {
       seenSet.current.add(m._id);
       markSeen(m._id);
     });
   }, [messages, connected, targetUserId, markSeen]);
 
-  // Send message
+  // ─── Handlers ──────────────────────────────────────────────────────────────
+
   const handleSend = useCallback(() => {
     const text = input.trim();
     if (!text || !connected) {
@@ -479,9 +402,8 @@ export default function ChatRoomClient({
       return;
     }
 
-    const tempId = `temp-${Date.now()}-${Math.random()}`;
     const optimistic: Message = {
-      _id: tempId,
+      _id: `temp-${Date.now()}-${Math.random()}`,
       senderId: currentUserId,
       receiverId: targetUserId,
       content: text,
@@ -492,25 +414,19 @@ export default function ChatRoomClient({
       _optimistic: true,
     };
 
-    console.log("📤 Sending message:", text);
-    
     setMessages((prev) => [...prev, optimistic]);
     setInput("");
-    
+
     if (typingTimer.current) clearTimeout(typingTimer.current);
     emitStopTyping(targetUserId);
     setIsTyping(false);
-    
+
     if (inputRef.current) inputRef.current.style.height = "auto";
 
     sendMessage(targetUserId, text);
-    
-    setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
+    setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }, [input, connected, currentUserId, targetUserId, sendMessage, emitStopTyping]);
 
-  // Typing handler
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const value = e.target.value;
@@ -522,7 +438,7 @@ export default function ChatRoomClient({
         setIsTyping(true);
         emitTyping(targetUserId);
       }
-      
+
       if (typingTimer.current) clearTimeout(typingTimer.current);
       typingTimer.current = setTimeout(() => {
         setIsTyping(false);
@@ -542,39 +458,29 @@ export default function ChatRoomClient({
     [handleSend]
   );
 
-  // Load older messages
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     const anchor = topAnchorRef.current;
-    
+
     startLoadMore(async () => {
       setIsLoading(true);
       try {
-        console.log(`Loading page ${nextPage}...`);
         const res = await getChatHistory(targetUserId, nextPage, 30);
-        
-        console.log("Load more response:", {
-          success: res.success,
-          count: res.data?.length,
-          hasMore: nextPage < (res.meta?.totalPages ?? 1)
-        });
-        
+
         if (res.success && res.data && res.data.length > 0) {
-          const filteredMessages = res.data.filter(
-            msg => msg && msg.content && typeof msg.content === 'string' && msg.content.trim() !== ""
-          );
-          
-          const sorted = [...filteredMessages].sort(
-            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-          );
-          
-          setMessages((prev) => [...sorted, ...prev]);
+          const filtered = res.data
+            .filter(
+              (msg) =>
+                msg && msg.content && typeof msg.content === "string" && msg.content.trim() !== ""
+            )
+            .sort(
+              (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+
+          setMessages((prev) => [...filtered, ...prev]);
           setPage(nextPage);
           setHasMore(nextPage < (res.meta?.totalPages ?? 1));
-          
-          requestAnimationFrame(() => {
-            anchor?.scrollIntoView({ block: "start" });
-          });
+          requestAnimationFrame(() => anchor?.scrollIntoView({ block: "start" }));
         } else {
           setHasMore(false);
         }
@@ -586,80 +492,69 @@ export default function ChatRoomClient({
     });
   }, [page, targetUserId]);
 
-  const groups = groupByDate(messages);
+  // ─── Status Text ───────────────────────────────────────────────────────────
 
-  // Debug log for groups
-  useEffect(() => {
-    console.log("=== Messages State Updated ===");
-    console.log("Total messages:", messages.length);
-    console.log("Groups:", groups.map(g => ({ label: g.label, count: g.msgs.length })));
-    
-    if (messages.length > 0) {
-      console.log("Last message:", {
-        content: messages[messages.length - 1].content,
-        senderId: messages[messages.length - 1].senderId,
-        createdAt: messages[messages.length - 1].createdAt
-      });
-    }
-  }, [messages, groups]);
-
-  // Get status text
   const getStatusText = () => {
     if (partnerTyping) return "typing...";
     if (isPartnerOnline) return "online";
     if (lastSeen) {
-      const now = new Date();
-      const diffMinutes = Math.floor((now.getTime() - lastSeen.getTime()) / (1000 * 60));
-      
+      const diffMinutes = Math.floor(
+        (new Date().getTime() - lastSeen.getTime()) / (1000 * 60)
+      );
       if (diffMinutes < 1) return "online";
       if (diffMinutes < 5) return "last seen recently";
-      if (diffMinutes < 60) return `last seen ${diffMinutes} minutes ago`;
-      if (diffMinutes < 1440) return `last seen ${Math.floor(diffMinutes / 60)} hours ago`;
+      if (diffMinutes < 60) return `last seen ${diffMinutes}m ago`;
+      if (diffMinutes < 1440) return `last seen ${Math.floor(diffMinutes / 60)}h ago`;
       return `last seen ${lastSeen.toLocaleDateString()}`;
     }
     return "offline";
   };
 
-  return (
-    <div className="font-outfit flex flex-col h-[100dvh] md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-[#111b21]">
+  const groups = groupByDate(messages);
 
-      {/* Header - WhatsApp Style */}
-      <div className="flex items-center gap-3 px-4 py-2 bg-[#202c33] border-b border-[#2a3942] shrink-0 z-10">
+  // ─── Render ────────────────────────────────────────────────────────────────
+
+  return (
+    <div className="font-outfit flex flex-col h-[100dvh] md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-gradient-to-b from-[#110608] via-[#160a0c] to-[#110608]">
+
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-2 bg-[#1c0c10] border-b border-[rgba(232,84,122,0.15)] shrink-0 z-10">
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-[#aebac1] hover:bg-[#2a3942] transition-all cursor-pointer"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-[#b08890] hover:bg-[#240e13] transition-all cursor-pointer"
         >
           <ArrowLeft size={20} />
         </button>
 
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand/40 to-accent/30 flex items-center justify-center shrink-0">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#e8547a] to-[#8b1a2e] flex items-center justify-center shrink-0 relative">
           <span className="font-syne text-white font-bold text-sm">
             {targetName?.charAt(0)?.toUpperCase() || "?"}
           </span>
+          {isPartnerOnline && (
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#25d366] rounded-full border-2 border-[#1c0c10]" />
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-white font-medium text-sm truncate">
-            {targetName}
-          </p>
-          <p className="text-[11px] text-[#8696a0] truncate">
+          <p className="text-[#f5e8eb] font-semibold text-sm truncate">{targetName}</p>
+          <p
+            className={`text-[11px] truncate transition-colors duration-300 ${
+              partnerTyping
+                ? "text-[#e8547a]"
+                : isPartnerOnline
+                ? "text-[#25d366]"
+                : "text-[#b08890]"
+            }`}
+          >
             {getStatusText()}
           </p>
         </div>
-
-        <div
-          className={`w-2 h-2 rounded-full shrink-0 transition-all duration-300 ${
-            isPartnerOnline
-              ? "bg-[#25d366] shadow-[0_0_6px_rgba(37,211,102,0.7)] animate-pulse"
-              : "bg-[#8696a0]"
-          }`}
-        />
       </div>
 
       {/* Offline Toast */}
       {showOffline && (
-        <div className="absolute top-14 left-1/2 transform -translate-x-1/2 bg-[#202c33] text-[#e9f0e8] px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50 shadow-lg">
-          <WifiOff size={12} />
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-[#240e13] border border-[rgba(232,84,122,0.2)] text-[#f5e8eb] px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50 shadow-lg">
+          <WifiOff size={12} className="text-[#e8547a]" />
           <span>Connecting...</span>
         </div>
       )}
@@ -669,18 +564,20 @@ export default function ChatRoomClient({
         <PremiumGate />
       ) : (
         <>
-          <div className="flex-1 overflow-y-auto px-4 py-2 overscroll-contain bg-[#0b141a] bg-[url('https://web.whatsapp.com/img/bg-chat-tile-dark_a4be512e7195b6b733d9110b408f075d.png')] bg-repeat">
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gradient-to-b from-[#110608] via-[#160a0c] to-[#110608]">
+
             {hasMore && (
               <div className="flex justify-center py-3">
                 <button
                   onClick={loadMore}
                   disabled={loadingMore || isLoading}
-                  className="text-[#53bdeb] text-xs hover:text-[#3ea6da] transition-colors"
+                  className="text-[#e8547a] text-xs hover:text-[#c04060] transition-colors disabled:opacity-50"
                 >
                   {loadingMore || isLoading ? (
                     <Loader2 size={14} className="animate-spin" />
                   ) : (
-                    "Load more messages"
+                    "Load older messages"
                   )}
                 </button>
               </div>
@@ -690,27 +587,23 @@ export default function ChatRoomClient({
 
             {groups.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-14 h-14 rounded-full bg-[#202c33] flex items-center justify-center mb-3">
-                  <MessageCircle size={24} className="text-[#8696a0]" />
+                <div className="w-14 h-14 rounded-full bg-[#240e13] border border-[rgba(232,84,122,0.15)] flex items-center justify-center mb-3">
+                  <MessageCircle size={24} className="text-[#b08890]" />
                 </div>
-                <p className="text-[#e9f0e8] font-medium text-sm mb-1">
-                  No messages yet
-                </p>
-                <p className="text-[#8696a0] text-xs">
-                  Say hello to {targetName}!
-                </p>
+                <p className="text-[#f5e8eb] font-medium text-sm mb-1">No messages yet</p>
+                <p className="text-[#b08890] text-xs">Say hello to {targetName}!</p>
               </div>
             )}
 
             {groups.map(({ label, msgs }) => (
-              <div key={label} className="mb-4">
+              <div key={label} className="mb-3">
                 <div className="flex items-center justify-center py-2">
-                  <span className="text-[11px] text-[#8696a0] bg-[#202c33] rounded-full px-3 py-1 shadow-sm">
+                  <span className="text-[10px] text-[#b08890] bg-[#240e13] border border-[rgba(232,84,122,0.12)] rounded-full px-3 py-1">
                     {label}
                   </span>
                 </div>
                 {msgs.map((msg) => (
-                  <WhatsAppMessageBubble
+                  <MessageBubble
                     key={msg._id}
                     msg={msg}
                     isMine={msg.senderId === currentUserId}
@@ -719,15 +612,13 @@ export default function ChatRoomClient({
               </div>
             ))}
 
-            {partnerTyping && (
-              <WhatsAppTypingIndicator name={targetName} />
-            )}
+            {partnerTyping && <TypingIndicator name={targetName} />}
 
             <div ref={bottomRef} />
           </div>
 
-          {/* Input bar */}
-          <div className="px-3 py-2 bg-[#202c33] shrink-0">
+          {/* Input Bar */}
+          <div className="px-3 py-2.5 bg-[#1c0c10] border-t border-[rgba(232,84,122,0.15)] shrink-0">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -735,19 +626,18 @@ export default function ChatRoomClient({
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="Type a message"
+                placeholder="Type a message..."
                 disabled={!connected}
-                className="flex-1 px-4 py-2.5 rounded-lg text-sm text-[#e9f0e8] placeholder-[#8696a0] bg-[#2a3942] border-none outline-none focus:ring-0 resize-none disabled:opacity-50 leading-relaxed"
+                className="flex-1 px-4 py-2.5 rounded-full text-sm text-[#f5e8eb] placeholder-[#6e4450] bg-[#240e13] border border-[rgba(232,84,122,0.2)] outline-none focus:border-[rgba(232,84,122,0.45)] resize-none disabled:opacity-50 leading-relaxed transition-colors duration-150"
                 style={{ minHeight: "42px", maxHeight: "120px" }}
               />
-
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || !connected}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-full flex items-center justify-center text-[#53bdeb] hover:bg-[#2a3942] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent shrink-0 cursor-pointer"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-[#e8547a] hover:bg-[#c04060] text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#e8547a] shrink-0 cursor-pointer shadow-[0_0_14px_rgba(232,84,122,0.35)]"
               >
-                <Send size={20} />
+                <Send size={16} />
               </button>
             </div>
           </div>
