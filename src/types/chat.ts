@@ -8,6 +8,7 @@ export interface Message {
   createdAt: string;
   // optimistic flag — temp message যতক্ষণ server confirm না করে
   _optimistic?: boolean;
+  updatedAt?: string;
 }
 
 export interface Conversation {

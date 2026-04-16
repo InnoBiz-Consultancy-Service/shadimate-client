@@ -1,6 +1,8 @@
+// app/profiles/[id]/page.tsx
 import { fetchProfileById } from "@/actions/profile/profile";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import {
   ArrowLeft,
   MapPin,
@@ -58,6 +60,37 @@ function InfoRow({
   );
 }
 
+// ─── Check if current user has profile ───────────────────────────────────────
+async function getCurrentUserProfileStatus() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
+  
+  if (!token) return { hasProfile: false, token: null, isLoggedIn: false };
+  
+  try {
+    const baseUrl = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+    const res = await fetch(`${baseUrl}/profile/my`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store'
+    });
+    
+    if (res.ok) {
+      const data = await res.json();
+      return { hasProfile: true, profile: data.data, token, isLoggedIn: true };
+    }
+    
+    // 404 means profile not found
+    if (res.status === 404) {
+      return { hasProfile: false, token, isLoggedIn: true };
+    }
+    
+    return { hasProfile: false, token, isLoggedIn: true };
+  } catch (error) {
+    console.error("Error checking profile:", error);
+    return { hasProfile: false, token, isLoggedIn: true };
+  }
+}
+
 export default async function ProfileViewPage({
   params,
 }: {
@@ -65,7 +98,10 @@ export default async function ProfileViewPage({
 }) {
   const { id } = await params;
 
-  const [res] = await Promise.all([fetchProfileById(id)]);
+  const [res, currentUserProfileStatus] = await Promise.all([
+    fetchProfileById(id),
+    getCurrentUserProfileStatus(),
+  ]);
 
   if (!res.success || !res.data) notFound();
 
@@ -93,6 +129,28 @@ export default async function ProfileViewPage({
   const location = [thanaName, distName, divName].filter(Boolean).join(", ");
   const uniName =
     geoName(p.education?.graduation?.universityId) || p.university?.[0]?.name;
+
+  // Determine chat button behavior
+  const hasCurrentUserProfile = currentUserProfileStatus.hasProfile;
+  const isLoggedIn = currentUserProfileStatus.isLoggedIn;
+  
+  // Chat link logic
+  const getChatLink = () => {
+    if (!isLoggedIn) return "/login";
+    return hasCurrentUserProfile ? `/chat/${targetUserId}` : "/profile/create";
+  };
+  
+  const getChatButtonText = () => {
+    if (!isLoggedIn) return "Login to Message";
+    if (!hasCurrentUserProfile) return "Create Profile to Message";
+    return `Message ${name.split(" ")[0]}`;
+  };
+  
+  const getChatButtonStyle = () => {
+    if (!isLoggedIn) return "text-slate-400 bg-white/5 border border-white/10 hover:bg-white/10";
+    if (!hasCurrentUserProfile) return "text-brand/80 bg-brand/5 border border-brand/20 hover:bg-brand/10";
+    return "text-on-brand bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.02] hover:shadow-(--shadow-btn-hover) active:scale-[0.98]";
+  };
 
   return (
     <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-2xl mx-auto">
@@ -149,19 +207,27 @@ export default async function ProfileViewPage({
           </p>
         )}
 
-        {/* ── Chat CTA ── */}
+        {/* ── Chat CTA with conditional behavior ── */}
         <Link
-          href={`/chat/${targetUserId}`}
-          className="no-underline flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl
-            text-sm font-bold font-outfit
-            text-on-brand bg-linear-to-r from-brand to-accent
-            shadow-(--shadow-brand-md)
-            hover:scale-[1.02] hover:shadow-(--shadow-btn-hover)
-            active:scale-[0.98] transition-all duration-200"
+          href={getChatLink()}
+          className={`no-underline flex items-center justify-center gap-2.5 w-full py-3.5 rounded-2xl
+            text-sm font-bold font-outfit transition-all duration-200 ${getChatButtonStyle()}`}
         >
           <MessageCircle size={17} />
-          Message {name.split(" ")[0]}
+          {getChatButtonText()}
         </Link>
+        
+        {isLoggedIn && !hasCurrentUserProfile && (
+          <p className="text-[10px] text-slate-500 text-center mt-2">
+            Complete your profile first to start messaging
+          </p>
+        )}
+        
+        {!isLoggedIn && (
+          <p className="text-[10px] text-slate-500 text-center mt-2">
+            Login to send messages
+          </p>
+        )}
       </GlassCard>
 
       {/* Completion (only visible to profile owner — already filtered server-side) */}
@@ -237,7 +303,7 @@ export default async function ProfileViewPage({
             Habits & Hobbies
           </h2>
           <div className="flex flex-wrap gap-2">
-            {p.habits.map((h) => (
+            {p.habits.map((h: string) => (
               <span
                 key={h}
                 className="text-xs font-outfit font-medium text-brand bg-brand/10 border border-brand/20 rounded-xl px-3 py-1.5"
@@ -252,12 +318,16 @@ export default async function ProfileViewPage({
       {/* Floating chat button — sticky bottom for mobile */}
       <div className="fixed bottom-24 right-5 md:hidden z-30">
         <Link
-          href={`/chat/${targetUserId}`}
-          className="no-underline flex items-center justify-center w-14 h-14 rounded-full
-            text-on-brand bg-linear-to-br from-brand to-accent
-            shadow-[0_0_22px_rgba(232,84,122,0.5)]
-            hover:scale-110 active:scale-95 transition-all duration-200"
-          aria-label="Open chat"
+          href={getChatLink()}
+          className={`no-underline flex items-center justify-center w-14 h-14 rounded-full
+            transition-all duration-200
+            ${!isLoggedIn 
+              ? "text-slate-400 bg-white/10 border border-white/20" 
+              : !hasCurrentUserProfile
+                ? "text-brand bg-brand/10 border border-brand/30"
+                : "text-on-brand bg-linear-to-br from-brand to-accent shadow-[0_0_22px_rgba(232,84,122,0.5)]"
+            } hover:scale-110 active:scale-95`}
+          aria-label={getChatButtonText()}
         >
           <MessageCircle size={22} />
         </Link>

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle, UserCircle } from "lucide-react";
+import { checkUserProfile } from "@/actions/chat/chat";
 
 const NAV_LINKS = ["Features", "Psychology", "Matches"];
 
@@ -10,6 +11,9 @@ export default function Navbar() {
   const [active, setActive] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -24,8 +28,51 @@ export default function Navbar() {
     };
   }, [menuOpen]);
 
+  // Check if user is logged in and has profile
+  useEffect(() => {
+    const checkAuthAndProfile = async () => {
+      try {
+        setIsLoading(true);
+        // Check if token exists
+        const hasToken = document.cookie.includes("accessToken");
+        setIsLoggedIn(hasToken);
+        
+        if (hasToken) {
+          const result = await checkUserProfile();
+          setHasProfile(result.hasProfile);
+        } else {
+          setHasProfile(false);
+        }
+      } catch (error) {
+        console.error("Failed to check profile:", error);
+        setHasProfile(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    checkAuthAndProfile();
+  }, []);
+
+  // Determine chat link based on profile status
+  const getChatLink = () => {
+    if (!isLoggedIn) return "/login";
+    return hasProfile ? "/conversations" : "/profile/create";
+  };
+  
+  const getChatButtonText = () => {
+    if (!isLoggedIn) return "Login to Chat";
+    return hasProfile ? "Chat" : "Create Profile";
+  };
+  
+  const getChatIconColor = () => {
+    if (!isLoggedIn) return "text-slate-500";
+    return hasProfile ? "text-[#aebac1] hover:text-white" : "text-brand/80 hover:text-brand";
+  };
+
   return (
     <>
+      {/* Mobile Menu */}
       <div
         className={`
           fixed inset-0 z-99 flex flex-col items-center justify-center gap-3
@@ -56,8 +103,28 @@ export default function Navbar() {
           </button>
         ))}
 
+        {/* Chat link in mobile menu */}
         <Link
-          href="/login"
+          href={getChatLink()}
+          onClick={() => setMenuOpen(false)}
+          className={`
+            font-syne font-bold tracking-tight px-6 py-2 rounded-xl
+            text-[clamp(32px,9vw,56px)] transition-all duration-200
+            flex items-center gap-3
+            ${!isLoggedIn 
+              ? "text-slate-500" 
+              : hasProfile 
+                ? "text-white/80 hover:text-white" 
+                : "text-brand/80 hover:text-brand"
+            }
+          `}
+        >
+          <MessageCircle size={40} />
+          {getChatButtonText()}
+        </Link>
+
+        <Link
+          href={isLoggedIn ? "/profiles" : "/login"}
           onClick={() => setMenuOpen(false)}
           className="
             mt-7 font-outfit font-bold tracking-widest text-base text-on-brand
@@ -69,7 +136,7 @@ export default function Navbar() {
             inline-flex items-center gap-2
           "
         >
-          Login <ArrowRight size={16} />
+          {isLoggedIn ? "Browse Profiles" : "Login"} <ArrowRight size={16} />
         </Link>
 
         <span className="absolute bottom-10 font-outfit text-[11px] uppercase tracking-[0.12em] text-white/20">
@@ -138,8 +205,38 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Chat Icon - Desktop */}
+            {!isLoading && (
+              <Link
+                href={getChatLink()}
+                title={getChatButtonText()}
+                className={`
+                  flex items-center justify-center w-9 h-9 rounded-full
+                  transition-all duration-200
+                  ${getChatIconColor()}
+                `}
+              >
+                <MessageCircle size={18} />
+              </Link>
+            )}
+
+            {/* Profile Icon */}
+            {isLoggedIn && (
+              <Link
+                href={hasProfile ? "/profile/my" : "/profile/create"}
+                title={hasProfile ? "My Profile" : "Create Profile"}
+                className="
+                  flex items-center justify-center w-9 h-9 rounded-full
+                  text-[#aebac1] hover:text-white hover:bg-white/10
+                  transition-all duration-200
+                "
+              >
+                <UserCircle size={18} />
+              </Link>
+            )}
+
             <Link
-              href="/login"
+              href={isLoggedIn ? "/profiles" : "/login"}
               className="
                 hidden md:flex items-center gap-1.5 font-outfit font-semibold text-sm tracking-[0.04em] text-on-brand
                 px-5 py-2 rounded-full cursor-pointer shrink-0 no-underline
@@ -148,7 +245,7 @@ export default function Navbar() {
                 active:scale-[0.97] transition-all duration-200
               "
             >
-              Login <ArrowRight size={14} />
+              {isLoggedIn ? "Browse" : "Login"} <ArrowRight size={14} />
             </Link>
 
             <button
@@ -168,7 +265,7 @@ export default function Navbar() {
                 className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-all duration-300 ${menuOpen ? "opacity-0 scale-x-0" : ""}`}
               />
               <span
-                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-transform duration-300 ${menuOpen ? "-translate-y-1.75 -rotate-45" : ""}`}
+                className={`block w-4 h-0.5 rounded-sm bg-white origin-center transition-all duration-300 ${menuOpen ? "-translate-y-1.75 -rotate-45" : ""}`}
               />
             </button>
           </div>
