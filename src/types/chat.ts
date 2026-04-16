@@ -4,10 +4,11 @@ export interface Message {
   receiverId: string;
   content: string;
   type: "text" | "image" | "file" | "voice";
-  status: "sent" | "delivered" | "seen";
+  status: "sent" | "delivered" | "seen" | "error";
   createdAt: string;
   // optimistic flag — temp message যতক্ষণ server confirm না করে
   _optimistic?: boolean;
+  updatedAt?: string;
 }
 
 export interface Conversation {

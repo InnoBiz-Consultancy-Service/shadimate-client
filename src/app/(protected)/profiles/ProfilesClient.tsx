@@ -25,11 +25,13 @@ export default function ProfilesClient({
     limit: 12,
     sort: "-createdAt",
   });
+
   const [isPending, startTransition] = useTransition();
 
   const doFetch = (newFilters: ProfileFilters) => {
     const merged = { ...filters, ...newFilters };
     setFilters(merged);
+
     startTransition(async () => {
       const res = await fetchProfiles(merged);
       if (res.success) {
@@ -53,7 +55,7 @@ export default function ProfilesClient({
         </span>
       </div>
 
-      <h1 className="font-syne text-white text-2xl font-extrabold tracking-tight mb-5">
+      <h1 className="font-syne text-white text-2xl font-extrabold mb-5">
         Find Your Match
       </h1>
 
@@ -61,18 +63,16 @@ export default function ProfilesClient({
 
       {isPending && (
         <div className="flex items-center justify-center py-16">
-          <Loader2 size={24} className="animate-spin text-brand" />
+          <Loader2 className="animate-spin text-brand" />
         </div>
       )}
 
       {!isPending && profiles.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <SearchX size={40} className="text-slate-600 mb-4" />
-          <h3 className="font-syne text-white text-lg font-bold mb-1">
-            No profiles found
-          </h3>
+          <SearchX className="text-slate-600 mb-4" />
+          <h3 className="text-white text-lg font-bold">No profiles found</h3>
           <p className="text-slate-500 text-sm">
-            Try adjusting your filters and search again
+            Try adjusting your filters
           </p>
         </div>
       )}
@@ -84,6 +84,7 @@ export default function ProfilesClient({
               <ProfileCard key={p._id} profile={p} />
             ))}
           </div>
+
           <Pagination
             page={meta.page}
             totalPages={meta.totalPages}

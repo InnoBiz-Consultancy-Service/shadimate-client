@@ -114,7 +114,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
 
   return (
     <Link
-      href={`/profiles/${profile._id}`}
+      href={`/profiles/${profile.userId}`}
       className="no-underline block group"
     >
       <div className="glass-card rounded-2xl p-5 transition-all duration-200 hover:border-brand/30 hover:shadow-(--shadow-brand-xs) group-hover:scale-[1.01]">
