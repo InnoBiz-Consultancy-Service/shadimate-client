@@ -67,6 +67,9 @@ export interface Profile {
   division?: { name: string }[];
   district?: { name: string }[];
   thana?: { name: string }[];
+  isLiked?: boolean;
+  likeCount?: number;
+  profileImage?: string;
 }
 
 export interface ProfileListMeta {

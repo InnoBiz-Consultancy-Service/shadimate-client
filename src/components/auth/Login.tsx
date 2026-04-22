@@ -89,10 +89,10 @@ export default function LoginPage() {
           </div>
 
           <div className="animate-[fadeUp_0.6s_ease_0.15s_both] text-center mb-8">
-            <h1 className="font-syne text-white text-[32px] font-extrabold tracking-tight leading-tight mb-2">
+            <h1 className="font-syne text-slate-900 text-[30px] font-extrabold tracking-tight leading-tight mb-2">
               Welcome back
             </h1>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Sign in to find your soul&apos;s connection
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function LoginPage() {
           <div className="animate-[fadeUp_0.6s_ease_0.25s_both] mb-6">
             <button
               type="button"
-              className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-2xl bg-white/6 border border-white/10 text-slate-200 text-sm font-medium hover:bg-white/10 hover:border-white/20 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+              className="w-full flex items-center justify-center gap-3 px-5 py-3.5 rounded-2xl bg-white border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98] transition-all duration-200 cursor-pointer shadow-sm"
             >
               <GoogleIcon />
               Continue with Google
@@ -108,11 +108,11 @@ export default function LoginPage() {
           </div>
 
           <div className="animate-[fadeUp_0.6s_ease_0.35s_both] flex items-center gap-4 mb-6">
-            <div className="flex-1 h-px bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.1),transparent)]" />
-            <span className="text-slate-500 text-xs font-medium tracking-wider">
+            <div className="flex-1 h-px bg-slate-200" />
+            <span className="text-slate-400 text-xs font-medium tracking-wider">
               OR
             </span>
-            <div className="flex-1 h-px bg-[linear-gradient(to_right,transparent,rgba(255,255,255,0.1),transparent)]" />
+            <div className="flex-1 h-px bg-slate-200" />
           </div>
 
           <form
@@ -131,7 +131,7 @@ export default function LoginPage() {
               <span />
               <Link
                 href="/forgot-password"
-                className="text-xs text-brand hover:text-accent transition-colors duration-150 no-underline"
+                className="text-xs text-brand hover:text-brand/80 transition-colors duration-150 no-underline font-medium"
               >
                 Forgot password?
               </Link>
@@ -158,7 +158,7 @@ export default function LoginPage() {
               New to ShadiMate?{" "}
               <Link
                 href="/registration"
-                className="text-brand font-semibold hover:text-accent transition-colors duration-150 no-underline"
+                className="text-brand font-semibold hover:text-brand/80 transition-colors duration-150 no-underline"
               >
                 Create account
               </Link>

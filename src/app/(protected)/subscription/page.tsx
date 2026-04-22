@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 
 import { universalApi } from "@/actions/universal-api";
 import SubscriptionClient from "@/components/subscription/SubscriptionClient";
