@@ -92,55 +92,59 @@ function StatusIcon({
   return <Check size={14} className="text-[#b08890] shrink-0" />;
 }
 
-// ─── Message Bubble ───────────────────────────────────────────────────────────
+// ─── Message Bubble ──────
 
-function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
-  if (!msg.content?.trim()) return null;
-  const timeString = formatWhatsAppTime(msg.createdAt);
-
-  return (
-    <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1`}>
-      <div className="relative max-w-[75%]">
-        <div
-          className={`relative px-3 py-2 text-sm leading-relaxed ${
-            isMine
-              ? "bg-[#7a1d30] text-[#f5e8eb] rounded-tl-2xl rounded-bl-2xl rounded-br-sm rounded-tr-2xl border border-[rgba(232,84,122,0.2)] shadow-sm"
-              : "bg-[#1e0c10] text-[#f5e8eb] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl border border-[rgba(232,84,122,0.1)] shadow-sm"
-          }`}
-        >
-          <p className="wrap-break-words whitespace-pre-wrap pr-14">
-            {msg.content}
-          </p>
-          <div className="absolute bottom-1.5 right-2.5 flex items-center gap-0.5">
-            <span className="text-[9px] text-[#b08890]/70">{timeString}</span>
-            <StatusIcon status={msg.status} isMine={isMine} />
-          </div>
-        </div>
-      </div>
+// MessageBubble Component
+const MessageBubble = ({ msg, isMine }: { msg: Message; isMine: boolean }) => (
+  <div className={`flex mb-2 ${isMine ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${
+        isMine
+          ? "bg-linear-to-r from-brand to-accent text-white rounded-br-md"
+          : "bg-white border border-gray-200 text-gray-700 rounded-bl-md shadow-sm"
+      }`}
+    >
+      <p className="leading-relaxed wrap-break-word whitespace-pre-wrap">
+        {msg?.content}
+      </p>
+      <p
+        className={`text-[9px] mt-1 ${
+          isMine ? "text-white/70" : "text-gray-400"
+        }`}
+      >
+        {new Date(msg.createdAt).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </p>
     </div>
-  );
-}
+  </div>
+);
 
 // ─── Typing Indicator ─────────────────────────────────────────────────────────
 
-function TypingIndicator({ name }: { name: string }) {
-  return (
-    <div className="flex justify-start items-center gap-2 mb-1">
-      <div className="bg-[#1e0c10] border border-[rgba(232,84,122,0.1)] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl px-4 py-3 shadow-sm">
-        <div className="flex items-center gap-1">
-          {[0, 200, 400].map((delay) => (
-            <div
-              key={delay}
-              className="w-1.5 h-1.5 rounded-full bg-[#b08890] animate-bounce"
-              style={{ animationDelay: `${delay}ms`, animationDuration: "1s" }}
-            />
-          ))}
-        </div>
+// TypingIndicator Component
+const TypingIndicator = ({ name }: { name: string }) => (
+  <div className="flex justify-start mb-2">
+    <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-3 py-2 shadow-sm">
+      <div className="flex items-center gap-1">
+        <span
+          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "0ms" }}
+        />
+        <span
+          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "150ms" }}
+        />
+        <span
+          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
+          style={{ animationDelay: "300ms" }}
+        />
+        <span className="text-xs text-gray-500 ml-1">{name} is typing...</span>
       </div>
-      <span className="text-[10px] text-[#b08890]">{name} is typing...</span>
     </div>
-  );
-}
+  </div>
+);
 
 // ─── Premium Gate ─────────────────────────────────────────────────────────────
 
@@ -539,36 +543,36 @@ export default function ChatRoomClient({
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="font-outfit flex flex-col h-[100dvh] md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-gradient-to-b from-[#110608] via-[#160a0c] to-[#110608]">
+    <div className="font-outfit flex flex-col h-[100dvh] md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-white">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2 bg-[#1c0c10] border-b border-[rgba(232,84,122,0.15)] shrink-0 z-10">
+      <div className="flex items-center gap-3 px-4 py-2 bg-white border-b border-gray-100 shrink-0 z-10">
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-[#b08890] hover:bg-[#240e13] transition-all cursor-pointer"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all cursor-pointer"
         >
           <ArrowLeft size={20} />
         </button>
 
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#e8547a] to-[#8b1a2e] flex items-center justify-center shrink-0 relative">
-          <span className="font-syne text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0 relative">
+          <span className="font-syne text-gray-700 font-bold text-sm">
             {targetName?.charAt(0)?.toUpperCase() || "?"}
           </span>
           {isPartnerOnline && (
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-[#25d366] rounded-full border-2 border-[#1c0c10]" />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-[#f5e8eb] font-semibold text-sm truncate">
+          <p className="text-gray-800 font-semibold text-sm truncate">
             {targetName}
           </p>
           <p
             className={`text-[11px] truncate transition-colors duration-300 ${
               partnerTyping
-                ? "text-[#e8547a]"
+                ? "text-brand"
                 : isPartnerOnline
-                  ? "text-[#25d366]"
-                  : "text-[#b08890]"
+                  ? "text-green-500"
+                  : "text-gray-400"
             }`}
           >
             {getStatusText()}
@@ -578,8 +582,8 @@ export default function ChatRoomClient({
 
       {/* Offline Toast */}
       {showOffline && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-[#240e13] border border-[rgba(232,84,122,0.2)] text-[#f5e8eb] px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50 shadow-lg">
-          <WifiOff size={12} className="text-[#e8547a]" />
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50 shadow-lg">
+          <WifiOff size={12} className="text-brand" />
           <span>Connecting...</span>
         </div>
       )}
@@ -589,17 +593,17 @@ export default function ChatRoomClient({
         <PremiumGate />
       ) : (
         <>
-          {/* ✅ messageContainerRef দিয়ে scroll anchor control */}
+          {/* Message Container */}
           <div
             ref={messageContainerRef}
-            className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gradient-to-b from-[#110608] via-[#160a0c] to-[#110608]"
+            className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gray-50"
           >
             {hasMore && (
               <div className="flex justify-center py-3">
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="text-[#e8547a] text-xs hover:text-[#c04060] transition-colors disabled:opacity-50 flex items-center gap-1"
+                  className="text-brand text-xs hover:text-brand/70 transition-colors disabled:opacity-50 flex items-center gap-1"
                 >
                   {loadingMore ? (
                     <>
@@ -614,13 +618,13 @@ export default function ChatRoomClient({
 
             {groups.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-14 h-14 rounded-full bg-[#240e13] border border-[rgba(232,84,122,0.15)] flex items-center justify-center mb-3">
-                  <MessageCircle size={24} className="text-[#b08890]" />
+                <div className="w-14 h-14 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center mb-3">
+                  <MessageCircle size={24} className="text-gray-400" />
                 </div>
-                <p className="text-[#f5e8eb] font-medium text-sm mb-1">
+                <p className="text-gray-700 font-medium text-sm mb-1">
                   No messages yet
                 </p>
-                <p className="text-[#b08890] text-xs">
+                <p className="text-gray-400 text-xs">
                   Say hello to {targetName}!
                 </p>
               </div>
@@ -629,7 +633,7 @@ export default function ChatRoomClient({
             {groups.map(({ label, msgs }) => (
               <div key={label} className="mb-3">
                 <div className="flex items-center justify-center py-2">
-                  <span className="text-[10px] text-[#b08890] bg-[#240e13] border border-[rgba(232,84,122,0.12)] rounded-full px-3 py-1">
+                  <span className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-3 py-1">
                     {label}
                   </span>
                 </div>
@@ -649,7 +653,7 @@ export default function ChatRoomClient({
           </div>
 
           {/* Input Bar */}
-          <div className="px-3 py-2.5 bg-[#1c0c10] border-t border-[rgba(232,84,122,0.15)] shrink-0">
+          <div className="px-3 py-2.5 bg-white border-t border-gray-100 shrink-0">
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -659,14 +663,14 @@ export default function ChatRoomClient({
                 onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
                 disabled={!connected}
-                className="flex-1 px-4 py-2.5 rounded-full text-sm text-[#f5e8eb] placeholder-[#6e4450] bg-[#240e13] border border-[rgba(232,84,122,0.2)] outline-none focus:border-[rgba(232,84,122,0.45)] resize-none disabled:opacity-50 leading-relaxed transition-colors duration-150"
+                className="flex-1 px-4 py-2.5 rounded-2xl text-sm text-gray-700 placeholder-gray-400 bg-gray-50 border border-gray-200 outline-none focus:border-brand/50 focus:ring-2 focus:ring-brand/10 resize-none disabled:opacity-50 leading-relaxed transition-all duration-200"
                 style={{ minHeight: "42px", maxHeight: "120px" }}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || !connected}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-[#e8547a] hover:bg-[#c04060] text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-[0_0_14px_rgba(232,84,122,0.35)]"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
               >
                 <Send size={16} />
               </button>

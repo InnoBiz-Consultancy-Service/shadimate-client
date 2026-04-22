@@ -48,14 +48,8 @@ export default function ProfilesClient({
 
   return (
     <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <Logo size="small" />
-        <span className="text-slate-500 text-sm">
-          {meta.total > 0 ? `${meta.total} profiles found` : ""}
-        </span>
-      </div>
 
-      <h1 className="font-syne text-white text-2xl font-extrabold mb-5">
+      <h1 className="font-syne text-slate-900 text-2xl font-extrabold mb-5">
         Find Your Match
       </h1>
 
@@ -69,9 +63,9 @@ export default function ProfilesClient({
 
       {!isPending && profiles.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <SearchX className="text-slate-600 mb-4" />
-          <h3 className="text-white text-lg font-bold">No profiles found</h3>
-          <p className="text-slate-500 text-sm">
+          <SearchX className="text-slate-300 mb-4" />
+          <h3 className="text-slate-800 text-lg font-bold">No profiles found</h3>
+          <p className="text-slate-400 text-sm">
             Try adjusting your filters
           </p>
         </div>

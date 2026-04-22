@@ -60,17 +60,19 @@ function InfoRow({
 }) {
   if (!value) return null;
   return (
-    <div className="flex items-start gap-3 py-2.5 border-b border-white/5 last:border-0">
+    <div className="flex items-start gap-3 py-2.5 border-b border-gray-100 last:border-0">
       {Icon && (
-        <div className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/15 flex items-center justify-center shrink-0 mt-0.5">
-          <Icon size={13} className="text-brand/80" />
+        <div className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0 mt-0.5">
+          <Icon size={14} className="text-brand" />
         </div>
       )}
       <div className="flex-1 min-w-0">
-        <p className="font-outfit text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-500 mb-0.5">
+        <p className="font-outfit text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-1">
           {label}
         </p>
-        <p className="font-outfit text-sm text-slate-200 leading-snug">{value}</p>
+        <p className="font-outfit text-sm text-gray-800 leading-relaxed">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -78,8 +80,6 @@ function InfoRow({
 
 function SectionCard({
   title,
-  icon: Icon,
-  editStep,
   empty,
   children,
 }: {
@@ -92,12 +92,11 @@ function SectionCard({
   return (
     <div className="glass-card rounded-2xl overflow-hidden">
       {/* header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/6 bg-white/[0.02]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/6 bg-white/2">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-brand/15 border border-brand/25 flex items-center justify-center">
-            <Icon size={13} className="text-brand" />
-          </div>
-          <span className="font-syne text-white text-sm font-bold">{title}</span>
+          <span className="font-syne text-black text-base font-bold">
+            {title}
+          </span>
         </div>
         <Link
           href="/profile/edit"
@@ -140,9 +139,12 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
   const completionColor = getCompletionColor(completion);
 
   /* derived values */
-  const divName = geoName(profile.address?.divisionId) || profile.division?.[0]?.name;
-  const distName = geoName(profile.address?.districtId) || profile.district?.[0]?.name;
-  const thanaName = geoName(profile.address?.thanaId) || profile.thana?.[0]?.name;
+  const divName =
+    geoName(profile.address?.divisionId) || profile.division?.[0]?.name;
+  const distName =
+    geoName(profile.address?.districtId) || profile.district?.[0]?.name;
+  const thanaName =
+    geoName(profile.address?.thanaId) || profile.thana?.[0]?.name;
   const location = [thanaName, distName, divName].filter(Boolean).join(", ");
 
   const uniName =
@@ -150,12 +152,28 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
     profile.university?.[0]?.name;
 
   /* section empty checks */
-  const hasBasic = !!(profile.profession || profile.birthDate || profile.maritalStatus || profile.aboutMe || profile.personality);
+  const hasBasic = !!(
+    profile.profession ||
+    profile.birthDate ||
+    profile.maritalStatus ||
+    profile.aboutMe ||
+    profile.personality
+  );
   const hasPhysical = !!(profile.height || profile.weight || profile.skinTone);
-  const hasAddress = !!(profile.address?.divisionId);
-  const hasEducation = !!(profile.education?.graduation?.variety || uniName || profile.education?.graduation?.department);
-  const hasReligion = !!(profile.religion?.faith || profile.religion?.practiceLevel);
-  const hasFamily = !!(profile.relation || profile.fatherOccupation || profile.motherOccupation);
+  const hasAddress = !!profile.address?.divisionId;
+  const hasEducation = !!(
+    profile.education?.graduation?.variety ||
+    uniName ||
+    profile.education?.graduation?.department
+  );
+  const hasReligion = !!(
+    profile.religion?.faith || profile.religion?.practiceLevel
+  );
+  const hasFamily = !!(
+    profile.relation ||
+    profile.fatherOccupation ||
+    profile.motherOccupation
+  );
   const hasHabits = !!(profile.habits && profile.habits.length > 0);
 
   return (
@@ -209,26 +227,26 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
 
           {/* Name + meta */}
           <div className="mb-4">
-            <h1 className="font-syne text-white text-2xl md:text-3xl font-extrabold tracking-tight">
+            <h1 className="font-syne text-gray-900 text-2xl md:text-3xl font-extrabold tracking-tight">
               {name}
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-1.5">
               {age && (
-                <span className="font-outfit text-slate-400 text-sm">
+                <span className="font-outfit text-gray-500 text-sm">
                   {age} years old
                 </span>
               )}
               {profile.gender && (
                 <>
-                  <span className="text-slate-600">·</span>
-                  <span className="font-outfit text-slate-400 text-sm capitalize">
+                  <span className="text-gray-400">·</span>
+                  <span className="font-outfit text-gray-500 text-sm capitalize">
                     {profile.gender}
                   </span>
                 </>
               )}
               {profile.personality && (
                 <>
-                  <span className="text-slate-600">·</span>
+                  <span className="text-gray-400">·</span>
                   <span className="font-outfit text-xs font-semibold text-brand bg-brand/10 border border-brand/20 px-2.5 py-0.5 rounded-full">
                     {profile.personality}
                   </span>
@@ -236,8 +254,8 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
               )}
             </div>
             {location && (
-              <p className="flex items-center gap-1.5 font-outfit text-slate-500 text-xs mt-1.5">
-                <MapPin size={11} className="text-brand/60" />
+              <p className="flex items-center gap-1.5 font-outfit text-gray-500 text-xs mt-1.5">
+                <MapPin size={11} className="text-brand/70" />
                 {location}
               </p>
             )}
@@ -247,7 +265,7 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
           {completion > 0 && (
             <div className="glass-card rounded-xl px-4 py-3 mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-outfit text-slate-400 text-xs font-medium">
+                <span className="font-outfit text-gray-500 text-xs font-medium">
                   Profile Completion
                 </span>
                 <span
@@ -260,7 +278,10 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
               <div className="w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700 ease-out"
-                  style={{ width: `${completion}%`, backgroundColor: completionColor }}
+                  style={{
+                    width: `${completion}%`,
+                    backgroundColor: completionColor,
+                  }}
                 />
               </div>
               {profile.completionLabel && (
@@ -278,14 +299,13 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
 
       {/* ── SECTION CARDS ── */}
       <div className="px-4 md:px-6 pb-6 space-y-3">
-
         {/* About Me (standalone if available) */}
         {profile.aboutMe && (
           <div className="glass-card rounded-2xl px-4 py-4">
-            <p className="font-outfit text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-500 mb-2">
+            <p className="font-outfit text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-2">
               About Me
             </p>
-            <p className="font-outfit text-sm text-slate-300 leading-relaxed">
+            <p className="font-outfit text-sm text-gray-500 leading-relaxed">
               {profile.aboutMe}
             </p>
           </div>
@@ -293,18 +313,54 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
 
         {/* Basic Info */}
         <SectionCard title="Basic Info" icon={User} empty={!hasBasic}>
-          <InfoRow icon={Briefcase} label="Profession" value={profile.profession} />
-          <InfoRow icon={Calendar} label="Date of Birth" value={formatDate(profile.birthDate)} />
-          <InfoRow icon={Heart} label="Marital Status" value={profile.maritalStatus} />
-          <InfoRow icon={User} label="Personality Type" value={profile.personality} />
-          <InfoRow icon={DollarSign} label="Economic Status" value={profile.economicalStatus} />
-          <InfoRow icon={DollarSign} label="Salary Range" value={profile.salaryRange} />
+          <InfoRow
+            icon={Briefcase}
+            label="Profession"
+            value={profile.profession}
+          />
+          <InfoRow
+            icon={Calendar}
+            label="Date of Birth"
+            value={formatDate(profile.birthDate)}
+          />
+          <InfoRow
+            icon={Heart}
+            label="Marital Status"
+            value={profile.maritalStatus}
+          />
+          <InfoRow
+            icon={User}
+            label="Personality Type"
+            value={profile.personality}
+          />
+          <InfoRow
+            icon={DollarSign}
+            label="Economic Status"
+            value={profile.economicalStatus}
+          />
+          <InfoRow
+            icon={DollarSign}
+            label="Salary Range"
+            value={profile.salaryRange}
+          />
         </SectionCard>
 
         {/* Physical */}
-        <SectionCard title="Physical Attributes" icon={Ruler} empty={!hasPhysical}>
-          <InfoRow icon={Ruler} label="Height" value={profile.height ? `${profile.height} cm` : null} />
-          <InfoRow icon={Ruler} label="Weight" value={profile.weight ? `${profile.weight} kg` : null} />
+        <SectionCard
+          title="Physical Attributes"
+          icon={Ruler}
+          empty={!hasPhysical}
+        >
+          <InfoRow
+            icon={Ruler}
+            label="Height"
+            value={profile.height ? `${profile.height} cm` : null}
+          />
+          <InfoRow
+            icon={Ruler}
+            label="Weight"
+            value={profile.weight ? `${profile.weight} kg` : null}
+          />
           <InfoRow icon={User} label="Skin Tone" value={profile.skinTone} />
         </SectionCard>
 
@@ -313,28 +369,76 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
           <InfoRow icon={MapPin} label="Division" value={divName} />
           <InfoRow icon={MapPin} label="District" value={distName} />
           <InfoRow icon={MapPin} label="Thana / Upazila" value={thanaName} />
-          <InfoRow icon={MapPin} label="Address Details" value={profile.address?.details} />
+          <InfoRow
+            icon={MapPin}
+            label="Address Details"
+            value={profile.address?.details}
+          />
         </SectionCard>
 
         {/* Education */}
-        <SectionCard title="Education" icon={GraduationCap} empty={!hasEducation}>
-          <InfoRow icon={GraduationCap} label="Education Type" value={profile.education?.graduation?.variety} />
+        <SectionCard
+          title="Education"
+          icon={GraduationCap}
+          empty={!hasEducation}
+        >
+          <InfoRow
+            icon={GraduationCap}
+            label="Education Type"
+            value={profile.education?.graduation?.variety}
+          />
           <InfoRow icon={GraduationCap} label="University" value={uniName} />
-          <InfoRow icon={GraduationCap} label="Department" value={profile.education?.graduation?.department} />
-          <InfoRow icon={GraduationCap} label="Institution" value={profile.education?.graduation?.institution} />
-          <InfoRow icon={Calendar} label="Passing Year" value={profile.education?.graduation?.passingYear} />
-          <InfoRow icon={GraduationCap} label="College" value={profile.education?.graduation?.collegeName} />
+          <InfoRow
+            icon={GraduationCap}
+            label="Department"
+            value={profile.education?.graduation?.department}
+          />
+          <InfoRow
+            icon={GraduationCap}
+            label="Institution"
+            value={profile.education?.graduation?.institution}
+          />
+          <InfoRow
+            icon={Calendar}
+            label="Passing Year"
+            value={profile.education?.graduation?.passingYear}
+          />
+          <InfoRow
+            icon={GraduationCap}
+            label="College"
+            value={profile.education?.graduation?.collegeName}
+          />
         </SectionCard>
 
         {/* Religion */}
-        <SectionCard title="Religious Info" icon={BookOpen} empty={!hasReligion}>
-          <InfoRow icon={BookOpen} label="Faith" value={profile.religion?.faith} />
-          <InfoRow icon={BookOpen} label="Practice Level" value={profile.religion?.practiceLevel} />
-          <InfoRow icon={BookOpen} label="Sect / Caste" value={profile.religion?.sectOrCaste} />
-          <InfoRow icon={BookOpen} label="Daily Lifestyle" value={profile.religion?.dailyLifeStyleSummary} />
+        <SectionCard
+          title="Religious Info"
+          icon={BookOpen}
+          empty={!hasReligion}
+        >
+          <InfoRow
+            icon={BookOpen}
+            label="Faith"
+            value={profile.religion?.faith}
+          />
+          <InfoRow
+            icon={BookOpen}
+            label="Practice Level"
+            value={profile.religion?.practiceLevel}
+          />
+          <InfoRow
+            icon={BookOpen}
+            label="Sect / Caste"
+            value={profile.religion?.sectOrCaste}
+          />
+          <InfoRow
+            icon={BookOpen}
+            label="Daily Lifestyle"
+            value={profile.religion?.dailyLifeStyleSummary}
+          />
           {profile.religion?.religiousLifestyleDetails && (
             <div className="py-2.5 border-t border-white/5">
-              <p className="font-outfit text-[10px] font-semibold tracking-[0.1em] uppercase text-slate-500 mb-1">
+              <p className="font-outfit text-[10px] font-semibold tracking-widest uppercase text-slate-500 mb-1">
                 Religious Lifestyle Details
               </p>
               <p className="font-outfit text-sm text-slate-300 leading-relaxed">
@@ -346,13 +450,29 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
 
         {/* Family */}
         <SectionCard title="Family" icon={Users} empty={!hasFamily}>
-          <InfoRow icon={Users} label="Guardian Relation" value={profile.relation} />
-          <InfoRow icon={Briefcase} label="Father's Occupation" value={profile.fatherOccupation} />
-          <InfoRow icon={Briefcase} label="Mother's Occupation" value={profile.motherOccupation} />
+          <InfoRow
+            icon={Users}
+            label="Guardian Relation"
+            value={profile.relation}
+          />
+          <InfoRow
+            icon={Briefcase}
+            label="Father's Occupation"
+            value={profile.fatherOccupation}
+          />
+          <InfoRow
+            icon={Briefcase}
+            label="Mother's Occupation"
+            value={profile.motherOccupation}
+          />
         </SectionCard>
 
         {/* Interests & Habits */}
-        <SectionCard title="Interests & Habits" icon={Sparkles} empty={!hasHabits}>
+        <SectionCard
+          title="Interests & Habits"
+          icon={Sparkles}
+          empty={!hasHabits}
+        >
           {hasHabits && (
             <div className="pt-3 pb-2">
               <div className="flex flex-wrap gap-2">

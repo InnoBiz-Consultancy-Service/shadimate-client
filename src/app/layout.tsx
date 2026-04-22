@@ -61,16 +61,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} ${syne.variable} antialiased bg-bg-base`}
+        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} ${syne.variable} antialiased`}
       >
-        <div className="relative min-h-screen bg-[radial-gradient(ellipse_at_25%_40%,#2a0a1a_0%,#180a14_50%,#120810_100%)] overflow-x-hidden">
+        <div className="relative min-h-screen overflow-x-hidden">
           <a
             href="#main-content"
             className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-200 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-brand focus:text-on-brand"
           >
             Skip to content
           </a>
-          <main id="main-content" className="relative z-10">
+          <main id="main-content" className="relative">
             {children}
           </main>
         </div>

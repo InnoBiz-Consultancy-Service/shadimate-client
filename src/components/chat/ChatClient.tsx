@@ -191,14 +191,15 @@ export default function ChatClient({
 
   return (
     <div className="font-outfit min-h-screen px-4 py-6 md:py-10 max-w-2xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="font-syne text-white text-2xl font-extrabold tracking-tight flex items-center gap-2">
-          <MessageCircle size={22} className="text-brand" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <h1 className="font-syne text-gray-900 text-2xl md:text-3xl font-extrabold tracking-tight flex items-center gap-2">
+          <MessageCircle size={24} className="text-brand" />
           Messages
         </h1>
         {conversations.length > 0 && (
-          <span className="font-outfit text-xs text-slate-500 bg-white/5 border border-white/8 rounded-lg px-2.5 py-1">
-            {conversations.length} chats
+          <span className="font-outfit text-xs font-medium text-gray-500 bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1 self-start sm:self-auto">
+            {conversations.length}{" "}
+            {conversations.length === 1 ? "chat" : "chats"}
           </span>
         )}
       </div>
@@ -206,35 +207,38 @@ export default function ChatClient({
       {conversations.length > 0 && (
         <div className="relative mb-5">
           <Search
-            size={15}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+            size={16}
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
           />
           <input
             type="text"
             placeholder="Search conversations..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="font-outfit w-full pl-10 pr-4 py-3 rounded-2xl text-sm text-slate-200 placeholder-slate-600 bg-white/5 border border-white/10 outline-none focus:border-brand/40 transition-all duration-200"
+            className="font-outfit w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-gray-700 placeholder-gray-400 bg-white border border-gray-200 outline-none focus:border-brand/50 focus:ring-2 focus:ring-brand/10 transition-all duration-200"
           />
         </div>
       )}
 
       {conversations.length === 0 && (
-        <GlassCard className="p-10 text-center">
-          <MessageCircle size={44} className="text-slate-600 mx-auto mb-4" />
-          <h2 className="font-syne text-white text-lg font-bold mb-2">
-            No Messages Yet
-          </h2>
-          <p className="text-slate-500 text-sm max-w-xs mx-auto mb-5">
-            Start a conversation by visiting someone&apos;s profile.
-          </p>
-          <Link
-            href="/profiles"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-on-brand bg-linear-to-r from-brand to-accent no-underline hover:scale-[1.02] transition-all duration-200"
-          >
-            Browse Profiles
-          </Link>
-        </GlassCard>
+        <div className="relative bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center overflow-hidden">
+          <div className="absolute inset-0 bg-linear-to-r from-brand/3 to-accent/3 rounded-2xl pointer-events-none" />
+          <div className="relative">
+            <MessageCircle size={48} className="text-gray-300 mx-auto mb-4" />
+            <h2 className="font-syne text-gray-800 text-xl font-bold mb-2">
+              No Messages Yet
+            </h2>
+            <p className="text-gray-500 text-sm max-w-xs mx-auto mb-6">
+              Start a conversation by visiting someone&apos;s profile.
+            </p>
+            <Link
+              href="/profiles"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] no-underline transition-all duration-200 shadow-sm"
+            >
+              Browse Profiles
+            </Link>
+          </div>
+        </div>
       )}
 
       {filtered.length > 0 && (
@@ -250,8 +254,8 @@ export default function ChatClient({
 
       {conversations.length > 0 && filtered.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-slate-500 text-sm">
-            No conversations match &ldquo;{search}&rdquo;
+          <p className="text-gray-400 text-sm">
+            No conversations match {search}
           </p>
         </div>
       )}
@@ -266,20 +270,20 @@ const ConversationRow = memo(
 
     const inner = (
       <div
-        className={`glass-card rounded-2xl px-4 py-3.5 flex items-center gap-3.5 transition-all duration-200 ${
+        className={`rounded-2xl px-4 py-3.5 flex items-center gap-3.5 transition-all duration-200 border ${
           !isLocked
-            ? "hover:border-brand/30 hover:bg-brand/3 cursor-pointer"
-            : "opacity-60"
+            ? "border-gray-100 bg-white hover:border-brand/30 hover:bg-brand/5 hover:shadow-sm cursor-pointer"
+            : "border-gray-100 bg-white opacity-60"
         }`}
       >
         <div className="relative shrink-0">
-          <div className="w-12 h-12 rounded-full bg-linear-to-br from-brand/40 to-accent/30 border border-white/10 flex items-center justify-center">
-            <span className="font-syne text-white font-bold text-sm">
+          <div className="w-12 h-12 rounded-full bg-linear-to-br from-brand/20 to-accent/20 border border-gray-200 flex items-center justify-center">
+            <span className="font-syne text-gray-700 font-bold text-sm">
               {conv.name?.charAt(0).toUpperCase() ?? "?"}
             </span>
           </div>
           {conv.unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 flex items-center justify-center bg-brand text-on-brand text-[9px] font-bold rounded-full px-1 shadow-[0_0_6px_rgba(232,84,122,0.8)]">
+            <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 flex items-center justify-center bg-linear-to-r from-brand to-accent text-white text-[10px] font-bold rounded-full px-1 shadow-sm">
               {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
             </span>
           )}
@@ -287,26 +291,26 @@ const ConversationRow = memo(
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-0.5">
-            <p className="font-outfit text-sm font-semibold text-slate-100 truncate">
+            <p className="font-outfit text-sm font-semibold text-gray-800 truncate">
               {conv.name ?? "Unknown"}
             </p>
-            <span className="font-outfit text-[10px] text-slate-600 shrink-0">
+            <span className="font-outfit text-[10px] text-gray-400 shrink-0">
               {timeAgo(conv.lastMessageTime)}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
             {isLocked ? (
-              <span className="flex items-center gap-1 text-[11px] text-slate-600">
+              <span className="flex items-center gap-1 text-[11px] text-gray-400">
                 <Lock size={10} /> Premium only
               </span>
             ) : conv.lastMessage ? (
               <p
-                className={`text-[12px] truncate ${conv.unreadCount > 0 ? "text-slate-300 font-medium" : "text-slate-500"}`}
+                className={`text-[12px] truncate ${conv.unreadCount > 0 ? "text-gray-700 font-medium" : "text-gray-500"}`}
               >
                 {conv.lastMessage}
               </p>
             ) : (
-              <p className="text-[12px] text-slate-600 italic">
+              <p className="text-[12px] text-gray-400 italic">
                 No messages yet
               </p>
             )}

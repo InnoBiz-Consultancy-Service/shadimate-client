@@ -70,7 +70,7 @@ export default function RegisterPage() {
 
         <GlassCard className="relative z-10 w-full max-w-md px-8 py-9 md:px-10">
           <div className="animate-[fadeUp_0.55s_ease_0.1s_both] mb-7">
-            <h1 className="font-syne text-white font-extrabold text-[28px] tracking-tight leading-tight mb-1.5">
+            <h1 className="font-syne text-slate-900 font-extrabold text-[26px] tracking-tight leading-tight mb-1.5">
               Create your account
             </h1>
             <p className="text-slate-500 text-sm">
@@ -142,7 +142,7 @@ export default function RegisterPage() {
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-brand font-semibold hover:text-accent transition-colors duration-150 no-underline"
+              className="text-brand font-semibold hover:text-brand/80 transition-colors duration-150 no-underline"
             >
               Sign in
             </Link>
