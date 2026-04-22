@@ -10,7 +10,6 @@ import {
   UserCog,
 } from "lucide-react";
 import { fetchProfiles } from "@/actions/profile/profile";
-import { Logo, GlassCard } from "@/components/ui";
 import ProfileCard from "@/components/profile/ProfileCard";
 import ProfileFiltersUI from "@/components/profile/ProfileFilters";
 import Pagination from "@/components/profile/Pagination";
@@ -59,16 +58,15 @@ export default function FeedClient({
     <div className="font-outfit min-h-screen px-5 py-6 md:py-10 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <Logo size="small" />
         <div className="flex items-center gap-3">
           {meta.total > 0 && (
-            <span className="text-slate-500 text-xs hidden sm:block">
+            <span className="text-gray-600 text-xs hidden sm:block">
               {meta.total} found
             </span>
           )}
           <Link
             href="/profile/edit"
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-brand transition-colors no-underline"
+            className="flex items-center gap-1.5 text-sm text-brand transition-colors no-underline"
           >
             <UserCog size={14} />
             <span className="hidden sm:inline">
@@ -80,15 +78,15 @@ export default function FeedClient({
 
       {/* WARNING — no profile */}
       {!hasProfile && (
-        <div className="mb-5 rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3.5 flex items-center gap-3">
-          <AlertTriangle size={18} className="text-amber-400 shrink-0" />
-          <p className="text-slate-300 text-sm flex-1">
+        <div className="mb-5 rounded-2xl border border-amber-300 bg-amber-50 px-4 py-3.5 flex items-center gap-3">
+          <AlertTriangle size={18} className="text-amber-500 shrink-0" />
+          <p className="text-slate-700 text-sm flex-1">
             Your profile hasn&apos;t been created yet. Creating a profile will help
             others find you.
           </p>
           <Link
             href="/profile/edit"
-            className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold text-on-brand bg-linear-to-r from-brand to-accent no-underline hover:scale-[1.02] transition-transform"
+            className="shrink-0 px-4 py-2 rounded-xl text-xs font-bold text-white bg-linear-to-r from-brand to-accent no-underline hover:scale-[1.02] transition-transform"
           >
             Create
           </Link>
@@ -105,7 +103,7 @@ export default function FeedClient({
               </span>
             </div>
           </div>
-          <p className="text-slate-300 text-sm flex-1">
+          <p className="text-slate-700 text-sm flex-1">
             Your profile is {completionPct}% complete. Adding more information
             will help you get better matches.
           </p>
@@ -131,11 +129,11 @@ export default function FeedClient({
       {/* Empty */}
       {!isPending && profiles.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <SearchX size={44} className="text-slate-600 mb-4" />
-          <h3 className="font-syne text-white text-lg font-bold mb-1">
+          <SearchX size={44} className="text-slate-300 mb-4" />
+          <h3 className="font-syne text-slate-800 text-lg font-bold mb-1">
             No profiles found
           </h3>
-          <p className="text-slate-500 text-sm">Try changing your filters</p>
+          <p className="text-slate-400 text-sm">Try changing your filters</p>
         </div>
       )}
 

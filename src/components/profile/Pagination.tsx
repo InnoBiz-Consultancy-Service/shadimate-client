@@ -16,7 +16,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-white/8 transition-all duration-200"
+        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white border border-slate-200 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
       >
         <ChevronLeft size={16} />
       </button>
@@ -34,8 +34,8 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
             onClick={() => onPageChange(pageNum)}
             className={`font-outfit w-9 h-9 rounded-xl text-sm font-semibold cursor-pointer transition-all duration-200 ${
               pageNum === page
-                ? "bg-brand text-on-brand shadow-[var(--shadow-brand-sm)]"
-                : "bg-white/5 border border-white/10 text-slate-400 hover:bg-white/8"
+                ? "bg-brand text-white shadow-sm"
+                : "bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 hover:border-slate-300"
             }`}
           >
             {pageNum}
@@ -46,7 +46,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 text-slate-400 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-white/8 transition-all duration-200"
+        className="w-9 h-9 rounded-xl flex items-center justify-center bg-white border border-slate-200 text-slate-500 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
       >
         <ChevronRight size={16} />
       </button>

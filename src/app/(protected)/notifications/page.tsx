@@ -73,7 +73,7 @@ export default function NotificationsPage() {
   return (
     <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-syne text-white text-2xl font-extrabold tracking-tight">
+        <h1 className="font-syne text-slate-900 text-2xl font-extrabold tracking-tight">
           Notifications
         </h1>
         {unread > 0 && (
@@ -96,11 +96,11 @@ export default function NotificationsPage() {
 
       {!loading && notifications.length === 0 && (
         <GlassCard className="p-10 text-center">
-          <Bell size={44} className="text-slate-600 mx-auto mb-4" />
-          <h2 className="font-syne text-white text-lg font-bold mb-2">
+          <Bell size={44} className="text-slate-300 mx-auto mb-4" />
+          <h2 className="font-syne text-slate-800 text-lg font-bold mb-2">
             No Notifications
           </h2>
-          <p className="text-slate-500 text-sm max-w-xs mx-auto">
+          <p className="text-slate-400 text-sm max-w-xs mx-auto">
             You will see new likes here.
           </p>
         </GlassCard>
@@ -111,8 +111,8 @@ export default function NotificationsPage() {
           {notifications.map((n) => (
             <div
               key={n._id}
-              className={`glass-card rounded-2xl p-4 flex items-start gap-3 transition-all duration-200 ${
-                !n.isRead ? "border-brand/20 bg-brand/3" : "opacity-70"
+              className={`bg-white rounded-2xl border p-4 flex items-start gap-3 transition-all duration-200 shadow-sm ${
+                !n.isRead ? "border-brand/20 bg-brand/3" : "border-slate-100 opacity-80"
               }`}
             >
               {/* Icon */}
@@ -125,13 +125,13 @@ export default function NotificationsPage() {
                 className="flex-1 min-w-0 cursor-pointer"
                 onClick={() => !n.isRead && handleMarkOne(n._id)}
               >
-                <p className="font-outfit text-sm text-slate-200 leading-relaxed">
-                  <span className="font-semibold text-white">
+                <p className="font-outfit text-sm text-slate-700 leading-relaxed">
+                  <span className="font-semibold text-slate-900">
                     {senderName(n)}
                   </span>{" "}
                   liked your profile
                 </p>
-                <p className="font-outfit text-[11px] text-slate-500 mt-0.5">
+                <p className="font-outfit text-[11px] text-slate-400 mt-0.5">
                   {timeAgo(n.createdAt)}
                 </p>
               </div>
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
                 )}
                 <button
                   onClick={() => handleDelete(n._id)}
-                  className="text-slate-600 hover:text-red-400 transition-colors cursor-pointer"
+                  className="text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
                   aria-label="Delete notification"
                 >
                   <Trash2 size={14} />

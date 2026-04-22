@@ -65,10 +65,10 @@ const PREMIUM_FEATURES = [
 ];
 
 const STATUS_STYLES: Record<string, string> = {
-  success: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-  pending: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-  failed: "text-red-400 bg-red-400/10 border-red-400/20",
-  cancelled: "text-slate-400 bg-slate-400/10 border-slate-400/20",
+  success: "text-emerald-600 bg-emerald-50 border-emerald-200",
+  pending: "text-amber-600 bg-amber-50 border-amber-200",
+  failed: "text-red-600 bg-red-50 border-red-200",
+  cancelled: "text-slate-500 bg-slate-100 border-slate-200",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -162,13 +162,13 @@ export default function SubscriptionClient({
       <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-3xl mx-auto">
         {/* ── Header ── */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-accent/10 border border-accent/20 mb-4">
-            <Crown size={14} className="text-accent" />
-            <span className="font-outfit text-accent text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/8 border border-brand/20 mb-4">
+            <Crown size={14} className="text-brand" />
+            <span className="font-outfit text-brand text-xs font-bold uppercase tracking-wider">
               Premium Plans
             </span>
           </div>
-          <h1 className="font-syne text-white text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
+          <h1 className="font-syne text-slate-900 text-3xl md:text-4xl font-extrabold tracking-tight mb-3">
             Unlock Your True Connection
           </h1>
           <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed">
@@ -198,20 +198,20 @@ export default function SubscriptionClient({
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-syne text-white font-bold text-base">
+                  <p className="font-syne text-black font-bold text-base">
                     ⭐ Premium Active
                   </p>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-400 border border-emerald-400/25">
                     ACTIVE
                   </span>
                 </div>
-                <p className="text-slate-400 text-sm">
+                <p className="text-gray-700 text-sm">
                   Plan:{" "}
-                  <span className="text-slate-200 font-medium">
+                  <span className="text-gray-600 font-medium">
                     {getPlanLabel(subscription.plan)}
                   </span>{" "}
                   · Expire:{" "}
-                  <span className="text-slate-200 font-medium">
+                  <span className="text-gray-600 font-medium">
                     {formatDate(subscription.endDate)}
                   </span>
                 </p>
@@ -265,24 +265,24 @@ export default function SubscriptionClient({
                     {/* Plan header */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-syne text-white text-lg font-extrabold">
+                        <h3 className="font-syne text-slate-900 text-lg font-extrabold">
                           {plan.label}
                         </h3>
                         {saving > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/15 text-emerald-400 border border-emerald-400/25">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
                             ৳{saving} discount
                           </span>
                         )}
                       </div>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-syne text-3xl font-extrabold text-white">
+                        <span className="font-syne text-3xl font-extrabold text-slate-900">
                           ৳{plan.amount}
                         </span>
-                        <span className="text-slate-500 text-sm">
+                        <span className="text-slate-400 text-sm">
                           / {plan.months} months
                         </span>
                       </div>
-                      <p className="text-slate-600 text-xs mt-1">
+                      <p className="text-slate-400 text-xs mt-1">
                         ৳{Math.round(plan.amount / plan.months)} / month
                       </p>
                     </div>
@@ -294,10 +294,10 @@ export default function SubscriptionClient({
                           key={feat.label}
                           className="flex items-center gap-2"
                         >
-                          <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
+                          <div className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-slate-400 text-xs">
+                          <span className="text-gray-900 text-xs">
                             {feat.label}
                           </span>
                         </div>
@@ -361,11 +361,11 @@ export default function SubscriptionClient({
                     className={`p-5 flex flex-col ${isPopular ? "border-brand/40" : ""}`}
                   >
                     <div className="mb-4">
-                      <h3 className="font-syne text-white text-lg font-extrabold mb-1">
+                      <h3 className="font-syne text-black text-lg font-extrabold mb-1">
                         {plan.label}
                       </h3>
                       <div className="flex items-baseline gap-1">
-                        <span className="font-syne text-3xl font-extrabold text-white">
+                        <span className="font-syne text-3xl font-extrabold text-black">
                           ৳{plan.amount}
                         </span>
                       </div>
@@ -379,7 +379,7 @@ export default function SubscriptionClient({
                           <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-slate-400 text-xs">
+                          <span className="text-gray-700 text-xs">
                             {feat.label}
                           </span>
                         </div>
@@ -414,8 +414,8 @@ export default function SubscriptionClient({
 
         {/* ── All Features ── */}
         <GlassCard className="p-6 mb-6">
-          <h2 className="font-syne text-white text-base font-bold mb-4 flex items-center gap-2">
-            <Crown size={16} className="text-accent" />
+          <h2 className="font-syne text-slate-900 text-base font-bold mb-4 flex items-center gap-2">
+            <Crown size={16} className="text-brand" />
             What You&apos;ll Get with Premium
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -424,7 +424,7 @@ export default function SubscriptionClient({
                 <div className="w-8 h-8 rounded-xl bg-brand/8 border border-brand/15 flex items-center justify-center shrink-0">
                   <Icon size={14} className="text-brand" />
                 </div>
-                <span className="text-slate-300 text-sm">{label}</span>
+                <span className="text-slate-700 text-sm">{label}</span>
               </div>
             ))}
           </div>
@@ -433,7 +433,7 @@ export default function SubscriptionClient({
         {/* ── Payment History ── */}
         {paymentHistory.length > 0 && (
           <GlassCard className="p-5">
-            <h2 className="font-syne text-white text-base font-bold mb-4 flex items-center gap-2">
+            <h2 className="font-syne text-slate-900 text-base font-bold mb-4 flex items-center gap-2">
               <Clock size={15} className="text-slate-400" />
               Payment History
             </h2>
@@ -441,21 +441,21 @@ export default function SubscriptionClient({
               {paymentHistory.map((record, idx) => (
                 <div
                   key={record._id || idx}
-                  className="flex items-center gap-3 py-3 border-b border-white/5 last:border-0"
+                  className="flex items-center gap-3 py-3 border-b border-slate-100 last:border-0"
                 >
-                  <div className="w-9 h-9 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center shrink-0">
-                    <Crown size={13} className="text-accent" />
+                  <div className="w-9 h-9 rounded-xl bg-brand/8 border border-brand/15 flex items-center justify-center shrink-0">
+                    <Crown size={13} className="text-brand" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-slate-200 text-sm font-medium">
+                    <p className="text-slate-800 text-sm font-medium">
                       {getPlanLabel(record.plan)} Plan
                     </p>
-                    <p className="text-slate-600 text-[11px] mt-0.5">
+                    <p className="text-slate-400 text-[11px] mt-0.5">
                       {formatDate(record.paidAt || record.createdAt)}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-white text-sm font-bold">
+                    <p className="text-slate-900 text-sm font-bold">
                       ৳{record.amount}
                     </p>
                     <span
@@ -475,7 +475,7 @@ export default function SubscriptionClient({
         )}
 
         {/* ── Security note ── */}
-        <div className="mt-5 flex items-center justify-center gap-2 text-slate-600 text-xs">
+        <div className="mt-5 flex items-center justify-center gap-2 text-slate-400 text-xs">
           <ShieldCheck size={13} />
           <span>EPS Secured Payment · SSL Encrypted · 100% Safe</span>
         </div>

@@ -7,7 +7,7 @@ import SectionDivider from "@/components/shared/SectionDivider";
 export default function Home() {
   return (
     <>
-      <FloatingHearts />
+      {/* <FloatingHearts /> */}
       <Navbar />
       <HeroSection />
       <SectionDivider />
