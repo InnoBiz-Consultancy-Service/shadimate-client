@@ -111,8 +111,7 @@ export default function ProfileCard({ profile }: { profile: Profile }) {
 
   const name = userData?.name || profile.userId?.name || "Unknown";
   const userId = userData?._id || profile.userId?._id;
-  const profileImage =
-    userData?.profileImage || profile.userId?.profileImage || null;
+  const profileImage = profile.profileImage || null;
 
   const age = getAge(profile.birthDate);
   const divisionName = profile.division?.[0]?.name;
