@@ -95,31 +95,31 @@ function StatusIcon({
 // ─── Message Bubble ──────
 
 // MessageBubble Component
-const MessageBubble = ({ msg, isMine }: { msg: Message; isMine: boolean }) => (
-  <div className={`flex mb-2 ${isMine ? "justify-end" : "justify-start"}`}>
-    <div
-      className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm ${
-        isMine
-          ? "bg-linear-to-r from-brand to-accent text-white rounded-br-md"
-          : "bg-white border border-gray-200 text-gray-700 rounded-bl-md shadow-sm"
-      }`}
-    >
-      <p className="leading-relaxed wrap-break-word whitespace-pre-wrap">
-        {msg?.content}
-      </p>
-      <p
-        className={`text-[9px] mt-1 ${
-          isMine ? "text-white/70" : "text-gray-400"
-        }`}
-      >
-        {new Date(msg.createdAt).toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}
-      </p>
+function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
+  if (!msg.content || msg.content.trim() === "") return null;
+
+  const timeString = formatWhatsAppTime(msg.createdAt);
+
+  return (
+    <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1`}>
+      <div className={`relative max-w-[75%]`}>
+        <div
+          className={`relative px-3 py-2 text-sm leading-relaxed ${
+            isMine
+              ? "bg-[#7a1d30] text-[#f5e8eb] rounded-tl-2xl rounded-bl-2xl rounded-br-sm rounded-tr-2xl border border-[rgba(232,84,122,0.2)] shadow-sm"
+              : "bg-[#1e0c10] text-[#f5e8eb] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl border border-[rgba(232,84,122,0.1)] shadow-sm"
+          }`}
+        >
+          <p className="break-words whitespace-pre-wrap pr-14">{msg.content}</p>
+          <div className="absolute bottom-1.5 right-2.5 flex items-center gap-0.5">
+            <span className="text-[9px] text-[#b08890]/70">{timeString}</span>
+            <StatusIcon status={msg.status} isMine={isMine} />
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
 // ─── Typing Indicator ─────────────────────────────────────────────────────────
 
