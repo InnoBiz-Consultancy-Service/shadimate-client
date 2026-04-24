@@ -39,6 +39,8 @@ export interface MissingField {
 }
 
 export interface Profile {
+  isLiked: boolean;
+  likeCount: number;
   _id: string;
   userId?: { _id: string; name: string; phone?: string; gender: string };
   user?: { _id: string; name: string; gender: string };
