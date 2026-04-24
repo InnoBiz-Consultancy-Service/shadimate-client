@@ -69,6 +69,8 @@ export interface Profile {
   division?: { name: string }[];
   district?: { name: string }[];
   thana?: { name: string }[];
+
+  profileImage?: string;
 }
 
 export interface ProfileListMeta {
