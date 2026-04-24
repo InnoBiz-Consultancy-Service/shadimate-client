@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Bell, Heart, CheckCheck, X } from "lucide-react";
+import { Bell, Heart, Eye, CheckCheck, X } from "lucide-react";
 import type { NotificationItem } from "@/types/like";
 import {
   getNotifications,
@@ -59,7 +59,7 @@ export default function NotificationBell({
 
         const onNew = (n: unknown) => {
           const notif = n as NotificationItem;
-          if (notif.type === "like") {
+          if (notif.type === "like" || notif.type === "profile_visit") {
             setNotifications((prev) => [notif, ...prev]);
             setUnreadCount((prev) => prev + 1);
           }
@@ -67,12 +67,13 @@ export default function NotificationBell({
 
         const onPending = (arr: unknown) => {
           const notifs = arr as NotificationItem[];
-          const likeNotifs = notifs.filter((n) => n.type === "like");
-          if (likeNotifs.length)
-            setNotifications((prev) => [...likeNotifs, ...prev]);
+          const relevant = notifs.filter(
+            (n) => n.type === "like" || n.type === "profile_visit",
+          );
+          if (relevant.length)
+            setNotifications((prev) => [...relevant, ...prev]);
           setUnreadCount(notifs.length);
         };
-
         socket.on("new-notification", onNew);
         socket.on("pending-notifications", onPending);
         cleanup = () => {
@@ -140,19 +141,15 @@ export default function NotificationBell({
   };
 
   // ── Nav item mode (mobile bottom bar) ──
-  // Just shows a bell icon with badge, no dropdown
   if (asNavItem) {
     return (
       <div className="relative">
         <Bell
           size={22}
-          className={`transition-colors duration-200 ${active ? "text-brand" : "text-slate-500"}`}
+          className={`transition-colors duration-200 ${active ? "text-brand" : "text-gray-500"}`}
         />
         {unreadCount > 0 && (
-          <span
-            className="absolute -top-1 -right-1.5 min-w-3.75 h-3.75 flex items-center justify-center bg-brand text-on-brand text-[8px] font-outfit font-bold rounded-full px-0.5"
-            style={{ boxShadow: "var(--shadow-brand-dot)" }}
-          >
+          <span className="absolute -top-1 -right-1.5 min-w-3.75 h-3.75 flex items-center justify-center bg-linear-to-r from-brand to-accent text-white text-[8px] font-outfit font-bold rounded-full px-0.5 shadow-sm">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -166,17 +163,14 @@ export default function NotificationBell({
       <button
         onClick={handleOpen}
         aria-label="Notifications"
-        className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/5 border border-white/10 hover:bg-brand/10 hover:border-brand/30 transition-all duration-200 cursor-pointer"
+        className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-gray-200 hover:bg-brand/5 hover:border-brand/30 transition-all duration-200 cursor-pointer"
       >
         <Bell
           size={16}
-          className={unreadCount > 0 ? "text-brand" : "text-slate-400"}
+          className={unreadCount > 0 ? "text-brand" : "text-gray-400"}
         />
         {unreadCount > 0 && (
-          <span
-            className="absolute -top-1 -right-1 min-w-4.25 h-4.25 flex items-center justify-center bg-brand text-on-brand text-[9px] font-outfit font-bold rounded-full px-1"
-            style={{ boxShadow: "var(--shadow-brand-dot)" }}
-          >
+          <span className="absolute -top-1 -right-1 min-w-4.25 h-4.25 flex items-center justify-center bg-linear-to-r from-brand to-accent text-white text-[9px] font-outfit font-bold rounded-full px-1 shadow-sm">
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
         )}
@@ -185,24 +179,24 @@ export default function NotificationBell({
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl glass-card overflow-hidden animate-[fadeUp_0.2s_ease]">
+          <div className="absolute right-0 top-11 z-50 w-80 rounded-2xl bg-white border border-gray-200 shadow-lg overflow-hidden animate-[fadeUp_0.2s_ease]">
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-              <span className="font-syne text-white text-sm font-bold">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+              <span className="font-syne text-gray-800 text-sm font-bold">
                 Notifications
               </span>
               <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAll}
-                    className="font-outfit text-[11px] text-brand hover:text-accent transition-colors cursor-pointer flex items-center gap-1"
+                    className="font-outfit text-[11px] text-brand hover:text-brand/80 transition-colors cursor-pointer flex items-center gap-1"
                   >
-                    <CheckCheck size={11} /> Marks all read
+                    <CheckCheck size={11} /> Mark all read
                   </button>
                 )}
                 <button
                   onClick={() => setOpen(false)}
-                  className="text-slate-500 hover:text-white cursor-pointer"
+                  className="text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
                   <X size={14} />
                 </button>
@@ -219,9 +213,9 @@ export default function NotificationBell({
 
               {!loading && notifications.length === 0 && (
                 <div className="py-8 text-center">
-                  <Bell size={22} className="text-slate-600 mx-auto mb-2" />
-                  <p className="font-outfit text-slate-500 text-xs">
-                    No notification
+                  <Bell size={22} className="text-gray-300 mx-auto mb-2" />
+                  <p className="font-outfit text-gray-500 text-xs">
+                    No notifications
                   </p>
                 </div>
               )}
@@ -231,29 +225,29 @@ export default function NotificationBell({
                   <div
                     key={n._id}
                     onClick={() => !n.isRead && handleMarkOne(n._id)}
-                    className={`flex items-start gap-3 px-4 py-3 border-b border-white/5 last:border-0 cursor-pointer transition-colors duration-150 ${
-                      n.isRead ? "opacity-60" : "hover:bg-brand/5"
+                    className={`flex items-start gap-3 px-4 py-3 border-b border-gray-50 last:border-0 cursor-pointer transition-colors duration-150 ${
+                      n.isRead ? "opacity-60 bg-white" : "hover:bg-brand/5"
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0 mt-0.5">
-                      <Heart size={12} className="text-brand fill-brand" />
+                    <div className="w-8 h-8 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0 mt-0.5">
+                      {n.type === "profile_visit" ? (
+                        <Eye size={12} className="text-brand" />
+                      ) : (
+                        <Heart size={12} className="text-brand fill-brand/80" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-outfit text-xs text-slate-200 leading-relaxed">
-                        <span className="font-semibold text-white">
+                      <p className="font-outfit text-xs text-gray-700 leading-relaxed">
+                        <span className="font-semibold text-gray-900">
                           {senderName(n)}
                         </span>{" "}
-                        liked your profile
-                      </p>
-                      <p className="font-outfit text-[10px] text-slate-600 mt-0.5">
-                        {timeAgo(n.createdAt)}
+                        {n.type === "profile_visit"
+                          ? "viewed your profile"
+                          : "liked your profile"}
                       </p>
                     </div>
                     {!n.isRead && (
-                      <div
-                        className="w-2 h-2 rounded-full bg-brand shrink-0 mt-1.5"
-                        style={{ boxShadow: "var(--shadow-brand-dot)" }}
-                      />
+                      <div className="w-2 h-2 rounded-full bg-linear-to-r from-brand to-accent shrink-0 mt-1.5 shadow-sm" />
                     )}
                   </div>
                 ))}
