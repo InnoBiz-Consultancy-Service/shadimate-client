@@ -11,12 +11,11 @@ import {
   MapPin,
   GraduationCap,
   BookOpen,
-  Heart,
-  Users,
   Sparkles,
   AlertCircle,
   Edit2,
   Eye,
+  Users,
 } from "lucide-react";
 import { updateProfile, createProfile } from "@/actions/profile/profile";
 import {
@@ -29,13 +28,7 @@ import {
   type Thana,
   type University,
 } from "@/actions/geo/geo";
-import {
-  Logo,
-  Toast,
-  GlassCard,
-  GradientButton,
-  SearchableDropdown,
-} from "@/components/ui";
+import { Toast, SearchableDropdown } from "@/components/ui";
 import {
   RELATION_OPTIONS,
   EDUCATION_VARIETY_OPTIONS,
@@ -63,7 +56,7 @@ const STEPS = [
   { id: 7, label: "Interests", icon: Sparkles },
 ];
 
-const TOTAL_STEPS = STEPS.length; // 7 — preview is step 8
+const TOTAL_STEPS = STEPS.length;
 
 /* ─────────────────────────────────────────
    Reusable field components
@@ -90,7 +83,7 @@ const Field = ({
   <div className="flex flex-col gap-1.5">
     <label
       htmlFor={name}
-      className="font-outfit text-slate-400 text-[10px] font-semibold tracking-[0.12em] uppercase"
+      className="font-outfit text-gray-500 text-[10px] font-semibold tracking-[0.12em] uppercase"
     >
       {label}
       {required && <span className="text-brand ml-1">*</span>}
@@ -101,11 +94,15 @@ const Field = ({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`font-outfit w-full px-4 py-3 rounded-xl text-sm text-slate-100 placeholder-slate-600 bg-white/5 border outline-none transition-all duration-200
-        ${error ? "border-red-500/60 bg-red-500/5 focus:border-red-500/80" : "border-white/10 focus:border-brand/50 focus:bg-white/8"}`}
+      className={`font-outfit w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 bg-white border outline-none transition-all duration-200
+      ${
+        error
+          ? "border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+          : "border-gray-200 focus:border-brand/50 focus:ring-2 focus:ring-brand/10 focus:bg-white"
+      }`}
     />
     {error && (
-      <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+      <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
         <AlertCircle size={11} /> {error}
       </p>
     )}
@@ -134,7 +131,7 @@ const Select = ({
   <div className="flex flex-col gap-1.5">
     <label
       htmlFor={name}
-      className="font-outfit text-slate-400 text-[10px] font-semibold tracking-[0.12em] uppercase"
+      className="font-outfit text-gray-500 text-[10px] font-semibold tracking-[0.12em] uppercase"
     >
       {label}
       {required && <span className="text-brand ml-1">*</span>}
@@ -143,18 +140,30 @@ const Select = ({
       id={name}
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`font-outfit w-full px-4 py-3 rounded-xl text-sm text-slate-100 bg-white/5 border outline-none transition-all duration-200 appearance-none cursor-pointer
-        ${error ? "border-red-500/60 bg-red-500/5 focus:border-red-500/80" : "border-white/10 focus:border-brand/50"}`}
+      className={`font-outfit w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 bg-white border outline-none transition-all duration-200 appearance-none cursor-pointer
+      ${
+        error
+          ? "border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+          : "border-gray-200 focus:border-brand/50 focus:ring-2 focus:ring-brand/10 hover:border-gray-300"
+      }`}
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right 1rem center",
+        backgroundSize: "14px",
+      }}
     >
-      <option value="">{placeholder || "Select"}</option>
+      <option value="" className="text-gray-500">
+        {placeholder || "Select"}
+      </option>
       {options.map((opt) => (
-        <option key={opt} value={opt}>
+        <option key={opt} value={opt} className="text-gray-800">
           {opt}
         </option>
       ))}
     </select>
     {error && (
-      <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+      <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
         <AlertCircle size={11} /> {error}
       </p>
     )}
@@ -163,13 +172,13 @@ const Select = ({
 
 /* helpers */
 function geoId(
-  val: string | { _id: string; name: string } | undefined,
+  val: string | { _id: string; name: string } | undefined
 ): string {
   if (!val) return "";
   return typeof val === "string" ? val : val._id;
 }
 function geoName(
-  val: string | { _id: string; name: string } | undefined,
+  val: string | { _id: string; name: string } | undefined
 ): string {
   if (!val) return "";
   return typeof val === "string" ? "" : val.name;
@@ -194,26 +203,28 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
             >
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all duration-300
-                  ${
-                    done
-                      ? "bg-brand border-brand shadow-[var(--shadow-brand-sm)]"
-                      : active
-                        ? "bg-brand/15 border-brand shadow-[var(--shadow-brand-xs)]"
-                        : "bg-white/5 border-white/10"
-                  }`}
+              ${
+                done
+                  ? "bg-brand border-brand shadow-sm"
+                  : active
+                  ? "bg-brand/10 border-brand"
+                  : "bg-white border-gray-200"
+              }`}
               >
                 {done ? (
-                  <Check size={15} className="text-on-brand" />
+                  <Check size={15} className="text-white" />
                 ) : (
                   <Icon
                     size={15}
-                    className={active ? "text-brand" : "text-slate-500"}
+                    className={active ? "text-brand" : "text-gray-400"}
                   />
                 )}
               </div>
               <span
                 className={`font-outfit text-[9px] font-semibold tracking-wide hidden sm:block
-                  ${active ? "text-brand" : done ? "text-slate-400" : "text-slate-600"}`}
+              ${
+                active ? "text-brand" : done ? "text-gray-500" : "text-gray-400"
+              }`}
               >
                 {s.label}
               </span>
@@ -222,7 +233,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
         })}
       </div>
 
-      <div className="relative h-1 bg-white/5 rounded-full overflow-hidden">
+      <div className="relative h-1.5 bg-gray-100 rounded-full overflow-hidden">
         <div
           className="absolute left-0 top-0 h-full rounded-full bg-linear-to-r from-brand to-accent transition-all duration-500 ease-out"
           style={{ width: `${pct}%` }}
@@ -230,7 +241,7 @@ function ProgressBar({ current, total }: { current: number; total: number }) {
       </div>
 
       <div className="flex items-center justify-between mt-2">
-        <span className="font-outfit text-xs text-slate-500">
+        <span className="font-outfit text-xs text-gray-500">
           Step {current} of {total}
         </span>
         <span className="font-outfit text-xs text-brand font-semibold">
@@ -254,11 +265,11 @@ function PreviewRow({
   if (!value || (Array.isArray(value) && value.length === 0)) return null;
   return (
     <div className="flex flex-col gap-0.5">
-      <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-slate-500">
+      <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-gray-500">
         {label}
       </span>
-      <span className="font-outfit text-sm text-slate-200">
-        {Array.isArray(value) ? value.join(", ") : value}
+      <span className="font-outfit text-sm text-gray-800">
+        {Array.isArray(value) ? value.join(", ") : value || "—"}
       </span>
     </div>
   );
@@ -278,24 +289,24 @@ function PreviewSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl bg-white/4 border border-white/8 overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-white/3 border-b border-white/6">
+    <div className="rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-gray-100">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-brand/15 border border-brand/25 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-brand/10 border border-brand/20 flex items-center justify-center">
             <Icon size={13} className="text-brand" />
           </div>
-          <span className="font-syne text-white text-sm font-bold">
+          <span className="font-syne text-gray-800 text-sm font-bold">
             {title}
           </span>
         </div>
         <button
           onClick={() => onEdit(stepId)}
-          className="flex items-center gap-1.5 text-xs font-outfit font-semibold text-brand/80 hover:text-brand transition-colors bg-brand/8 hover:bg-brand/15 border border-brand/20 px-3 py-1.5 rounded-lg cursor-pointer"
+          className="flex items-center gap-1.5 text-xs font-outfit font-semibold text-brand hover:text-brand/80 transition-colors bg-brand/5 hover:bg-brand/10 border border-brand/20 px-3 py-1.5 rounded-lg cursor-pointer"
         >
           <Edit2 size={11} /> Edit
         </button>
       </div>
-      <div className="px-4 py-4 grid grid-cols-2 gap-x-6 gap-y-3">
+      <div className="px-4 py-4 grid grid-cols-2 gap-x-6 gap-y-3 bg-white">
         {children}
       </div>
     </div>
@@ -318,75 +329,75 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
   const [profession, setProfession] = useState(profile?.profession || "");
   const [personality, setPersonality] = useState(profile?.personality || "");
   const [birthDate, setBirthDate] = useState(
-    profile?.birthDate?.split("T")[0] || "",
+    profile?.birthDate?.split("T")[0] || ""
   );
   const [maritalStatus, setMaritalStatus] = useState(
-    profile?.maritalStatus || "",
+    profile?.maritalStatus || ""
   );
   const [economicalStatus, setEconomicalStatus] = useState(
-    profile?.economicalStatus || "",
+    profile?.economicalStatus || ""
   );
   const [salaryRange, setSalaryRange] = useState(profile?.salaryRange || "");
   const [aboutMe, setAboutMe] = useState(profile?.aboutMe || "");
 
-  const [height, setHeight] = useState(profile?.height || "");
-  const [weight, setWeight] = useState(profile?.weight || "");
+  const [height, setHeight] = useState(String(profile?.height ?? ""));
+  const [weight, setWeight] = useState(String(profile?.weight ?? ""));
   const [skinTone, setSkinTone] = useState(profile?.skinTone || "");
 
   const [divisionId, setDivisionId] = useState(
-    geoId(profile?.address?.divisionId),
+    geoId(profile?.address?.divisionId)
   );
   const [divisionName, setDivisionName] = useState(
-    geoName(profile?.address?.divisionId),
+    geoName(profile?.address?.divisionId)
   );
   const [districtId, setDistrictId] = useState(
-    geoId(profile?.address?.districtId),
+    geoId(profile?.address?.districtId)
   );
   const [districtName, setDistrictName] = useState(
-    geoName(profile?.address?.districtId),
+    geoName(profile?.address?.districtId)
   );
   const [thanaId, setThanaId] = useState(geoId(profile?.address?.thanaId));
   const [thanaName, setThanaName] = useState(
-    geoName(profile?.address?.thanaId),
+    geoName(profile?.address?.thanaId)
   );
   const [addressDetails, setAddressDetails] = useState(
-    profile?.address?.details || "",
+    profile?.address?.details || ""
   );
 
   const [eduVariety, setEduVariety] = useState(
-    profile?.education?.graduation?.variety || "",
+    profile?.education?.graduation?.variety || ""
   );
   const [department, setDepartment] = useState(
-    profile?.education?.graduation?.department || "",
+    profile?.education?.graduation?.department || ""
   );
   const [institution, setInstitution] = useState(
-    profile?.education?.graduation?.institution || "",
+    profile?.education?.graduation?.institution || ""
   );
   const [passingYear, setPassingYear] = useState(
-    profile?.education?.graduation?.passingYear || "",
+    profile?.education?.graduation?.passingYear || ""
   );
   const [collegeName, setCollegeName] = useState(
-    profile?.education?.graduation?.collegeName || "",
+    profile?.education?.graduation?.collegeName || ""
   );
   const [universityId, setUniversityId] = useState(
-    geoId(profile?.education?.graduation?.universityId),
+    geoId(profile?.education?.graduation?.universityId)
   );
   const [universityName, setUniversityName] = useState(
-    geoName(profile?.education?.graduation?.universityId),
+    geoName(profile?.education?.graduation?.universityId)
   );
 
   const [faith, setFaith] = useState(profile?.religion?.faith || "");
   const [sectOrCaste, setSectOrCaste] = useState(
-    profile?.religion?.sectOrCaste || "",
+    profile?.religion?.sectOrCaste || ""
   );
   const [practiceLevel, setPracticeLevel] = useState(
-    profile?.religion?.practiceLevel || "",
+    profile?.religion?.practiceLevel || ""
   );
   const [dailyLifestyle, setDailyLifestyle] = useState(
-    profile?.religion?.dailyLifeStyleSummary || "",
+    profile?.religion?.dailyLifeStyleSummary || ""
   );
   const [religiousDetails, setReligiousDetails] = useState(
-    profile?.religion?.religiousLifestyleDetails || "",
+    profile?.religion?.religiousLifestyleDetails || ""
   );
 
   const [relation, setRelation] = useState(profile?.relation || "");
@@ -449,21 +460,32 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
   }, [debouncedUni]);
 
   useEffect(() => {
-    if (step === 3) loadDivisions();
-  }, [debouncedDiv, step]);
+    if (step === 3) {
+      loadDivisions();
+    }
+  }, [debouncedDiv, step, loadDivisions]);
+
   useEffect(() => {
-    if (step === 3) loadDistricts();
-  }, [divisionId, debouncedDist, step]);
+    if (step === 3) {
+      loadDistricts();
+    }
+  }, [divisionId, debouncedDist, step, loadDistricts]);
+
   useEffect(() => {
-    if (step === 3) loadThanas();
-  }, [districtId, debouncedThana, step]);
+    if (step === 3) {
+      loadThanas();
+    }
+  }, [districtId, debouncedThana, step, loadThanas]);
+
   useEffect(() => {
-    if (step === 4) loadUniversities();
-  }, [debouncedUni, step]);
+    if (step === 4) {
+      loadUniversities();
+    }
+  }, [debouncedUni, step, loadUniversities]);
 
   const toggleHabit = (h: string) =>
     setHabits((prev) =>
-      prev.includes(h) ? prev.filter((x) => x !== h) : [...prev, h],
+      prev.includes(h) ? prev.filter((x) => x !== h) : [...prev, h]
     );
 
   /* ─────────────────────────────────────────
@@ -483,8 +505,8 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
     }
 
     if (s === 2) {
-      if (!height.trim()) errs.height = "Height is required";
-      if (!weight.trim()) errs.weight = "Weight is required";
+      if (!String(height ?? "").trim()) errs.height = "Height is required";
+      if (!String(weight ?? "").trim()) errs.weight = "Weight is required";
       if (!skinTone) errs.skinTone = "Please select skin tone";
     }
 
@@ -622,14 +644,14 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-full bg-brand/20 border border-brand/30 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center">
             <Eye size={15} className="text-brand" />
           </div>
-          <h2 className="font-syne text-white text-xl font-extrabold tracking-tight">
+          <h2 className="font-syne text-gray-900 text-xl font-extrabold tracking-tight">
             Your Biodata Preview
           </h2>
         </div>
-        <p className="font-outfit text-slate-400 text-sm">
+        <p className="font-outfit text-gray-600 text-sm">
           Review everything before submitting. Tap{" "}
           <span className="text-brand font-semibold">Edit</span> on any section
           to make changes.
@@ -651,10 +673,10 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
         <PreviewRow label="Salary Range" value={salaryRange} />
         {aboutMe && (
           <div className="col-span-2 flex flex-col gap-0.5">
-            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-slate-500">
+            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-gray-500">
               About Me
             </span>
-            <span className="font-outfit text-sm text-slate-200 leading-relaxed">
+            <span className="font-outfit text-sm text-gray-700 leading-relaxed">
               {aboutMe}
             </span>
           </div>
@@ -714,10 +736,10 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
         <PreviewRow label="Daily Lifestyle" value={dailyLifestyle} />
         {religiousDetails && (
           <div className="col-span-2 flex flex-col gap-0.5">
-            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-slate-500">
+            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-gray-500">
               Religious Details
             </span>
-            <span className="font-outfit text-sm text-slate-200 leading-relaxed">
+            <span className="font-outfit text-sm text-gray-700 leading-relaxed">
               {religiousDetails}
             </span>
           </div>
@@ -745,14 +767,14 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
       >
         {habits.length > 0 && (
           <div className="col-span-2">
-            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-slate-500 block mb-2">
+            <span className="font-outfit text-[10px] font-semibold tracking-[0.12em] uppercase text-gray-500 block mb-2">
               Selected Habits
             </span>
             <div className="flex flex-wrap gap-2">
               {habits.map((h) => (
                 <span
                   key={h}
-                  className="font-outfit text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand/12 border border-brand/25 text-brand"
+                  className="font-outfit text-xs font-medium px-3 py-1.5 rounded-lg bg-brand/10 border border-brand/20 text-brand"
                 >
                   {h}
                 </span>
@@ -764,7 +786,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
 
       {/* Submit notice */}
       <div className="rounded-2xl bg-brand/5 border border-brand/20 p-4 mt-2">
-        <p className="font-outfit text-slate-300 text-sm leading-relaxed">
+        <p className="font-outfit text-gray-700 text-sm leading-relaxed">
           🎉 Everything looks good! Press{" "}
           <span className="text-brand font-semibold">
             {profile ? "Update Profile" : "Create Profile"}
@@ -853,7 +875,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="font-outfit text-slate-400 text-[10px] font-semibold tracking-[0.12em] uppercase">
+              <label className="font-outfit text-gray-500 text-[10px] font-semibold tracking-[0.12em] uppercase">
                 About Me <span className="text-brand ml-1">*</span>
               </label>
               <textarea
@@ -864,11 +886,15 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                 }}
                 rows={3}
                 placeholder="Write something about yourself..."
-                className={`font-outfit w-full px-4 py-3 rounded-xl text-sm text-slate-100 placeholder-slate-600 bg-white/5 border outline-none transition-all duration-200 resize-none
-                  ${errors.aboutMe ? "border-red-500/60 bg-red-500/5" : "border-white/10 focus:border-brand/50"}`}
+                className={`font-outfit w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 bg-white border outline-none transition-all duration-200 resize-none
+        ${
+          errors.aboutMe
+            ? "border-red-400 bg-red-50/50 focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+            : "border-gray-200 focus:border-brand/50 focus:ring-2 focus:ring-brand/10"
+        }`}
               />
               {errors.aboutMe && (
-                <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+                <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
                   <AlertCircle size={11} /> {errors.aboutMe}
                 </p>
               )}
@@ -956,7 +982,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   onOpen={loadDivisions}
                 />
                 {errors.divisionId && (
-                  <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+                  <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
                     <AlertCircle size={11} /> {errors.divisionId}
                   </p>
                 )}
@@ -985,7 +1011,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   onOpen={loadDistricts}
                 />
                 {errors.districtId && (
-                  <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+                  <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
                     <AlertCircle size={11} /> {errors.districtId}
                   </p>
                 )}
@@ -1012,7 +1038,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   onOpen={loadThanas}
                 />
                 {errors.thanaId && (
-                  <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+                  <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
                     <AlertCircle size={11} /> {errors.thanaId}
                   </p>
                 )}
@@ -1065,14 +1091,14 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   onOpen={loadUniversities}
                   renderExtra={(opt) =>
                     (opt as University).shortName ? (
-                      <span className="text-xs text-slate-500 shrink-0">
+                      <span className="text-xs text-gray-500 shrink-0">
                         {(opt as University).shortName}
                       </span>
                     ) : null
                   }
                 />
                 {errors.universityId && (
-                  <p className="flex items-center gap-1 text-[11px] text-red-400 font-outfit">
+                  <p className="flex items-center gap-1 text-[11px] text-red-500 font-outfit">
                     <AlertCircle size={11} /> {errors.universityId}
                   </p>
                 )}
@@ -1102,6 +1128,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                 value={passingYear}
                 onChange={setPassingYear}
                 placeholder="2020"
+                type="number"
               />
               <Field
                 label="College Name"
@@ -1152,23 +1179,28 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                 name="sectOrCaste"
                 value={sectOrCaste}
                 onChange={setSectOrCaste}
-                placeholder="e.g. Sunni"
+                placeholder="e.g. Sunni, Shia, Brahmin, etc."
               />
               <Field
                 label="Daily Lifestyle Summary"
                 name="dailyLifestyle"
                 value={dailyLifestyle}
                 onChange={setDailyLifestyle}
-                placeholder="Brief description"
+                placeholder="Brief description of your daily routine"
               />
               <div className="sm:col-span-2">
-                <Field
-                  label="Religious Lifestyle Details"
-                  name="religiousDetails"
-                  value={religiousDetails}
-                  onChange={setReligiousDetails}
-                  placeholder="More details..."
-                />
+                <div className="flex flex-col gap-1.5">
+                  <label className="font-outfit text-gray-500 text-[10px] font-semibold tracking-[0.12em] uppercase">
+                    Religious Lifestyle Details
+                  </label>
+                  <textarea
+                    value={religiousDetails}
+                    onChange={(e) => setReligiousDetails(e.target.value)}
+                    rows={3}
+                    placeholder="Share more details about your religious practices, beliefs, and lifestyle..."
+                    className="font-outfit w-full px-4 py-2.5 rounded-xl text-sm text-gray-800 placeholder-gray-400 bg-white border border-gray-200 outline-none transition-all duration-200 resize-none focus:border-brand/50 focus:ring-2 focus:ring-brand/10"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -1203,7 +1235,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   setFatherOcc(v);
                   clearError("fatherOcc");
                 }}
-                placeholder="e.g. Business"
+                placeholder="e.g. Business, Government Service, Farmer, etc."
                 required
                 error={errors.fatherOcc}
               />
@@ -1215,7 +1247,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   setMotherOcc(v);
                   clearError("motherOcc");
                 }}
-                placeholder="e.g. Housewife"
+                placeholder="e.g. Housewife, Teacher, Doctor, etc."
                 required
                 error={errors.motherOcc}
               />
@@ -1242,12 +1274,12 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                       toggleHabit(h);
                       clearError("habits");
                     }}
-                    className={`font-outfit text-xs font-semibold px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200
-                      ${
-                        active
-                          ? "bg-brand/15 border-brand/50 text-brand shadow-[var(--shadow-brand-xs)]"
-                          : "bg-white/4 border-white/10 text-slate-400 hover:bg-white/7 hover:border-white/20"
-                      }`}
+                    className={`font-outfit text-xs font-medium px-4 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 active:scale-[0.97]
+            ${
+              active
+                ? "bg-brand/10 border-brand/40 text-brand shadow-sm"
+                : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50 hover:border-gray-300"
+            }`}
                   >
                     {active && "✓ "}
                     {h}
@@ -1256,7 +1288,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
               })}
             </div>
             {errors.habits && (
-              <p className="flex items-center gap-1.5 text-[12px] text-red-400 font-outfit bg-red-500/8 border border-red-500/20 rounded-xl px-4 py-2.5">
+              <p className="flex items-center gap-1.5 text-[12px] text-red-500 font-outfit bg-red-50/50 border border-red-200 rounded-xl px-4 py-2.5">
                 <AlertCircle size={13} /> {errors.habits}
               </p>
             )}
@@ -1277,46 +1309,32 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
         <Toast message={toast.message} type={toast.type} onClose={hideToast} />
       )}
 
-      <div className="font-outfit min-h-screen px-4 py-8 md:py-12 max-w-2xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <button
-            onClick={() =>
-              showPreview ? prev() : step > 1 ? prev() : router.back()
-            }
-            className="flex items-center gap-1.5 text-slate-400 text-sm hover:text-white bg-transparent border-0 cursor-pointer transition-colors"
-          >
-            <ArrowLeft size={16} />
-            {showPreview ? "Back to Edit" : step > 1 ? "Back" : "Exit"}
-          </button>
-          <Logo size="small" />
-        </div>
-
+      <div className="font-outfit min-h-screen px-4 py-8 md:py-12 max-w-2xl mx-auto bg-white">
         {/* Progress bar — hidden on preview */}
         {!showPreview && <ProgressBar current={step} total={TOTAL_STEPS} />}
 
         {/* Preview badge */}
         {showPreview && (
           <div className="flex items-center gap-2 mb-6">
-            <div className="flex-1 h-px bg-white/8" />
+            <div className="flex-1 h-px bg-gray-200" />
             <span className="font-outfit text-xs font-semibold text-brand tracking-widest uppercase px-3">
               Preview &amp; Confirm
             </span>
-            <div className="flex-1 h-px bg-white/8" />
+            <div className="flex-1 h-px bg-gray-200" />
           </div>
         )}
 
         {/* Content */}
-        <GlassCard className="p-4 md:p-7 mb-5">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-7 mb-5">
           {showPreview ? renderPreview() : renderStep()}
-        </GlassCard>
+        </div>
 
         {/* Navigation */}
         <div className="flex items-center gap-3">
           {(step > 1 || showPreview) && (
             <button
               onClick={prev}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-outfit font-semibold text-sm text-slate-300 bg-white/5 border border-white/10 hover:bg-white/8 hover:border-white/20 transition-all duration-200 cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-outfit font-semibold text-sm text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200 cursor-pointer"
             >
               <ArrowLeft size={15} />{" "}
               {showPreview ? "Back to Edit" : "Previous"}
@@ -1324,7 +1342,10 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
           )}
 
           {!showPreview ? (
-            <GradientButton fullWidth onClick={next}>
+            <button
+              onClick={next}
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-outfit font-semibold text-sm text-white bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] transition-all duration-200 shadow-sm"
+            >
               {step === TOTAL_STEPS ? (
                 <>
                   <Eye size={15} /> Preview Biodata
@@ -1334,17 +1355,40 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
                   Next <ArrowRight size={15} />
                 </>
               )}
-            </GradientButton>
+            </button>
           ) : (
-            <GradientButton
-              fullWidth
-              loading={saving}
-              loadingText="Saving..."
+            <button
               onClick={handleSave}
+              disabled={saving}
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-outfit font-semibold text-sm text-white bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
             >
-              <Check size={15} />{" "}
-              {profile ? "Update Profile" : "Create Profile"}
-            </GradientButton>
+              {saving ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check size={15} />{" "}
+                  {profile ? "Update Profile" : "Create Profile"}
+                </>
+              )}
+            </button>
           )}
         </div>
 
@@ -1360,10 +1404,10 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
 function StepTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-5">
-      <h2 className="font-syne text-white text-xl font-extrabold tracking-tight mb-1">
+      <h2 className="font-syne text-gray-900 text-xl font-extrabold tracking-tight mb-1">
         {title}
       </h2>
-      <p className="font-outfit text-slate-400 text-sm">{subtitle}</p>
+      <p className="font-outfit text-gray-500 text-sm">{subtitle}</p>
     </div>
   );
 }
