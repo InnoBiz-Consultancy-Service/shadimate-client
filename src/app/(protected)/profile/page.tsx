@@ -6,6 +6,7 @@ export const metadata = { title: "My Profile" };
 
 export default async function ProfilePage() {
   const res = await fetchMyProfile();
+  console.log(res)
 
   if (!res.success || !res.data) {
     return (
