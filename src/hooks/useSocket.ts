@@ -20,6 +20,8 @@ interface UseSocketProps {
   onStopTyping?: (userId: string) => void;
   onUserOnline?: (userId: string) => void;
   onUserOffline?: (payload: { userId: string; lastSeen: string }) => void;
+  onNotification?: (notification: any) => void;
+  onPendingNotifications?: (notifications: any[]) => void;
 }
 
 export function useSocket({
@@ -33,12 +35,14 @@ export function useSocket({
   onStopTyping,
   onUserOnline,
   onUserOffline,
+  onNotification,
+  onPendingNotifications,
 }: UseSocketProps) {
   const socketRef = useRef<import("socket.io-client").Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  // ✅ Stable callback refs — socket reconnect হবে না callback change হলে
+  // ✅ Stable callback refs
   const onNewMessageRef = useRef(onNewMessage);
   const onMessageSentRef = useRef(onMessageSent);
   const onMessageSeenRef = useRef(onMessageSeen);
@@ -47,35 +51,25 @@ export function useSocket({
   const onStopTypingRef = useRef(onStopTyping);
   const onUserOnlineRef = useRef(onUserOnline);
   const onUserOfflineRef = useRef(onUserOffline);
+  const onNotificationRef = useRef(onNotification);
+  const onPendingNotificationsRef = useRef(onPendingNotifications);
 
-  useEffect(() => {
-    onNewMessageRef.current = onNewMessage;
-  }, [onNewMessage]);
-  useEffect(() => {
-    onMessageSentRef.current = onMessageSent;
-  }, [onMessageSent]);
-  useEffect(() => {
-    onMessageSeenRef.current = onMessageSeen;
-  }, [onMessageSeen]);
-  useEffect(() => {
-    onMessageDeliveredRef.current = onMessageDelivered;
-  }, [onMessageDelivered]);
-  useEffect(() => {
-    onTypingRef.current = onTyping;
-  }, [onTyping]);
-  useEffect(() => {
-    onStopTypingRef.current = onStopTyping;
-  }, [onStopTyping]);
-  useEffect(() => {
-    onUserOnlineRef.current = onUserOnline;
-  }, [onUserOnline]);
-  useEffect(() => {
-    onUserOfflineRef.current = onUserOffline;
-  }, [onUserOffline]);
+  useEffect(() => { onNewMessageRef.current = onNewMessage; }, [onNewMessage]);
+  useEffect(() => { onMessageSentRef.current = onMessageSent; }, [onMessageSent]);
+  useEffect(() => { onMessageSeenRef.current = onMessageSeen; }, [onMessageSeen]);
+  useEffect(() => { onMessageDeliveredRef.current = onMessageDelivered; }, [onMessageDelivered]);
+  useEffect(() => { onTypingRef.current = onTyping; }, [onTyping]);
+  useEffect(() => { onStopTypingRef.current = onStopTyping; }, [onStopTyping]);
+  useEffect(() => { onUserOnlineRef.current = onUserOnline; }, [onUserOnline]);
+  useEffect(() => { onUserOfflineRef.current = onUserOffline; }, [onUserOffline]);
+  useEffect(() => { onNotificationRef.current = onNotification; }, [onNotification]);
+  useEffect(() => { onPendingNotificationsRef.current = onPendingNotifications; }, [onPendingNotifications]);
 
-  // ✅ শুধু token এবং myUserId change হলে reconnect — infinite loop বন্ধ
   useEffect(() => {
     if (!token || !myUserId) return;
+
+    // ✅ আগে থেকে connected থাকলে নতুন connection করো না
+    if (socketRef.current?.connected) return;
 
     let mounted = true;
 
@@ -89,21 +83,28 @@ export function useSocket({
 
         if (!serverUrl || !mounted) return;
 
+        // ✅ Bearer prefix strip করো
+        const cleanToken = token.startsWith("Bearer ")
+          ? token.slice(7)
+          : token;
+
         const socket = io(serverUrl, {
-          query: { token, userId: myUserId },
-          transports: ["websocket", "polling"], // ✅ polling fallback
+          query: { token: cleanToken, userId: myUserId },
+          transports: ["websocket"], // ✅ polling বাদ — double connect বন্ধ
           reconnection: true,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 10000, // ✅ exponential backoff max
-          reconnectionAttempts: Infinity, // ✅ সবসময় try করতে থাকবে
+          reconnectionDelay: 2000,
+          reconnectionDelayMax: 10000,
+          reconnectionAttempts: Infinity,
         });
 
         socketRef.current = socket;
 
+        // ── Connection events ──
         socket.on("connect", () => {
           if (mounted) {
             setConnected(true);
             setConnectionError(null);
+            console.log("✅ Socket connected:", socket.id);
           }
         });
 
@@ -111,17 +112,24 @@ export function useSocket({
           if (mounted) {
             setConnected(false);
             setConnectionError(error.message);
+            console.error("❌ Socket connect error:", error.message);
           }
         });
 
         socket.on("disconnect", (reason) => {
           if (mounted) {
             setConnected(false);
-            // Server force disconnect হলে — re-auth দরকার
+            console.log("🔌 Socket disconnected:", reason);
             if (reason === "io server disconnect") {
               socket.connect();
             }
           }
+        });
+
+        socket.on("unauthorized", (data: { message: string }) => {
+          console.error("🚫 Unauthorized:", data.message);
+          setConnectionError(data.message);
+          socket.disconnect();
         });
 
         // ── Chat events ──
@@ -133,19 +141,13 @@ export function useSocket({
           if (mounted) onMessageSentRef.current?.(msg);
         });
 
-        socket.on(
-          "message-seen",
-          (payload: { messageId: string; conversationWith: string }) => {
-            if (mounted) onMessageSeenRef.current?.(payload);
-          },
-        );
+        socket.on("message-seen", (payload: { messageId: string; conversationWith: string }) => {
+          if (mounted) onMessageSeenRef.current?.(payload);
+        });
 
-        socket.on(
-          "message-delivered",
-          (payload: { messageId: string; conversationWith: string }) => {
-            if (mounted) onMessageDeliveredRef.current?.(payload);
-          },
-        );
+        socket.on("message-delivered", (payload: { messageId: string; conversationWith: string }) => {
+          if (mounted) onMessageDeliveredRef.current?.(payload);
+        });
 
         // ── Typing events ──
         socket.on("typing", ({ fromUserId }: { fromUserId: string }) => {
@@ -156,21 +158,36 @@ export function useSocket({
           if (mounted) onStopTypingRef.current?.(fromUserId);
         });
 
-        // ── Online/Offline events ──
+        // ── Presence events ──
         socket.on("user-online", (userId: string) => {
           if (mounted) onUserOnlineRef.current?.(userId);
         });
 
-        socket.on(
-          "user-offline",
-          (payload: { userId: string; lastSeen: string }) => {
-            if (mounted) onUserOfflineRef.current?.(payload);
-          },
-        );
+        socket.on("user-offline", (payload: { userId: string; lastSeen: string }) => {
+          if (mounted) onUserOfflineRef.current?.(payload);
+        });
+
+        // ✅ নতুন — connect হওয়ার সময় currently online সব user এর list
+        socket.on("online-users", (userIds: string[]) => {
+          if (mounted) {
+            userIds.forEach((id) => onUserOnlineRef.current?.(id));
+          }
+        });
+
+        // ── Notification events ──
+        socket.on("new-notification", (notification: any) => {
+          if (mounted) onNotificationRef.current?.(notification);
+        });
+
+        // ✅ নতুন — connect হওয়ার সময় pending notifications
+        socket.on("pending-notifications", (notifications: any[]) => {
+          if (mounted) onPendingNotificationsRef.current?.(notifications);
+        });
+
       } catch (error) {
         if (mounted) {
           setConnectionError(
-            error instanceof Error ? error.message : "Failed to connect",
+            error instanceof Error ? error.message : "Failed to connect"
           );
         }
       }
@@ -195,7 +212,7 @@ export function useSocket({
       if (!socketRef.current?.connected) return;
       socketRef.current.emit("send-message", { receiverId, message, type });
     },
-    [],
+    []
   );
 
   const markSeen = useCallback((messageId: string) => {
