@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, HeartHandshake, MessageCircle, Crown, User } from "lucide-react";
 import NotificationBell from "@/components/like/NotificationBell";
+import { useEffect, useState } from "react";
 
 interface NavItem {
   href: string;
@@ -20,8 +21,44 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/profile", label: "Profile", icon: User },
 ];
 
+// ── JWT decode (client-side, no library) ─────────────────────────────────────
+function decodeJwt(token: string): Record<string, unknown> | null {
+  try {
+    const part = token.split(".")[1];
+    if (!part) return null;
+    const base64 = part.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "="
+    );
+    return JSON.parse(atob(padded));
+  } catch {
+    return null;
+  }
+}
+
+// ── Cookie reader ─────────────────────────────────────────────────────────────
+function getCookie(name: string): string | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
 export default function AppBar() {
   const pathname = usePathname();
+  const [userId, setUserId] = useState<string | undefined>(undefined);
+  const [token, setToken] = useState<string | undefined>(undefined);
+
+  // ── Read token from cookie client-side and decode userId ──
+  useEffect(() => {
+    const t = getCookie("accessToken");
+    if (!t) return;
+    setToken(t);
+    const payload = decodeJwt(t);
+    if (payload?.id && typeof payload.id === "string") {
+      setUserId(payload.id);
+    }
+  }, []);
 
   const isActive = (href: string) => {
     if (href === "/feed") return pathname === "/feed";
@@ -32,7 +69,7 @@ export default function AppBar() {
 
   return (
     <>
-      {/* DESKTOP */}
+      {/* ── DESKTOP NAV ── */}
       <nav className="hidden md:flex fixed top-0 left-0 right-0 z-50 h-16 items-center justify-between px-6 lg:px-10 border-b border-slate-100 bg-white/95 backdrop-blur-xl shadow-sm">
         <Link href="/feed" className="flex items-center gap-2.5 no-underline">
           <div className="w-8 h-8 rounded-full flex items-center justify-center bg-linear-to-br from-brand to-accent shadow-sm">
@@ -68,14 +105,14 @@ export default function AppBar() {
             );
           })}
 
-          {/* Notification Bell — desktop */}
+          {/* Notification Bell — userId & token pass করা হচ্ছে */}
           <div className="ml-1">
-            <NotificationBell />
+            <NotificationBell userId={userId} token={token} />
           </div>
         </div>
       </nav>
 
-      {/* MOBILE bottom nav */}
+      {/* ── MOBILE BOTTOM NAV ── */}
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-slate-100 bg-white/95 backdrop-blur-xl"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
@@ -109,25 +146,28 @@ export default function AppBar() {
             );
           })}
 
-          {/* Notification Bell — mobile (separate item) */}
-          <div className="relative flex flex-col items-center justify-center gap-0.5 w-16 py-1">
+          {/* Notification Bell — mobile nav item */}
+          <Link
+            href="/notifications"
+            className="no-underline flex flex-col items-center gap-0.5 w-16 py-1 relative"
+          >
             {isActive("/notifications") && (
               <span className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-brand" />
             )}
-            <Link
-              href="/notifications"
-              className="no-underline flex flex-col items-center gap-0.5"
+            <NotificationBell
+              asNavItem
+              active={isActive("/notifications")}
+              userId={userId}
+              token={token}
+            />
+            <span
+              className={`font-outfit text-[10px] font-medium transition-colors duration-200 ${
+                isActive("/notifications") ? "text-brand" : "text-slate-400"
+              }`}
             >
-              <NotificationBell asNavItem active={isActive("/notifications")} />
-              <span
-                className={`font-outfit text-[10px] font-medium transition-colors duration-200 ${
-                  isActive("/notifications") ? "text-brand" : "text-slate-400"
-                }`}
-              >
-                Alerts
-              </span>
-            </Link>
-          </div>
+              Alerts
+            </span>
+          </Link>
         </div>
       </nav>
     </>

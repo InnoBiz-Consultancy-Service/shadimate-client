@@ -1,4 +1,5 @@
 import AppBar from "@/components/shared/AppBar";
+import { Toaster } from "sonner";
 
 export default function ProtectedLayout({
   children,
@@ -8,7 +9,21 @@ export default function ProtectedLayout({
   return (
     <>
       <AppBar />
-      <div className="md:pt-16 pb-20 md:pb-0">{children}</div>
+      <div className="md:pt-16 pb-20 md:pb-0">{children}  <Toaster 
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: {
+              background: 'white',
+              border: '1px solid #e2e8f0',
+              borderRadius: '12px',
+              padding: '12px',
+              fontSize: '13px',
+            },
+            duration: 5000,
+          }}
+        /></div>
     </>
   );
 }
