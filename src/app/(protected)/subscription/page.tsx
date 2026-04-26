@@ -1,17 +1,20 @@
-
 import { universalApi } from "@/actions/universal-api";
 import SubscriptionClient from "@/components/subscription/SubscriptionClient";
+import { headers } from "next/headers";
 
 export const metadata = { title: "Premium – ShadiMate" };
 
-async function fetchPlans() {
-  const res = await fetch(
-    `${process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL}/api/v1/subscriptions/plans`,
-    { cache: "no-store" }
-  );
+async function fetchPlans(userIp: string) {
+  const res = await fetch(`${process.env.BASE_URL}/subscriptions/plans`, {
+    cache: "no-store",
+    headers: {
+      "x-forwarded-for": userIp,
+      "x-real-ip": userIp,
+    },
+  });
   if (!res.ok) return [];
   const data = await res.json();
-  return data.data || [];
+  return data.data?.plans || data.data || [];
 }
 
 async function fetchMySubscription() {
@@ -36,8 +39,16 @@ async function fetchPaymentHistory() {
 }
 
 export default async function SubscriptionPage() {
+  const headersList = await headers();
+
+  const forwarded = headersList.get("x-forwarded-for");
+  const userIp =
+    forwarded?.split(",")[0].trim() ||
+    headersList.get("x-real-ip") ||
+    "127.0.0.1";
+
   const [plans, subscription, history] = await Promise.all([
-    fetchPlans().catch(() => []),
+    fetchPlans(userIp).catch(() => []),
     fetchMySubscription().catch(() => null),
     fetchPaymentHistory().catch(() => ({ data: [], meta: null })),
   ]);
