@@ -158,7 +158,7 @@ function PremiumGate() {
         Premium Required
       </h2>
       <p className="text-[#b08890] text-sm max-w-xs leading-relaxed mb-6">
-        Upgrade to Premium to send and receive messages on ShadiMate.
+        Upgrade to Premium to send and receive messages on primehalf.
       </p>
       <Link
         href="/subscription"

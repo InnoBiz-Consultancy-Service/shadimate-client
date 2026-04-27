@@ -2,7 +2,7 @@
 import { universalApi } from "@/actions/universal-api";
 import SubscriptionClient from "@/components/subscription/SubscriptionClient";
 
-export const metadata = { title: "Premium – ShadiMate" };
+export const metadata = { title: "Premium – primehalf" };
 
 async function fetchPlans() {
   // Server-side fetch — IP এখানে detect করা হবে না

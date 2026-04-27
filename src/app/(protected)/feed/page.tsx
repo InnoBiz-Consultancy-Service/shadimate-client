@@ -1,7 +1,7 @@
 import { fetchMyProfile, fetchProfiles } from "@/actions/profile/profile";
 import FeedClient from "./FeedClient";
 
-export const metadata = { title: "Feed – ShadiMate" };
+export const metadata = { title: "Feed – primehalf" };
 
 export default async function FeedPage() {
   const [profileRes, profilesRes] = await Promise.all([

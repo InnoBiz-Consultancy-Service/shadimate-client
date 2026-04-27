@@ -21,7 +21,7 @@ export interface UseCloudinaryUploadReturn {
 
 const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "";
 const UPLOAD_PRESET =
-  process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "shadimate_profiles";
+  process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "primehalf_profiles";
 
 /**
  * useCloudinaryUpload
@@ -88,7 +88,7 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", UPLOAD_PRESET);
-        formData.append("folder", "shadimate/profiles");
+        formData.append("folder", "primehalf/profiles");
 
         const xhr = new XMLHttpRequest();
 
