@@ -1,14 +1,17 @@
 import { fetchMyProfile } from "@/actions/profile/profile";
+import { getMyAlbum } from "@/actions/album/album";
 import ProfileViewClient from "./ProfileViewClient";
 import Link from "next/link";
 
 export const metadata = { title: "My Profile" };
 
 export default async function ProfilePage() {
-  const res = await fetchMyProfile();
-  console.log(res)
+  const [profileRes, albumRes] = await Promise.all([
+    fetchMyProfile(),
+    getMyAlbum(),
+  ]);
 
-  if (!res.success || !res.data) {
+  if (!profileRes.success || !profileRes.data) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-6 text-center">
         <div className="w-20 h-20 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center mb-5">
@@ -38,5 +41,12 @@ export default async function ProfilePage() {
     );
   }
 
-  return <ProfileViewClient profile={res.data} />;
+  const initialPhotos = albumRes.success ? (albumRes.data?.photos ?? []) : [];
+
+  return (
+    <ProfileViewClient
+      profile={profileRes.data}
+      initialPhotos={initialPhotos}
+    />
+  );
 }

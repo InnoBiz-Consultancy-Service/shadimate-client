@@ -794,6 +794,7 @@ import { fetchProfileById } from "@/actions/profile/profile";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { getLikeCount } from "@/actions/profile-like/like";
+import { getUserAlbum } from "@/actions/album/album";
 import Loading from "@/app/loading";
 import ProfileClient from "./ProfileClient";
 
@@ -854,8 +855,12 @@ async function ProfileContent({ id }: { id: string }) {
   const p = res.data;
   const targetUserId = p.userId?._id || p.user?._id || id;
 
-  const [likeCountRes] = await Promise.all([
+  const [likeCountRes, albumRes] = await Promise.all([
     getLikeCount(targetUserId).catch(() => ({
+      success: false,
+      data: undefined,
+    })),
+    getUserAlbum(targetUserId).catch(() => ({
       success: false,
       data: undefined,
     })),
@@ -865,6 +870,18 @@ async function ProfileContent({ id }: { id: string }) {
     likeCountRes.success && likeCountRes.data
       ? (likeCountRes.data as { count: number }).count
       : 0;
+
+  // Real album photos
+  const albumPhotos =
+    albumRes.success && albumRes.data?.photos ? albumRes.data.photos : [];
+
+  // Map to the shape ProfileClient expects
+  const photos = albumPhotos.map((p) => ({
+    id: p._id,
+    url: p.url,
+    caption: p.caption,
+    type: "image" as const,
+  }));
 
   // Prepare data for client
   const name = p.userId?.name || p.user?.name || "Unknown";
@@ -883,31 +900,6 @@ async function ProfileContent({ id }: { id: string }) {
     currentUserProfileStatus.profile?.userId?._id ||
     currentUserProfileStatus.profile?.userId;
   const isOwnProfile = isLoggedIn && currentUserId === targetUserId;
-
-  // Mock photos - replace with real API data
-  const mockPhotos = [
-    {
-      id: "1",
-      url: "",
-      type: "image" as const,
-      caption: "Summer vibes",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      url: "",
-      type: "image" as const,
-      caption: "Weekend getaway",
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "3",
-      url: "",
-      type: "video" as const,
-      caption: "My hobby",
-      createdAt: new Date().toISOString(),
-    },
-  ];
 
   const profileData = {
     id: targetUserId,
@@ -954,7 +946,7 @@ async function ProfileContent({ id }: { id: string }) {
       isOwnProfile={isOwnProfile}
       isLoggedIn={isLoggedIn}
       hasCurrentUserProfile={hasCurrentUserProfile}
-      photos={mockPhotos}
+      photos={photos}
     />
   );
 }

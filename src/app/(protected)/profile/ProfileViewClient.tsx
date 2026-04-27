@@ -22,12 +22,12 @@ import {
   MessageCircle,
   MoreHorizontal,
   Share2,
-  Image as ImageIcon,
-  Film,
   Settings,
   X,
 } from "lucide-react";
 import type { Profile } from "@/types";
+import AlbumManager from "@/components/album/AlbumManager";
+import type { AlbumPhoto } from "@/actions/album/album";
 
 /* ── Helpers ── */
 function getAge(birthDate?: string): number | null {
@@ -63,14 +63,6 @@ function getCompletionColor(pct: number): string {
 interface SocialStats {
   likes: number;
   views: number;
-}
-
-interface AlbumPhoto {
-  id: string;
-  url: string;
-  thumbnail?: string;
-  caption?: string;
-  type: "image" | "video";
 }
 
 /* ── Sub-components ── */
@@ -150,88 +142,6 @@ function SectionCard({
           children
         )}
       </div>
-    </div>
-  );
-}
-
-// Photo Album Component - Mobile First
-function PhotoAlbum({ photos }: { photos: AlbumPhoto[] }) {
-  const [viewAll, setViewAll] = useState(false);
-  const displayPhotos = viewAll ? photos : photos.slice(0, 6);
-
-  if (photos.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-        <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center mb-2">
-          <Camera size={22} className="text-brand/60" />
-        </div>
-        <p className="font-outfit text-gray-500 text-sm">No photos yet</p>
-        <Link
-          href="/profile/edit?tab=photos"
-          className="mt-3 px-4 py-2 bg-brand/10 text-brand rounded-xl text-sm font-medium active:bg-brand/20 transition-colors"
-        >
-          Add Photos
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="grid grid-cols-3 gap-1.5">
-        {displayPhotos.map((photo, idx) => (
-          <Link
-            key={photo.id}
-            href={`/profile/photo/${photo.id}`}
-            className="group relative aspect-square rounded-lg overflow-hidden bg-gray-100 active:opacity-90 transition-opacity"
-          >
-            <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
-            <div className="w-full h-full bg-linear-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-              {photo.type === "video" ? (
-                <Film size={24} className="text-gray-500" />
-              ) : (
-                <ImageIcon size={24} className="text-gray-500" />
-              )}
-            </div>
-            {photo.caption && (
-              <div className="absolute bottom-1 left-1 right-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                <p className="text-white text-[10px] font-medium truncate px-1">
-                  {photo.caption}
-                </p>
-              </div>
-            )}
-            {idx === 5 && photos.length > 6 && !viewAll && (
-              <div
-                className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 rounded-lg cursor-pointer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setViewAll(true);
-                }}
-              >
-                <span className="text-white font-bold text-lg">
-                  +{photos.length - 5}
-                </span>
-              </div>
-            )}
-          </Link>
-        ))}
-      </div>
-      {photos.length > 6 && !viewAll && (
-        <button
-          onClick={() => setViewAll(true)}
-          className="w-full mt-3 py-2 text-center text-sm font-outfit text-brand bg-brand/5 rounded-lg active:bg-brand/10 transition-colors"
-        >
-          View All {photos.length} Photos
-        </button>
-      )}
-      {viewAll && photos.length > 6 && (
-        <button
-          onClick={() => setViewAll(false)}
-          className="w-full mt-3 py-2 text-center text-sm font-outfit text-gray-500 bg-gray-50 rounded-lg active:bg-gray-100 transition-colors"
-        >
-          Show Less
-        </button>
-      )}
     </div>
   );
 }
@@ -378,7 +288,13 @@ function Modal({
 }
 
 /* ── Main Component ── */
-export default function ProfileViewClient({ profile }: { profile: Profile }) {
+export default function ProfileViewClient({
+  profile,
+  initialPhotos = [],
+}: {
+  profile: Profile;
+  initialPhotos?: AlbumPhoto[];
+}) {
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
 
@@ -393,16 +309,6 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
     likes: 128,
     views: 1034,
   };
-
-  const mockPhotos: AlbumPhoto[] = [
-    { id: "1", url: "", type: "image", caption: "Summer vibes" },
-    { id: "2", url: "", type: "image", caption: "Weekend getaway" },
-    { id: "3", url: "", type: "video", caption: "My hobby" },
-    { id: "4", url: "", type: "image", caption: "With friends" },
-    { id: "5", url: "", type: "image", caption: "Travel memories" },
-    { id: "6", url: "", type: "image", caption: "Celebration" },
-    { id: "7", url: "", type: "image", caption: "Nature" },
-  ];
 
   /* derived values */
   const divName =
@@ -591,15 +497,12 @@ export default function ProfileViewClient({ profile }: { profile: Profile }) {
                 Photo Album
               </span>
             </div>
-            <Link
-              href="/profile/photos"
-              className="text-xs font-outfit text-brand/80 hover:text-brand"
-            >
-              View All
-            </Link>
+            <span className="text-xs font-outfit text-gray-400">
+              {initialPhotos.length}/10
+            </span>
           </div>
           <div className="p-3">
-            <PhotoAlbum photos={mockPhotos} />
+            <AlbumManager initialPhotos={initialPhotos} />
           </div>
         </div>
 
