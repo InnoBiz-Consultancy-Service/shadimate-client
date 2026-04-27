@@ -263,7 +263,7 @@ export default function WhereSoulsMeet() {
           >
             Could you be next?{" "}
             <Link
-              href="/personality-test"
+              href="/login"
               className="font-bold underline underline-offset-2"
               style={{ color: "#E8547A", textDecorationColor: "#E8547A" }}
             >
