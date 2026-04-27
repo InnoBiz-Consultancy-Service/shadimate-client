@@ -27,21 +27,21 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   title: {
-    default: "ShadiMate – Find Your Soul's Connection",
-    template: "%s | ShadiMate",
+    default: "primehalf – Find Your Soul's Connection",
+    template: "%s | primehalf",
   },
   description:
-    "ShadiMate uses behavioral psychology and AI to match you with your true 99.9% connection.",
+    "primehalf uses behavioral psychology and AI to match you with your true 99.9% connection.",
   openGraph: {
-    title: "ShadiMate – Find Your Soul's Connection",
+    title: "primehalf – Find Your Soul's Connection",
     description:
       "Traditional matching is dead. We use behavioral psychology to find your 99.9% true connection.",
     type: "website",
-    siteName: "ShadiMate",
+    siteName: "primehalf",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ShadiMate – Find Your Soul's Connection",
+    title: "primehalf – Find Your Soul's Connection",
     description:
       "Traditional matching is dead. We use behavioral psychology to find your 99.9% true connection.",
   },

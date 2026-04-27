@@ -19,7 +19,7 @@ export default function Logo({ size = "default" }: { size?: "default" | "small" 
         </svg>
       </div>
       <span className={`font-syne text-white font-extrabold ${textSize} tracking-tight`}>
-        ShadiMate
+        primehalf
       </span>
     </Link>
   );

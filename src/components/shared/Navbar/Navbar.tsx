@@ -267,7 +267,7 @@ export default function Navbar() {
           "
           aria-label="Main navigation"
         >
-          <Link href="/" className="no-underline" aria-label="ShadiMate home">
+          <Link href="/" className="no-underline" aria-label="primehalf home">
             <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center cursor-pointer bg-linear-to-br from-brand to-accent shadow-md">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                 <path

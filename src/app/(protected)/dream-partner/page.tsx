@@ -1,7 +1,7 @@
 import { fetchDreamPartnerMatches } from "@/actions/dream-partner/dream-partner";
 import DreamPartnerClient from "./DreamPartnerClient";
 
-export const metadata = { title: "Dream Partner – ShadiMate" };
+export const metadata = { title: "Dream Partner – primehalf" };
 
 export default async function DreamPartnerPage() {
   const res = await fetchDreamPartnerMatches().catch(() => ({

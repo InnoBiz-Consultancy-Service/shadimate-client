@@ -122,7 +122,7 @@ export default function Footer() {
 
         <div className="border-t border-white/[0.07] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
           <p className="text-slate-500 text-xs">
-            © {new Date().getFullYear()} ShadiMate Inc. All rights reserved.
+            © {new Date().getFullYear()} primehalf Inc. All rights reserved.
           </p>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-(--shadow-brand-dot)" />

@@ -82,7 +82,7 @@
 //             </svg>
 //           </div>
 //           <span className="font-syne text-slate-900 font-extrabold text-lg tracking-tight">
-//             ShadiMate
+//             primehalf
 //           </span>
 //         </Link>
 
@@ -325,7 +325,7 @@ export default function AppBar() {
             </svg>
           </div>
           <span className="font-syne text-slate-900 font-extrabold text-lg tracking-tight">
-            ShadiMate
+            primehalf
           </span>
         </Link>
 

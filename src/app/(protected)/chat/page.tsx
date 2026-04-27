@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { getConversations } from "@/actions/chat/chat";
 import ChatClient from "@/components/chat/ChatClient";
 
-export const metadata = { title: "Messages – ShadiMate" };
+export const metadata = { title: "Messages – primehalf" };
 
 // JWT payload decode — middleware.ts-এর মতো same logic
 function decodeJwt(token: string): Record<string, unknown> | null {
