@@ -1,20 +1,21 @@
+// src/app/(protected)/subscription/page.tsx
 import { universalApi } from "@/actions/universal-api";
 import SubscriptionClient from "@/components/subscription/SubscriptionClient";
-import { headers } from "next/headers";
 
 export const metadata = { title: "Premium – ShadiMate" };
 
-async function fetchPlans(userIp: string) {
-  const res = await fetch(`${process.env.BASE_URL}/subscriptions/plans`, {
+async function fetchPlans() {
+  // Server-side fetch — IP এখানে detect করা হবে না
+  // Backend সব plans এর BDT + GBP দুটো amount-ই return করে
+  // currency detection হবে SubscriptionClient এ browser থেকে
+  const baseUrl = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+  const res = await fetch(`${baseUrl}/api/v1/subscriptions/plans`, {
     cache: "no-store",
-    headers: {
-      "x-forwarded-for": userIp,
-      "x-real-ip": userIp,
-    },
   });
   if (!res.ok) return [];
   const data = await res.json();
-  return data.data?.plans || data.data || [];
+  // Backend returns: { data: { plans: [...], detectedCountry, detectedCurrency } }
+  return data.data?.plans ?? data.data ?? [];
 }
 
 async function fetchMySubscription() {
@@ -39,16 +40,8 @@ async function fetchPaymentHistory() {
 }
 
 export default async function SubscriptionPage() {
-  const headersList = await headers();
-
-  const forwarded = headersList.get("x-forwarded-for");
-  const userIp =
-    forwarded?.split(",")[0].trim() ||
-    headersList.get("x-real-ip") ||
-    "127.0.0.1";
-
   const [plans, subscription, history] = await Promise.all([
-    fetchPlans(userIp).catch(() => []),
+    fetchPlans().catch(() => []),
     fetchMySubscription().catch(() => null),
     fetchPaymentHistory().catch(() => ({ data: [], meta: null })),
   ]);
