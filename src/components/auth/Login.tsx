@@ -155,7 +155,7 @@ export default function LoginPage() {
 
           <div className="animate-[fadeUp_0.6s_ease_0.55s_both] text-center mt-7">
             <p className="text-slate-500 text-sm">
-              New to ShadiMate?{" "}
+              New to primehalf?{" "}
               <Link
                 href="/registration"
                 className="text-brand font-semibold hover:text-brand/80 transition-colors duration-150 no-underline"

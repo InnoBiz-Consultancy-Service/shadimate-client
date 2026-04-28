@@ -1,17 +1,21 @@
-
+// src/app/(protected)/subscription/page.tsx
 import { universalApi } from "@/actions/universal-api";
 import SubscriptionClient from "@/components/subscription/SubscriptionClient";
 
-export const metadata = { title: "Premium – ShadiMate" };
+export const metadata = { title: "Premium – primehalf" };
 
 async function fetchPlans() {
-  const res = await fetch(
-    `${process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL}/api/v1/subscriptions/plans`,
-    { cache: "no-store" }
-  );
+  // Server-side fetch — IP এখানে detect করা হবে না
+  // Backend সব plans এর BDT + GBP দুটো amount-ই return করে
+  // currency detection হবে SubscriptionClient এ browser থেকে
+  const baseUrl = process.env.BASE_URL || process.env.NEXT_PUBLIC_BASE_URL;
+  const res = await fetch(`${baseUrl}/api/v1/subscriptions/plans`, {
+    cache: "no-store",
+  });
   if (!res.ok) return [];
   const data = await res.json();
-  return data.data || [];
+  // Backend returns: { data: { plans: [...], detectedCountry, detectedCurrency } }
+  return data.data?.plans ?? data.data ?? [];
 }
 
 async function fetchMySubscription() {

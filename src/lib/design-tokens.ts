@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════╗
- * ║           SHADIMATE — CENTRAL DESIGN TOKENS              ║
+ * ║           primehalf — CENTRAL DESIGN TOKENS              ║
  * ║  Edit this ONE file to retheme the entire application.   ║
  * ║  Components import `dt` and use `dt.card`, `dt.text` etc ║
  * ╚══════════════════════════════════════════════════════════╝

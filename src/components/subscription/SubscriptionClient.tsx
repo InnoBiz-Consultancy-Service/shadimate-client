@@ -1,3 +1,4 @@
+// components/subscription/SubscriptionClient.tsx
 "use client";
 
 import { useState, useCallback } from "react";
@@ -20,14 +21,25 @@ import {
 import { GlassCard, Toast } from "@/components/ui";
 import type { ToastData } from "@/types";
 import { initiatePaymentAction } from "@/actions/payment/payment";
+import { useSimpleCurrency } from "@/hooks/useCurrency";
+
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Plan {
   plan: string;
   label: string;
   labelEn?: string;
-  amount: number;
   months: number;
-  currency?: string;
+  amount: number;
+  amountBDT: number;
+  amountGBP?: number;
+  amountGBPFormatted?: string;
+  amountConverted?: number;
+  amountFormatted?: string;
+  exchangeRate?: number;
+  currency?: { code: string; symbol: string; name: string };
+  chargeNote?: string | null;
 }
 
 interface Subscription {
@@ -55,31 +67,28 @@ interface Props {
   paymentHistory: PaymentRecord[];
 }
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const PREMIUM_FEATURES = [
   { icon: MessageCircle, label: "Unlimited messaging" },
-  { icon: Eye, label: "See who viewed you" },
-  { icon: Filter, label: "Advanced filters" },
-  { icon: Zap, label: "Priority matching" },
-  { icon: ShieldCheck, label: "Verified badge" },
-  { icon: Star, label: "Priority support" },
+  { icon: Eye,           label: "See who viewed you" },
+  { icon: Filter,        label: "Advanced filters" },
+  { icon: Zap,           label: "Priority matching" },
+  { icon: ShieldCheck,   label: "Verified badge" },
+  { icon: Star,          label: "Priority support" },
 ];
 
 const STATUS_STYLES: Record<string, string> = {
-  success: "text-emerald-600 bg-emerald-50 border-emerald-200",
-  pending: "text-amber-600 bg-amber-50 border-amber-200",
-  failed: "text-red-600 bg-red-50 border-red-200",
+  success:   "text-emerald-600 bg-emerald-50 border-emerald-200",
+  pending:   "text-amber-600 bg-amber-50 border-amber-200",
+  failed:    "text-red-600 bg-red-50 border-red-200",
   cancelled: "text-slate-500 bg-slate-100 border-slate-200",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  success: "success",
-  pending: "pending",
-  failed: "failed",
-  cancelled: "cancelled",
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function formatDate(dateStr: string, locale = "en-BD") {
-  return new Date(dateStr).toLocaleDateString(locale, {
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-BD", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -89,9 +98,7 @@ function formatDate(dateStr: string, locale = "en-BD") {
 function getDaysLeft(endDate: string) {
   return Math.max(
     0,
-    Math.ceil(
-      (new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
-    ),
+    Math.ceil((new Date(endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   );
 }
 
@@ -104,21 +111,65 @@ function getPlanLabel(plan: string) {
   return map[plan] || plan;
 }
 
-export default function SubscriptionClient({
-  plans,
-  subscription,
-  paymentHistory,
-}: Props) {
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function SubscriptionClient({ plans, subscription, paymentHistory }: Props) {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastData | null>(null);
   const hideToast = useCallback(() => setToast(null), []);
+  
+  const { currency, loading: currencyLoading, symbol } = useSimpleCurrency();
 
-  const isActive = subscription?.status === "active";
-  const daysLeft = subscription?.endDate
-    ? getDaysLeft(subscription.endDate)
-    : 0;
+  // ── Display amount helper ──────────────────────────────────────────────────
+  const getDisplayAmount = (plan: Plan): string => {
+    if (currencyLoading) return "...";
+    
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      const gbpAmount = (amountBDT * 0.0072).toFixed(2);
+      return `£${gbpAmount}`;
+    }
+    
+    // BDT
+    const amountBDT = plan.amountBDT || plan.amount;
+    return `৳${amountBDT.toLocaleString()}`;
+  };
+
+  const getPerMonthAmount = (plan: Plan): string => {
+    if (currencyLoading) return "...";
+    
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      const totalGbp = amountBDT * 0.0072;
+      const perMonth = (totalGbp / plan.months).toFixed(2);
+      return `£${perMonth} / month`;
+    }
+    
+    const amountBDT = plan.amountBDT || plan.amount;
+    return `৳${Math.round(amountBDT / plan.months).toLocaleString()} / month`;
+  };
+
+  const getChargeNote = (plan: Plan): string | null => {
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      return `Charged as ৳${amountBDT} BDT via payment gateway`;
+    }
+    return null;
+  };
+
+  // ── Subscription state ─────────────────────────────────────────────────────
+  const isActive      = subscription?.status === "active";
+  const daysLeft      = subscription?.endDate ? getDaysLeft(subscription.endDate) : 0;
   const isExpiringSoon = isActive && daysLeft <= 7;
 
+  // ── Savings calculation (BDT base) ────────────────────────────────────────
+  const baseMonthly = plans.find((p) => p.plan === "1month")?.amountBDT || 299;
+  function getSaving(plan: Plan) {
+    const amountBDT = plan.amountBDT || plan.amount;
+    return baseMonthly * plan.months - amountBDT;
+  }
+
+  // ── Payment initiate ───────────────────────────────────────────────────────
   const handleSelectPlan = async (plan: string) => {
     if (isActive) {
       setToast({
@@ -146,12 +197,9 @@ export default function SubscriptionClient({
     }
   };
 
-  // Savings calculation
-  const baseMonthly = plans.find((p) => p.plan === "1month")?.amount || 299;
-  function getSaving(plan: Plan) {
-    const full = baseMonthly * plan.months;
-    return full - plan.amount;
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -160,6 +208,7 @@ export default function SubscriptionClient({
       )}
 
       <div className="font-outfit min-h-screen px-5 py-8 md:py-12 max-w-3xl mx-auto">
+
         {/* ── Header ── */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/8 border border-brand/20 mb-4">
@@ -174,6 +223,8 @@ export default function SubscriptionClient({
           <p className="text-slate-500 text-sm max-w-sm mx-auto leading-relaxed">
             Upgrade to Premium and complete your journey to find your soulmate.
           </p>
+
+       
         </div>
 
         {/* ── Active Subscription Banner ── */}
@@ -241,9 +292,12 @@ export default function SubscriptionClient({
         {plans.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             {plans.map((plan) => {
-              const saving = getSaving(plan);
+              const saving    = getSaving(plan);
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
+              const chargeNote = getChargeNote(plan);
+              const displayAmount = getDisplayAmount(plan);
+              const perMonthAmount = getPerMonthAmount(plan);
 
               return (
                 <div key={plan.plan} className="relative">
@@ -268,43 +322,55 @@ export default function SubscriptionClient({
                         <h3 className="font-syne text-slate-900 text-lg font-extrabold">
                           {plan.label}
                         </h3>
-                        {saving > 0 && (
+                        {saving > 0 && currency === "BDT" && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
-                            ৳{saving} discount
+                            ৳{saving} off
                           </span>
                         )}
                       </div>
+
+                      {/* Main price */}
                       <div className="flex items-baseline gap-1">
-                        <span className="font-syne text-3xl font-extrabold text-slate-900">
-                          ৳{plan.amount}
-                        </span>
+                        {currencyLoading ? (
+                          <span className="font-syne text-3xl font-extrabold text-slate-300 animate-pulse">
+                            ···
+                          </span>
+                        ) : (
+                          <span className="font-syne text-3xl font-extrabold text-slate-900">
+                            {displayAmount}
+                          </span>
+                        )}
                         <span className="text-slate-400 text-sm">
-                          / {plan.months} months
+                          / {plan.months} mo
                         </span>
                       </div>
+
+                      {/* Per month */}
                       <p className="text-slate-400 text-xs mt-1">
-                        ৳{Math.round(plan.amount / plan.months)} / month
+                        {perMonthAmount}
                       </p>
+
+                      {/* Charge note for GBP users */}
+                      {chargeNote && (
+                        <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                          ℹ️ {chargeNote}
+                        </p>
+                      )}
                     </div>
 
                     {/* Features */}
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
-                        <div
-                          key={feat.label}
-                          className="flex items-center gap-2"
-                        >
+                        <div key={feat.label} className="flex items-center gap-2">
                           <div className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-gray-900 text-xs">
-                            {feat.label}
-                          </span>
+                          <span className="text-gray-900 text-xs">{feat.label}</span>
                         </div>
                       ))}
                     </div>
 
-                    {/* CTA Button */}
+                    {/* CTA */}
                     <button
                       onClick={() => handleSelectPlan(plan.plan)}
                       disabled={!!loadingPlan || (isActive && !isExpiringSoon)}
@@ -328,8 +394,7 @@ export default function SubscriptionClient({
                         "Subscribed"
                       ) : (
                         <>
-                          Select Plan
-                          <ChevronRight size={14} />
+                          Select Plan <ChevronRight size={14} />
                         </>
                       )}
                     </button>
@@ -339,15 +404,20 @@ export default function SubscriptionClient({
             })}
           </div>
         ) : (
-          /* Fallback static plans */
+          /* ── Fallback static plans ── */
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             {[
-              { plan: "1month", label: "1 month", amount: 299, months: 1 },
-              { plan: "3month", label: "3 months", amount: 799, months: 3 },
-              { plan: "6month", label: "6 months", amount: 1499, months: 6 },
+              { plan: "1month", label: "1 month", amountBDT: 299, months: 1 },
+              { plan: "3month", label: "3 months", amountBDT: 799, months: 3 },
+              { plan: "6month", label: "6 months", amountBDT: 1499, months: 6 },
             ].map((plan) => {
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
+              
+              const displayAmount = currency === 'GBP' 
+                ? `£${(plan.amountBDT * 0.0072).toFixed(2)}`
+                : `৳${plan.amountBDT}`;
+              
               return (
                 <div key={plan.plan} className="relative">
                   {isPopular && (
@@ -366,22 +436,23 @@ export default function SubscriptionClient({
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="font-syne text-3xl font-extrabold text-black">
-                          ৳{plan.amount}
+                          {displayAmount}
                         </span>
+                        <span className="text-slate-400 text-sm">/ {plan.months} mo</span>
                       </div>
+                      {currency === 'GBP' && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          ≈ ৳{plan.amountBDT} BDT
+                        </p>
+                      )}
                     </div>
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
-                        <div
-                          key={feat.label}
-                          className="flex items-center gap-2"
-                        >
+                        <div key={feat.label} className="flex items-center gap-2">
                           <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
                             <Check size={9} className="text-brand" />
                           </div>
-                          <span className="text-gray-700 text-xs">
-                            {feat.label}
-                          </span>
+                          <span className="text-gray-700 text-xs">{feat.label}</span>
                         </div>
                       ))}
                     </div>
@@ -395,14 +466,9 @@ export default function SubscriptionClient({
                       }`}
                     >
                       {isLoading ? (
-                        <>
-                          <Loader2 size={14} className="animate-spin" />{" "}
-                          Processing...
-                        </>
+                        <><Loader2 size={14} className="animate-spin" /> Processing...</>
                       ) : (
-                        <>
-                          Select Plan <ChevronRight size={14} />
-                        </>
+                        <>Select Plan <ChevronRight size={14} /></>
                       )}
                     </button>
                   </GlassCard>
@@ -460,12 +526,10 @@ export default function SubscriptionClient({
                     </p>
                     <span
                       className={`inline-block text-[10px] font-semibold px-2 py-0.5 rounded-full border mt-0.5 ${
-                        STATUS_STYLES[record.paymentStatus] ||
-                        STATUS_STYLES["pending"]
+                        STATUS_STYLES[record.paymentStatus] || STATUS_STYLES["pending"]
                       }`}
                     >
-                      {STATUS_LABELS[record.paymentStatus] ||
-                        record.paymentStatus}
+                      {record.paymentStatus}
                     </span>
                   </div>
                 </div>

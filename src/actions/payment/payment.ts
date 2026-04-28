@@ -5,10 +5,16 @@ import { universalApi } from "@/actions/universal-api";
 export interface SubscriptionPlan {
   plan: string;
   label: string;
-  labelEn: string;
-  amount: number;
+  amount: number;           
+  amountConverted: number; 
+  amountFormatted: string; 
   months: number;
-  currency: string;
+  currency: {
+    code: string;
+    symbol: string;
+    name: string;
+  };
+  chargeNote: string | null;
 }
 
 export interface ActiveSubscription {

@@ -2,9 +2,9 @@ import { fetchQuestions } from "@/actions/public/personality-test/personality-te
 import PersonalityTest from "@/components/public/personality-test/PersonalityTest";
 
 export const metadata = {
-  title: "Personality Test – ShadiMate",
+  title: "Personality Test – primehalf",
   description:
-    "Take the ShadiMate personality test and discover your relationship style.",
+    "Take the primehalf personality test and discover your relationship style.",
 };
 
 export default async function PersonalityTestPage() {

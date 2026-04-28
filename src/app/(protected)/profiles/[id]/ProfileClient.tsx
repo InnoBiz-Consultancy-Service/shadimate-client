@@ -18,15 +18,13 @@ import {
   Camera,
   Share2,
   MoreHorizontal,
-  X,
   ChevronRight,
-  Image as ImageIcon,
-  Film,
   Users,
   CheckCircle,
 } from "lucide-react";
 import LikeButton from "@/components/like/LikeButton";
 import ProfileCompletionCard from "@/components/profile/ProfileCompletionCard";
+import AlbumGallery from "@/components/album/AlbumGallery";
 
 interface AlbumPhoto {
   id: string;
@@ -102,8 +100,6 @@ export default function ProfileClient({
   hasCurrentUserProfile,
   photos,
 }: ProfileClientProps) {
-  const [viewAllPhotos, setViewAllPhotos] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState<AlbumPhoto | null>(null);
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
   >({
@@ -118,7 +114,6 @@ export default function ProfileClient({
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
-  const displayPhotos = viewAllPhotos ? photos : photos.slice(0, 6);
   const name = profileData.name;
   const targetUserId = profileData.id;
 
@@ -358,115 +353,16 @@ export default function ProfileClient({
             </div>
           </div>
           <div className="p-3">
-            {photos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-                <div className="w-14 h-14 rounded-full bg-brand/10 flex items-center justify-center mb-3">
-                  <Camera size={24} className="text-brand/50" />
-                </div>
-                <p className="font-outfit text-gray-500 text-sm">
-                  No photos yet
-                </p>
-                {isOwnProfile && (
-                  <Link
-                    href="/profile/edit?tab=photos"
-                    className="mt-3 px-4 py-2 bg-brand/10 text-brand rounded-xl text-sm font-medium active:bg-brand/20 transition-colors"
-                  >
-                    Add Photos
-                  </Link>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-3 gap-1.5">
-                  {displayPhotos.map((photo, idx) => (
-                    <button
-                      key={photo.id}
-                      onClick={() => setSelectedPhoto(photo)}
-                      className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 active:scale-95 transition-transform"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
-                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                        {photo.type === "video" ? (
-                          <Film size={28} className="text-gray-500" />
-                        ) : (
-                          <ImageIcon size={28} className="text-gray-500" />
-                        )}
-                      </div>
-                      {photo.caption && (
-                        <div className="absolute bottom-2 left-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-white text-[10px] font-medium truncate">
-                            {photo.caption}
-                          </p>
-                        </div>
-                      )}
-                      {idx === 5 && photos.length > 6 && !viewAllPhotos && (
-                        <div
-                          className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 rounded-xl"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setViewAllPhotos(true);
-                          }}
-                        >
-                          <span className="text-white font-bold text-lg">
-                            +{photos.length - 5}
-                          </span>
-                        </div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                {photos.length > 6 && !viewAllPhotos && (
-                  <button
-                    onClick={() => setViewAllPhotos(true)}
-                    className="w-full mt-3 py-2.5 text-center text-sm font-outfit font-medium text-brand bg-brand/5 rounded-xl active:bg-brand/10 transition-colors"
-                  >
-                    View All {photos.length} Photos
-                  </button>
-                )}
-                {viewAllPhotos && photos.length > 6 && (
-                  <button
-                    onClick={() => setViewAllPhotos(false)}
-                    className="w-full mt-3 py-2.5 text-center text-sm font-outfit text-gray-500 bg-gray-50 rounded-xl active:bg-gray-100 transition-colors"
-                  >
-                    Show Less
-                  </button>
-                )}
-              </>
-            )}
+            <AlbumGallery
+              photos={photos.map((p) => ({
+                _id: p.id,
+                url: p.url,
+                caption: p.caption,
+              }))}
+              isOwnProfile={isOwnProfile}
+            />
           </div>
         </div>
-
-        {/* Photo Modal */}
-        {selectedPhoto && (
-          <div
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedPhoto(null)}
-          >
-            <button
-              onClick={() => setSelectedPhoto(null)}
-              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
-            >
-              <X size={20} className="text-white" />
-            </button>
-            <div
-              className="max-w-[90vw] max-h-[80vh] bg-gray-900 rounded-2xl overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="w-80 h-80 md:w-96 md:h-96 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
-                {selectedPhoto.type === "video" ? (
-                  <Film size={48} className="text-gray-500" />
-                ) : (
-                  <ImageIcon size={48} className="text-gray-500" />
-                )}
-              </div>
-              {selectedPhoto.caption && (
-                <div className="p-4 bg-gray-900">
-                  <p className="text-white text-sm">{selectedPhoto.caption}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Expandable Info Sections */}
         {/* Personal Info */}

@@ -61,31 +61,32 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="font-outfit relative w-full overflow-hidden bg-transparent">
-      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-150 h-50 rounded-full opacity-10 bg-[radial-gradient(ellipse,rgba(232,84,122,0.4)_0%,transparent_70%)]" />
+    <footer className="font-outfit relative w-full overflow-hidden bg-white">
+      {/* Subtle gradient accent - light version */}
+      <div className="pointer-events-none absolute bottom-0 left-1/2 -translate-x-1/2 w-150 h-50 rounded-full opacity-20 bg-[radial-gradient(ellipse,rgba(232,84,122,0.2)_0%,transparent_70%)]" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 pt-16 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 md:gap-8 pb-14 border-b border-white/[0.07]">
-          <div className="md:col-span-2 flex flex-col gap-5">
+      <div className="relative z-10 max-w-6xl mx-auto px-5 md:px-10 pt-12 md:pt-16 pb-6 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-10 md:gap-8 pb-10 md:pb-14 border-b border-slate-200">
+          <div className="md:col-span-2 flex flex-col gap-4 md:gap-5">
             <Logo />
-            <p className="text-slate-400 text-sm leading-relaxed max-w-65">
+            <p className="text-slate-600 text-sm leading-relaxed max-w-65">
               We use behavioral psychology and AI to match you with your true
               99.9% connection. Traditional dating is dead.
             </p>
 
             <Link
               href="/personality-test"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-on-brand text-sm font-bold tracking-[0.06em] no-underline bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.05] hover:shadow-(--shadow-brand-lg) active:scale-[0.98] transition-all duration-300 w-fit"
+              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-6 md:py-3 rounded-full text-white text-sm font-bold tracking-[0.06em] no-underline bg-gradient-to-r from-brand to-accent shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 w-fit"
             >
               Start Your Scan <ArrowUpRight size={14} />
             </Link>
 
-            <div className="flex items-center gap-2.5 mt-1">
+            <div className="flex items-center gap-2 mt-1">
               {socials.map(({ icon, label }) => (
                 <button
                   key={label}
                   aria-label={label}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-white/5 border border-white/5 text-slate-400 cursor-pointer transition-all duration-200 hover:bg-brand/10 hover:border-brand/35 hover:text-brand hover:shadow-(--shadow-brand-xs) hover:-translate-y-0.5"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-100 text-slate-500 cursor-pointer transition-all duration-200 hover:bg-brand/10 hover:text-brand hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {icon}
                 </button>
@@ -94,16 +95,16 @@ export default function Footer() {
           </div>
 
           {footerLinks.map((col) => (
-            <div key={col.heading} className="flex flex-col gap-4">
-              <h4 className="font-syne text-white text-xs font-bold tracking-[0.15em] uppercase">
+            <div key={col.heading} className="flex flex-col gap-3 md:gap-4">
+              <h4 className="font-syne text-slate-800 text-xs font-bold tracking-[0.15em] uppercase">
                 {col.heading}
               </h4>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2 md:gap-3">
                 {col.links.map((link) => (
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-slate-400 text-sm transition-colors duration-180 hover:text-brand"
+                      className="text-slate-500 text-sm transition-colors duration-150 hover:text-brand block py-0.5"
                     >
                       {link}
                     </a>
@@ -113,24 +114,18 @@ export default function Footer() {
             </div>
           ))}
         </div>
-
-        <div className="py-12 text-center">
-          <p className="text-[clamp(36px,8vw,80px)] font-extrabold leading-[1.1] tracking-[-0.03em] text-gradient-rose">
-            FIND YOUR SOUL MATE
+        {/* Bottom bar - simplified for mobile */}
+        <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-3">
+          <p className="text-slate-400 text-xs order-2 md:order-1">
+            © {new Date().getFullYear()} primehalf Inc. All rights reserved.
           </p>
-        </div>
-
-        <div className="border-t border-white/[0.07] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p className="text-slate-500 text-xs">
-            © {new Date().getFullYear()} ShadiMate Inc. All rights reserved.
-          </p>
-          <div className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-(--shadow-brand-dot)" />
+          <div className="flex items-center gap-1.5 order-1 md:order-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
             <span className="text-slate-500 text-xs">
               All systems operational
             </span>
           </div>
-          <p className="text-slate-500 text-xs">
+          <p className="text-slate-400 text-xs order-3">
             Built with behavioral science &amp; love
           </p>
         </div>
