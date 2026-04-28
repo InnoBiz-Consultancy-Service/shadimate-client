@@ -23,6 +23,6 @@ jobs:
         env:
           PERSONAL_TOKEN: ${{ secrets.PERSONAL_REPO_TOKEN }}
         run: |
-          git remote add personal https://arifadnan05:${PERSONAL_TOKEN}@github.com/arifadnan05/primehalf-client.git
+          git remote add personal https://arifadnan05:${PERSONAL_TOKEN}@github.com/arifadnan05/shadimate-client.git
           git push personal --all --force
           git push personal --tags --force
