@@ -14,7 +14,9 @@ import {
   GradientButton,
   GenderSelector,
   PageShell,
+  RateLimitBanner,
 } from "@/components/ui";
+import { useCountdown } from "@/hooks/useCountdown";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -29,6 +31,14 @@ export default function RegisterPage() {
     initialState,
   );
 
+  const countdown = useCountdown(0);
+  
+  useEffect(() => {
+    if (state.retryAfter && state.retryAfter > 0) {
+      countdown.start(state.retryAfter);
+    }
+  }, [state.retryAfter, countdown]);
+
   const toastData = (() => {
     if (toastDismissedFor === state) return null;
     if (state.success && state.phone)
@@ -36,7 +46,7 @@ export default function RegisterPage() {
         message: "Account created! Verifying your phone...",
         type: "success" as const,
       };
-    if (state.message && !state.success)
+    if (state.message && !state.success && !state.retryAfter)
       return { message: state.message, type: "error" as const };
     return null;
   })();
@@ -77,6 +87,14 @@ export default function RegisterPage() {
               Start your journey to real connection
             </p>
           </div>
+
+          {countdown.isActive && (
+            <RateLimitBanner
+              message="You can register a limited number of times. Please wait before trying again."
+              formattedTime={countdown.formatted}
+              onDismiss={countdown.reset}
+            />
+          )}
 
           <form action={formAction} className="flex flex-col gap-4">
             <input type="hidden" name="gender" value={gender} />
@@ -131,9 +149,12 @@ export default function RegisterPage() {
                 type="submit"
                 fullWidth
                 loading={isPending}
+                disabled={countdown.isActive}
                 loadingText="Creating account..."
               >
-                CREATE ACCOUNT <ArrowRight size={15} />
+                {countdown.isActive ? `Wait ${countdown.formatted}` : (
+                  <>CREATE ACCOUNT <ArrowRight size={15} /></>
+                )}
               </GradientButton>
             </div>
           </form>

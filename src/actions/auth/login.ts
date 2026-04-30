@@ -39,6 +39,7 @@ export interface LoginState {
     identifier?: string;
     password?: string;
   };
+  retryAfter?: number;
 }
 
 export async function loginAction(
@@ -78,6 +79,7 @@ export async function loginAction(
     return {
       success: false,
       message: res.message || "Login failed. Please check your credentials.",
+      retryAfter: res.retryAfter,
     };
   }
 

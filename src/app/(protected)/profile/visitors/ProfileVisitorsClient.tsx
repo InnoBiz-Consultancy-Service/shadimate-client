@@ -663,7 +663,7 @@ function Modal({
 }
 
 /* ── Main Component ── */
-export default function ProfileViewClient({ profile }: { profile: Profile }) {
+export default function ProfileViewClient({ profile, isPremium, visitCount }: { profile: Profile, isPremium: boolean, visitCount: number }) {
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState(

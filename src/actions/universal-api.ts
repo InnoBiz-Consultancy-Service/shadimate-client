@@ -61,6 +61,15 @@ export async function universalApi<T = unknown>({
         };
       }
 
+      if (response.status === 429) {
+        const retryAfter = response.headers.get("Retry-After");
+        return {
+          success: false,
+          message: errorData.message || "Too Many Requests",
+          retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
+        };
+      }
+
       return {
         success: false,
         message: errorData.message || `Error: ${response.statusText}`,
