@@ -7,11 +7,13 @@ export interface VerifyOtpState {
   success: boolean;
   message: string;
   errors?: { otp?: string };
+  retryAfter?: number;
 }
 
 export interface ResendOtpState {
   success: boolean;
   message: string;
+  retryAfter?: number;
 }
 
 export async function verifyOtpAction(
@@ -51,6 +53,7 @@ export async function verifyOtpAction(
     return {
       success: false,
       message: res.message || "Invalid OTP. Please try again.",
+      retryAfter: res.retryAfter,
     };
   }
 
@@ -86,6 +89,7 @@ export async function resendOtpAction(phone: string): Promise<ResendOtpState> {
     return {
       success: false,
       message: res.message || "Failed to resend OTP. Please try again.",
+      retryAfter: res.retryAfter,
     };
   }
 

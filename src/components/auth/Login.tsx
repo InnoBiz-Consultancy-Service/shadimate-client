@@ -13,7 +13,9 @@ import {
   PasswordInput,
   GradientButton,
   PageShell,
+  RateLimitBanner,
 } from "@/components/ui";
+import { useCountdown } from "@/hooks/useCountdown";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -47,6 +49,14 @@ export default function LoginPage() {
     initialState,
   );
 
+  const countdown = useCountdown(0);
+  
+  useEffect(() => {
+    if (state.retryAfter && state.retryAfter > 0) {
+      countdown.start(state.retryAfter);
+    }
+  }, [state.retryAfter, countdown]);
+
   const toastData = (() => {
     if (toastDismissedFor === state) return null;
     if (state.success)
@@ -54,7 +64,7 @@ export default function LoginPage() {
         message: state.message || "Login successful!",
         type: "success" as const,
       };
-    if (state.message)
+    if (state.message && !state.retryAfter)
       return { message: state.message, type: "error" as const };
     return null;
   })();
@@ -115,6 +125,14 @@ export default function LoginPage() {
             <div className="flex-1 h-px bg-slate-200" />
           </div>
 
+          {countdown.isActive && (
+            <RateLimitBanner
+              message="You have tried to login too many times. Please wait before trying again."
+              formattedTime={countdown.formatted}
+              onDismiss={countdown.reset}
+            />
+          )}
+
           <form
             action={formAction}
             className="animate-[fadeUp_0.6s_ease_0.45s_both] flex flex-col gap-4"
@@ -146,10 +164,13 @@ export default function LoginPage() {
               type="submit"
               fullWidth
               loading={isPending}
+              disabled={countdown.isActive}
               loadingText="Signing in..."
               className="mt-2"
             >
-              SIGN IN <ArrowRight size={15} />
+              {countdown.isActive ? `Wait ${countdown.formatted}` : (
+                <>SIGN IN <ArrowRight size={15} /></>
+              )}
             </GradientButton>
           </form>
 
