@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { getProfileVisitCount } from "@/actions/profile-visit/profile-visit";
-import ProfileVisitorsClient from "./ProfileVisitorsClient";
+import { fetchMyProfile } from "@/actions/profile/profile";
+import ProfileViewClient from "./ProfileVisitorsClient";
 
 export const metadata = { title: "Profile Visitors" };
 
@@ -29,13 +30,29 @@ export default async function ProfileVisitorsPage() {
 
   const isPremium = isPremiumUser(token);
 
-  const countRes = await getProfileVisitCount();
+  const [countRes, profileRes] = await Promise.all([
+    getProfileVisitCount(),
+    fetchMyProfile(),
+  ]);
+
   const visitCount =
     countRes.success && countRes.data
       ? (countRes.data as { count: number }).count
       : 0;
 
+  if (!profileRes.success || !profileRes.data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="font-outfit text-gray-500">Failed to load profile.</p>
+      </div>
+    );
+  }
+
   return (
-    <ProfileVisitorsClient isPremium={isPremium} visitCount={visitCount} />
+    <ProfileViewClient
+      profile={profileRes.data}
+      isPremium={isPremium}
+      visitCount={visitCount}
+    />
   );
 }
