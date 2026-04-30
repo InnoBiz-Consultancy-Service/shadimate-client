@@ -14,6 +14,7 @@ export interface RegisterState {
     password?: string;
     gender?: string;
   };
+  retryAfter?: number;
 }
 
 export async function registerAction(
@@ -63,6 +64,7 @@ export async function registerAction(
     return {
       success: false,
       message: res.message || "Registration failed. Please try again.",
+      retryAfter: res.retryAfter,
     };
   }
 

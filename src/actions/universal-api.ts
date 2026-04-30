@@ -14,6 +14,7 @@ export interface ApiResult<T = unknown> {
   data?: T;
   message?: string;
   unauthorized?: boolean; // ← 401 হলে caller জানবে, cookie delete করবে না এখানে
+  retryAfter?: number; // ← 429 response-er hit delay
 }
 
 export async function universalApi<T = unknown>({
@@ -58,6 +59,15 @@ export async function universalApi<T = unknown>({
           success: false,
           unauthorized: true,
           message: errorData.message || "Unauthorized. Please login again.",
+        };
+      }
+
+      if (response.status === 429) {
+        const retryAfter = response.headers.get("Retry-After");
+        return {
+          success: false,
+          message: errorData.message || "Too Many Requests",
+          retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
         };
       }
 

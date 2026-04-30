@@ -15,7 +15,14 @@ import {
   Suspense,
 } from "react";
 import { ArrowLeft, Smartphone } from "lucide-react";
-import { Logo, GlassCard, GradientButton, PageShell } from "@/components/ui";
+import {
+  Logo,
+  GlassCard,
+  GradientButton,
+  PageShell,
+  RateLimitBanner,
+} from "@/components/ui";
+import { useCountdown } from "@/hooks/useCountdown";
 
 const OTP_LENGTH = 6;
 
@@ -38,11 +45,20 @@ function VerifyOtpContent() {
     initialState,
   );
 
+  const verifyCountdown = useCountdown(0);
+  const resendLimitCountdown = useCountdown(0);
+
   useEffect(() => {
     if (resendCd <= 0) return;
-    const t = setTimeout(() => setResendCd((c) => c - 1), 1000);
+    const t = setTimeout(() => setResendCd((c: number) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [resendCd]);
+
+  useEffect(() => {
+    if (state.retryAfter && state.retryAfter > 0) {
+      verifyCountdown.start(state.retryAfter);
+    }
+  }, [state.retryAfter, verifyCountdown]);
 
   useEffect(() => {
     inputRefs.current[0]?.focus();
@@ -101,7 +117,11 @@ function VerifyOtpContent() {
         setResendMsg("OTP sent!");
         setTimeout(() => setResendMsg(""), 3000);
       } else {
-        setResendMsg(result.message);
+        if (result.retryAfter) {
+          resendLimitCountdown.start(result.retryAfter);
+        } else {
+          setResendMsg(result.message);
+        }
       }
     } catch {
       setResendMsg("Failed to resend OTP.");
@@ -111,7 +131,7 @@ function VerifyOtpContent() {
   }, [phone, resendCd, resending]);
 
   const errorMsg =
-    state.errors?.otp || (!state.success && state.message ? state.message : "");
+    state.errors?.otp || (!state.success && state.message && !state.retryAfter ? state.message : "");
 
   if (success) {
     return (
@@ -170,6 +190,21 @@ function VerifyOtpContent() {
           </p>
         </div>
 
+        {verifyCountdown.isActive && (
+          <RateLimitBanner
+            message="You have tried to verify too many times. Please wait before trying again."
+            formattedTime={verifyCountdown.formatted}
+            onDismiss={verifyCountdown.reset}
+          />
+        )}
+        {resendLimitCountdown.isActive && (
+          <RateLimitBanner
+            message="You have requested too many OTPs. Please wait before requesting another."
+            formattedTime={resendLimitCountdown.formatted}
+            onDismiss={resendLimitCountdown.reset}
+          />
+        )}
+
         <form action={formAction}>
           <input type="hidden" name="phone" value={phone} />
           <input type="hidden" name="otp" value={otp.join("")} />
@@ -178,7 +213,7 @@ function VerifyOtpContent() {
             className={`animate-[fadeUp_0.55s_ease_0.35s_both] flex justify-center gap-2 sm:gap-2.5 mt-8 mb-2 ${errorMsg ? "animate-[shake_0.4s_ease]" : ""}`}
             onPaste={handlePaste}
           >
-            {otp.map((digit, i) => (
+            {otp.map((digit: string, i: number) => (
               <input
                 key={i}
                 ref={(el) => {
@@ -219,9 +254,10 @@ function VerifyOtpContent() {
               type="submit"
               fullWidth
               loading={isPending}
+              disabled={verifyCountdown.isActive}
               loadingText="Verifying..."
             >
-              VERIFY PHONE
+              {verifyCountdown.isActive ? `Wait ${verifyCountdown.formatted}` : "VERIFY PHONE"}
             </GradientButton>
           </div>
         </form>
@@ -240,10 +276,10 @@ function VerifyOtpContent() {
               <button
                 type="button"
                 onClick={handleResend}
-                disabled={resending}
+                disabled={resending || resendLimitCountdown.isActive}
                 className="font-outfit text-brand font-semibold hover:text-accent transition-colors duration-150 cursor-pointer bg-transparent border-0 disabled:opacity-50"
               >
-                {resending ? "Sending..." : "Resend OTP"}
+                {resending ? "Sending..." : resendLimitCountdown.isActive ? `Wait ${resendLimitCountdown.formatted}` : "Resend OTP"}
               </button>
             )}
           </p>
