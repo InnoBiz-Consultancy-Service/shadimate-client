@@ -1,6 +1,7 @@
+// components/subscription/SubscriptionClient.tsx
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Crown,
@@ -20,6 +21,8 @@ import {
 import { GlassCard, Toast } from "@/components/ui";
 import type { ToastData } from "@/types";
 import { initiatePaymentAction } from "@/actions/payment/payment";
+import { useSimpleCurrency } from "@/hooks/useCurrency";
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -28,10 +31,8 @@ interface Plan {
   label: string;
   labelEn?: string;
   months: number;
-  // BDT (always present — actual EPS charge)
   amount: number;
   amountBDT: number;
-  // GBP (present when backend calculated it)
   amountGBP?: number;
   amountGBPFormatted?: string;
   amountConverted?: number;
@@ -113,74 +114,45 @@ function getPlanLabel(plan: string) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function SubscriptionClient({ plans, subscription, paymentHistory }: Props) {
-  const [loadingPlan, setLoadingPlan]   = useState<string | null>(null);
-  const [toast, setToast]               = useState<ToastData | null>(null);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
   const hideToast = useCallback(() => setToast(null), []);
-
-  // ── Currency Detection ──────────────────────────────────────────────────────
-
-  const [currencyCode, setCurrencyCode] = useState<"BDT" | "GBP">("BDT");
-  const [currencySymbol, setCurrencySymbol] = useState("৳");
-  const [currencyLoading, setCurrencyLoading] = useState(true);
-
-  useEffect(() => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
-    fetch(`${baseUrl}/api/v1/subscriptions/currency`, {
-      credentials: "include",
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        const code: string = data?.data?.currency?.code ?? "BDT";
-        const symbol: string = data?.data?.currency?.symbol ?? "৳";
-        if (code === "GBP") {
-          setCurrencyCode("GBP");
-          setCurrencySymbol(symbol);
-        }
-      })
-      .catch(() => {
-        // fallback: BDT
-      })
-      .finally(() => {
-        setCurrencyLoading(false);
-      });
-  }, []);
+  
+  const { currency, loading: currencyLoading, symbol } = useSimpleCurrency();
 
   // ── Display amount helper ──────────────────────────────────────────────────
-  // GBP হলে converted amount দেখাই, BDT হলে original amount
   const getDisplayAmount = (plan: Plan): string => {
     if (currencyLoading) return "...";
-
-    if (currencyCode === "GBP") {
-      // Backend থেকে আসা GBP formatted string আছে কিনা চেক করো
-      if (plan.amountGBPFormatted) return plan.amountGBPFormatted;
-      if (plan.amountFormatted)    return plan.amountFormatted;
-      if (plan.amountGBP != null)  return `£${plan.amountGBP.toFixed(2)}`;
-      if (plan.amountConverted != null) return `£${plan.amountConverted.toFixed(2)}`;
+    
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      const gbpAmount = (amountBDT * 0.0072).toFixed(2);
+      return `£${gbpAmount}`;
     }
-
-    // Default: BDT
-    return `৳${(plan.amountBDT ?? plan.amount).toLocaleString()}`;
+    
+    // BDT
+    const amountBDT = plan.amountBDT || plan.amount;
+    return `৳${amountBDT.toLocaleString()}`;
   };
 
   const getPerMonthAmount = (plan: Plan): string => {
     if (currencyLoading) return "...";
-
-    if (currencyCode === "GBP") {
-      const gbp = plan.amountGBP ?? plan.amountConverted ?? null;
-      if (gbp != null) {
-        const perMonth = parseFloat((gbp / plan.months).toFixed(2));
-        return `£${perMonth.toLocaleString("en-GB", { minimumFractionDigits: 2 })} / month`;
-      }
+    
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      const totalGbp = amountBDT * 0.0072;
+      const perMonth = (totalGbp / plan.months).toFixed(2);
+      return `£${perMonth} / month`;
     }
-
-    const bdt = plan.amountBDT ?? plan.amount;
-    return `৳${Math.round(bdt / plan.months).toLocaleString()} / month`;
+    
+    const amountBDT = plan.amountBDT || plan.amount;
+    return `৳${Math.round(amountBDT / plan.months).toLocaleString()} / month`;
   };
 
   const getChargeNote = (plan: Plan): string | null => {
-    if (currencyCode === "GBP") {
-      const bdt = plan.amountBDT ?? plan.amount;
-      return `Charged as ৳${bdt} BDT via payment gateway`;
+    if (currency === "GBP") {
+      const amountBDT = plan.amountBDT || plan.amount;
+      return `Charged as ৳${amountBDT} BDT via payment gateway`;
     }
     return null;
   };
@@ -191,9 +163,10 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
   const isExpiringSoon = isActive && daysLeft <= 7;
 
   // ── Savings calculation (BDT base) ────────────────────────────────────────
-  const baseMonthly = plans.find((p) => p.plan === "1month")?.amount || 299;
+  const baseMonthly = plans.find((p) => p.plan === "1month")?.amountBDT || 299;
   function getSaving(plan: Plan) {
-    return baseMonthly * plan.months - plan.amount;
+    const amountBDT = plan.amountBDT || plan.amount;
+    return baseMonthly * plan.months - amountBDT;
   }
 
   // ── Payment initiate ───────────────────────────────────────────────────────
@@ -251,12 +224,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
             Upgrade to Premium and complete your journey to find your soulmate.
           </p>
 
-          {/* Currency badge */}
-          {!currencyLoading && currencyCode === "GBP" && (
-            <div className="inline-flex items-center gap-2 mt-3 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-600 text-xs font-semibold">
-              🌍 Prices shown in GBP · Charged in BDT via payment gateway
-            </div>
-          )}
+       
         </div>
 
         {/* ── Active Subscription Banner ── */}
@@ -328,6 +296,8 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
               const chargeNote = getChargeNote(plan);
+              const displayAmount = getDisplayAmount(plan);
+              const perMonthAmount = getPerMonthAmount(plan);
 
               return (
                 <div key={plan.plan} className="relative">
@@ -352,7 +322,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                         <h3 className="font-syne text-slate-900 text-lg font-extrabold">
                           {plan.label}
                         </h3>
-                        {saving > 0 && currencyCode === "BDT" && (
+                        {saving > 0 && currency === "BDT" && (
                           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200">
                             ৳{saving} off
                           </span>
@@ -367,7 +337,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                           </span>
                         ) : (
                           <span className="font-syne text-3xl font-extrabold text-slate-900">
-                            {getDisplayAmount(plan)}
+                            {displayAmount}
                           </span>
                         )}
                         <span className="text-slate-400 text-sm">
@@ -377,7 +347,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
 
                       {/* Per month */}
                       <p className="text-slate-400 text-xs mt-1">
-                        {getPerMonthAmount(plan)}
+                        {perMonthAmount}
                       </p>
 
                       {/* Charge note for GBP users */}
@@ -437,12 +407,17 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
           /* ── Fallback static plans ── */
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
             {[
-              { plan: "1month", label: "1 month", amount: 299, amountBDT: 299, months: 1 },
-              { plan: "3month", label: "3 months", amount: 799, amountBDT: 799, months: 3 },
-              { plan: "6month", label: "6 months", amount: 1499, amountBDT: 1499, months: 6 },
+              { plan: "1month", label: "1 month", amountBDT: 299, months: 1 },
+              { plan: "3month", label: "3 months", amountBDT: 799, months: 3 },
+              { plan: "6month", label: "6 months", amountBDT: 1499, months: 6 },
             ].map((plan) => {
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
+              
+              const displayAmount = currency === 'GBP' 
+                ? `£${(plan.amountBDT * 0.0072).toFixed(2)}`
+                : `৳${plan.amountBDT}`;
+              
               return (
                 <div key={plan.plan} className="relative">
                   {isPopular && (
@@ -461,9 +436,15 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                       </h3>
                       <div className="flex items-baseline gap-1">
                         <span className="font-syne text-3xl font-extrabold text-black">
-                          ৳{plan.amount}
+                          {displayAmount}
                         </span>
+                        <span className="text-slate-400 text-sm">/ {plan.months} mo</span>
                       </div>
+                      {currency === 'GBP' && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          ≈ ৳{plan.amountBDT} BDT
+                        </p>
+                      )}
                     </div>
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (

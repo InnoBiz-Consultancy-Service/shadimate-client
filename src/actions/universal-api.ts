@@ -13,8 +13,7 @@ export interface ApiResult<T = unknown> {
   success: boolean;
   data?: T;
   message?: string;
-  unauthorized?: boolean; // ← 401 হলে caller জানবে, cookie delete করবে না এখানে
-  retryAfter?: number; // ← 429 response-er hit delay
+  unauthorized?: boolean;
 }
 
 export async function universalApi<T = unknown>({
