@@ -1,5 +1,6 @@
 import { fetchQuestions } from "@/actions/public/personality-test/personality-test";
 import PersonalityTest from "@/components/public/personality-test/PersonalityTest";
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Personality Test – primehalf",

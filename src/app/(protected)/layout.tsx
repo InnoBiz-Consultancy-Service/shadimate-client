@@ -1,6 +1,8 @@
 import AppBar from "@/components/shared/AppBar";
 import { Toaster } from "sonner";
 
+export const dynamic = "force-dynamic";
+
 export default function ProtectedLayout({
   children,
 }: {

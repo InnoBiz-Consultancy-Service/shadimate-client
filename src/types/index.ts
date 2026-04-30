@@ -69,7 +69,8 @@ export interface Profile {
   division?: { name: string }[];
   district?: { name: string }[];
   thana?: { name: string }[];
-
+  isPremium: boolean;
+  visitCount: number;
   profileImage?: string;
 }
 
@@ -103,7 +104,6 @@ export interface ProfileFilters {
   limit?: number;
   sort?: string;
 }
-
 
 export interface DreamPartnerPreference {
   _id: string;

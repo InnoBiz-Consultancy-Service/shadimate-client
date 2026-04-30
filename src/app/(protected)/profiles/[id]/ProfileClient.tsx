@@ -25,6 +25,7 @@ import {
 import LikeButton from "@/components/like/LikeButton";
 import ProfileCompletionCard from "@/components/profile/ProfileCompletionCard";
 import AlbumGallery from "@/components/album/AlbumGallery";
+import type { MissingField } from "@/types";
 
 interface AlbumPhoto {
   id: string;
@@ -66,8 +67,8 @@ interface ProfileData {
   habits: string[];
   completionPercentage?: number;
   completionLabel?: string;
-  missingFields: Array<{ label: string }>;
-  isVerified: boolean;
+  missingFields: MissingField[];
+  isVerified?: boolean;
 }
 
 interface ProfileClientProps {
