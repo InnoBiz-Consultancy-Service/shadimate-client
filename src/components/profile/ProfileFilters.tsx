@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
   FAITH_OPTIONS,
@@ -26,17 +26,47 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
   const [personality, setPersonality] = useState("");
   const [educationVariety, setEducationVariety] = useState("");
 
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevSearch = useRef(search);
+
+  // Live search — debounce 400ms; clear immediately restores feed
+  useEffect(() => {
+    if (prevSearch.current === search) {
+      return;
+    }
+    prevSearch.current = search;
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const f: Filters = {
+        search: search.trim() || "",
+        gender: gender || "",
+        minAge: minAge ? Number(minAge) : undefined,
+        maxAge: maxAge ? Number(maxAge) : undefined,
+        faith: faith || "",
+        practiceLevel: practiceLevel || "",
+        personality: personality || "",
+        educationVariety: educationVariety || "",
+        page: 1,
+      };
+      onApply(f);
+    }, 400);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const handleApply = () => {
-    const f: Filters = {};
-    if (search.trim()) f.search = search.trim();
-    if (gender) f.gender = gender;
-    if (minAge) f.minAge = Number(minAge);
-    if (maxAge) f.maxAge = Number(maxAge);
-    if (faith) f.faith = faith;
-    if (practiceLevel) f.practiceLevel = practiceLevel;
-    if (personality) f.personality = personality;
-    if (educationVariety) f.educationVariety = educationVariety;
-    f.page = 1;
+      const f: Filters = {
+        search: search.trim() || "",
+        gender: gender || "",
+        minAge: minAge ? Number(minAge) : undefined,
+        maxAge: maxAge ? Number(maxAge) : undefined,
+        faith: faith || "",
+        practiceLevel: practiceLevel || "",
+        personality: personality || "",
+        educationVariety: educationVariety || "",
+        page: 1,
+      };
     onApply(f);
   };
 
@@ -49,7 +79,17 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
     setPracticeLevel("");
     setPersonality("");
     setEducationVariety("");
-    onApply({ page: 1 });
+    onApply({
+      search: "",
+      gender: "",
+      minAge: undefined,
+      maxAge: undefined,
+      faith: "",
+      practiceLevel: "",
+      personality: "",
+      educationVariety: "",
+      page: 1,
+    });
   };
 
   const sc =
@@ -89,7 +129,7 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
             size={14}
             className={showAdvanced ? "text-brand" : "text-gray-500"}
           />
-          <span className={showAdvanced ? "text-brand" : ""}>Filter</span>
+          <span className={showAdvanced ? "text-brand" : ""}>More Filters</span>
         </button>
       </div>
 
@@ -194,7 +234,7 @@ export default function ProfileFilters({ onApply, isPending }: Props) {
         <button
           onClick={handleApply}
           disabled={isPending}
-          className="font-outfit flex-1 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
+          className="font-outfit flex-1 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm"
         >
           {isPending ? (
             <span className="flex items-center justify-center gap-2">

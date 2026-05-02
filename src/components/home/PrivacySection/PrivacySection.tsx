@@ -1,4 +1,4 @@
-"use client"    
+"use client";
 import React from "react";
 import Image from "next/image";
 
@@ -25,16 +25,16 @@ const LockIcon = () => (
       width="18"
       height="11"
       rx="2"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
     />
     <path
       d="M7 11V7a5 5 0 0110 0v4"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
-    <circle cx="12" cy="16.5" r="1.5" fill="#d85a30" />
+    <circle cx="12" cy="16.5" r="1.5" fill="var(--color-brand)" />
   </svg>
 );
 
@@ -46,16 +46,22 @@ const ProfileIcon = () => (
     fill="none"
     aria-hidden="true"
   >
-    <circle cx="12" cy="8" r="4" stroke="#d85a30" strokeWidth="1.5" />
+    <circle
+      cx="12"
+      cy="8"
+      r="4"
+      stroke="var(--color-brand)"
+      strokeWidth="1.5"
+    />
     <path
       d="M4 20c0-4 3.58-7 8-7s8 3 8 7"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
     <path
       d="M17 14l1.5 1.5L22 12"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -73,13 +79,13 @@ const ShieldCheckIcon = () => (
   >
     <path
       d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinejoin="round"
     />
     <path
       d="M9 12l2 2 4-4"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -97,7 +103,7 @@ const NoShareIcon = () => (
   >
     <path
       d="M3 12h18M3 6h18M3 18h18"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
@@ -106,7 +112,7 @@ const NoShareIcon = () => (
       cy="6"
       r="2.5"
       fill="white"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
     />
     <circle
@@ -114,12 +120,12 @@ const NoShareIcon = () => (
       cy="18"
       r="2.5"
       fill="white"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
     />
     <path
       d="M16.5 4.5l3 3"
-      stroke="#d85a30"
+      stroke="var(--color-brand)"
       strokeWidth="1.5"
       strokeLinecap="round"
     />
@@ -167,14 +173,14 @@ const PROMISES: string[] = [
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function FeatureCard({ feature }: { feature: PrivacyFeature }) {
   return (
-    <div className="group rounded-2xl border border-[#e8ddd5] bg-white p-7 transition-colors hover:border-[#f0997b]">
-      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#fff0ec]">
+    <div className="group rounded-2xl border border-slate-200 bg-white shadow-sm p-7 transition-all hover:shadow-md hover:border-indigo-200">
+      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
         {feature.icon}
       </div>
-      <h3 className="mb-2 text-[15px] font-medium text-[#1a1208]">
+      <h3 className="mb-2 text-[15px] font-medium text-slate-900">
         {feature.title}
       </h3>
-      <p className="text-[13px] leading-relaxed text-[#888780]">
+      <p className="text-[13px] leading-relaxed text-slate-600">
         {feature.description}
       </p>
     </div>
@@ -183,9 +189,9 @@ function FeatureCard({ feature }: { feature: PrivacyFeature }) {
 
 function PromiseBanner() {
   return (
-    <div className="mt-14 flex flex-col items-start gap-8 rounded-2xl bg-[#1a1208] p-10 sm:flex-row sm:items-center">
+    <div className="mt-14 flex flex-col items-start gap-8 rounded-2xl bg-slate-900 p-10 sm:flex-row sm:items-center shadow-xl">
       {/* Lock circle */}
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[#d85a30]/20">
+      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
         <svg
           width="38"
           height="38"
@@ -199,7 +205,7 @@ function PromiseBanner() {
             width="18"
             height="11"
             rx="2"
-            fill="#d85a30"
+            fill="var(--color-brand)"
             fillOpacity="0.25"
           />
           <rect
@@ -208,16 +214,16 @@ function PromiseBanner() {
             width="18"
             height="11"
             rx="2"
-            stroke="#d85a30"
+            stroke="var(--color-brand)"
             strokeWidth="1.5"
           />
           <path
             d="M7 11V7a5 5 0 0110 0v4"
-            stroke="#d85a30"
+            stroke="var(--color-brand)"
             strokeWidth="1.5"
             strokeLinecap="round"
           />
-          <circle cx="12" cy="16" r="1.5" fill="#d85a30" />
+          <circle cx="12" cy="16" r="1.5" fill="var(--color-brand)" />
         </svg>
       </div>
 
@@ -226,7 +232,7 @@ function PromiseBanner() {
         <h3 className="font-serif text-xl font-semibold text-white">
           Our Promise to You
         </h3>
-        <p className="mt-1 text-sm leading-relaxed text-[#b4a898]">
+        <p className="mt-1 text-sm leading-relaxed text-slate-400">
           Your trust is the most valuable thing to us.
           <br />
           We are always here to protect you.
@@ -235,9 +241,9 @@ function PromiseBanner() {
           {PROMISES.map((promise) => (
             <li
               key={promise}
-              className="flex items-center gap-3 text-[13px] text-[#d4b8aa]"
+              className="flex items-center gap-3 text-[13px] text-slate-300"
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#d85a30]/20">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
                 <svg
                   width="11"
                   height="11"
@@ -247,7 +253,7 @@ function PromiseBanner() {
                 >
                   <path
                     d="M2.5 6l2.5 2.5L10 3.5"
-                    stroke="#d85a30"
+                    stroke="var(--color-brand)"
                     strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -261,7 +267,7 @@ function PromiseBanner() {
       </div>
 
       {/* Decorative image placeholder — replace src with your actual image */}
-      <div className="relative ml-auto hidden h-40 w-40 overflow-hidden rounded-2xl sm:block">
+      <div className="relative ml-auto hidden h-40 w-40 overflow-hidden rounded-2xl sm:block bg-indigo-900 border border-indigo-500/30">
         <Image
           src="/images/privacy-illustration.png"
           alt="Privacy illustration"
@@ -273,7 +279,7 @@ function PromiseBanner() {
           }}
         />
         {/* Fallback if image is missing */}
-        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-[#d85a30]/10">
+        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-indigo-500/10">
           <svg
             width="56"
             height="56"
@@ -283,18 +289,18 @@ function PromiseBanner() {
           >
             <path
               d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
-              fill="#d85a30"
+              fill="var(--color-brand)"
               fillOpacity="0.3"
             />
             <path
               d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
-              stroke="#d85a30"
+              stroke="var(--color-brand)"
               strokeWidth="1.5"
               strokeLinejoin="round"
             />
             <path
               d="M9 12l2 2 4-4"
-              stroke="#d85a30"
+              stroke="var(--color-brand)"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -311,23 +317,23 @@ export default function PrivacySection() {
   return (
     <section
       aria-labelledby="privacy-heading"
-      className="relative overflow-hidden bg-[#fdf8f5] px-6 py-20 lg:px-8"
+      className="relative overflow-hidden bg-white px-6 py-20 lg:px-8 border-t border-slate-100"
     >
       {/* Subtle background decoration */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 h-80 w-80 -translate-y-1/3 translate-x-1/3 rounded-full bg-[#d85a30]/5"
+        className="pointer-events-none absolute right-0 top-0 h-80 w-80 -translate-y-1/3 translate-x-1/3 rounded-full bg-indigo-50/80"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 -translate-x-1/3 translate-y-1/3 rounded-full bg-[#d85a30]/5"
+        className="pointer-events-none absolute bottom-0 left-0 h-64 w-64 -translate-x-1/3 translate-y-1/3 rounded-full bg-slate-50"
       />
 
       <div className="relative mx-auto max-w-5xl">
         {/* ── Header ── */}
         <div className="mb-14 text-center">
           {/* Badge */}
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#f0997b] bg-[#fff0ec] px-4 py-1.5 text-xs font-medium tracking-widest text-brand">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-xs font-medium tracking-widest text-indigo-700 shadow-sm">
             <svg
               width="13"
               height="13"
@@ -337,12 +343,12 @@ export default function PrivacySection() {
             >
               <path
                 d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
-                fill="#d85a30"
+                fill="var(--color-brand)"
                 fillOpacity="0.2"
               />
               <path
                 d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"
-                stroke="#d85a30"
+                stroke="var(--color-brand)"
                 strokeWidth="1.5"
                 strokeLinejoin="round"
               />
@@ -353,12 +359,22 @@ export default function PrivacySection() {
           {/* Heading */}
           <h2
             id="privacy-heading"
-            className="font-serif text-4xl font-semibold leading-snug text-[#1a1208] sm:text-5xl"
+            className="font-serif text-4xl font-semibold leading-snug text-slate-900 sm:text-5xl"
           >
             Your Privacy is{" "}
-            <span className="italic text-brand">Our Highest Priority</span>
+            <span
+              className="text-transparent bg-clip-text"
+              style={{
+                background:
+                  "linear-gradient(to right, var(--color-brand), var(--color-accent))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              Our Highest Priority
+            </span>
           </h2>
-          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-[#5f5e5a]">
+          <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-slate-600">
             We believe every person&apos;s personal information belongs to them
             alone. That&apos;s why we go to the highest lengths to ensure your
             data stays protected.

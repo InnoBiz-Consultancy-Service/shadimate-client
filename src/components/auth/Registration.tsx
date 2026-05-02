@@ -20,6 +20,10 @@ import { useCountdown } from "@/hooks/useCountdown";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
   const [toastDismissedFor, setToastDismissedFor] = useState<object | null>(
     null,
@@ -103,6 +107,8 @@ export default function RegisterPage() {
               <Input
                 label="Full Name"
                 name="name"
+                value={name}
+                onChange={setName}
                 placeholder="Your full name"
                 autoComplete="name"
                 error={state.errors?.name}
@@ -113,6 +119,8 @@ export default function RegisterPage() {
                 label="Email"
                 name="email"
                 type="email"
+                value={email}
+                onChange={setEmail}
                 placeholder="you@example.com"
                 autoComplete="email"
                 error={state.errors?.email}
@@ -123,6 +131,8 @@ export default function RegisterPage() {
                 label="Phone Number"
                 name="phone"
                 type="tel"
+                value={phone}
+                onChange={setPhone}
                 placeholder="01XXXXXXXXX"
                 autoComplete="tel"
                 hint="OTP will be sent to this number"
@@ -131,6 +141,9 @@ export default function RegisterPage() {
             </div>
             <div className="animate-[fadeUp_0.55s_ease_0.25s_both]">
               <PasswordInput
+                name="password"
+                value={password}
+                onChange={setPassword}
                 autoComplete="new-password"
                 placeholder="Min. 6 characters"
                 error={state.errors?.password}
@@ -139,7 +152,7 @@ export default function RegisterPage() {
             <div className="animate-[fadeUp_0.55s_ease_0.3s_both]">
               <GenderSelector
                 value={gender}
-                onChange={setGender}
+                onChange={(g) => setGender(g)}
                 error={state.errors?.gender}
               />
             </div>

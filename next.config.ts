@@ -27,6 +27,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      {
+        source: "/features",
+        destination: "/feed",
+        permanent: false,
+      },
+      {
+        source: "/match",
+        destination: "/feed",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

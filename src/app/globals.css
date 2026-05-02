@@ -2,8 +2,8 @@
 
 @theme {
   /* ── Brand ── */
-  --color-brand: #E8547A;
-  --color-accent: #F0A050;
+  --color-brand: #6366F1;
+  --color-accent: #0D9488;
   --color-on-brand: #ffffff;
 
   /* ── Semantic Surface ── (change these to retheme the whole app) */
@@ -59,6 +59,8 @@
 body {
   background: var(--color-surface);
   color: var(--color-text);
+  font-size: 15px;
+  line-height: 1.65;
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -246,8 +248,8 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
-.text-gradient-rose {
-  background: linear-gradient(to right, #E8547A, #F0C070, #E8547A);
+.text-gradient-brand {
+  background: linear-gradient(to right, var(--color-brand), var(--color-accent), var(--color-brand));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

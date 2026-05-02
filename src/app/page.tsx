@@ -13,11 +13,11 @@ export default function Home() {
       {/* <FloatingHearts /> */}
       <Navbar />
       <HeroSection />
-      <SectionDivider />
       <AppSection />
       <WhereSoulsMeet />
       <ChatSection />
       <PrivacySection />
+      <SectionDivider />
       <Footer />
     </>
   );

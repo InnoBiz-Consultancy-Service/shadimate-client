@@ -16,24 +16,31 @@ import {
   DollarSign,
   Heart,
   ChevronRight,
-  Camera,
   Eye,
   ThumbsUp,
-  MessageCircle,
-  MoreHorizontal,
   Share2,
   Settings,
   X,
+  Camera,
+  MessageCircle,
 } from "lucide-react";
 import type { Profile } from "@/types";
 import AlbumManager from "@/components/album/AlbumManager";
 import type { AlbumPhoto } from "@/actions/album/album";
+import ProfileImageUploader from "@/components/shared/ProfileImageUploader";
 
 /* ── Helpers ── */
 function getAge(birthDate?: string): number | null {
   if (!birthDate) return null;
   const diff = Date.now() - new Date(birthDate).getTime();
   return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
+}
+
+function cmToFeetIn(cm: number): string {
+  const totalInches = cm / 2.54;
+  const feet = Math.floor(totalInches / 12);
+  const inches = Math.round(totalInches % 12);
+  return `${feet} ft ${inches} in`;
 }
 
 function geoName(
@@ -193,19 +200,12 @@ function SocialStatsBar({
   );
 }
 
-// Action Buttons Component - Mobile Optimized
+// Action Buttons — own profile: no Message button
 function ProfileActionButtons() {
   return (
     <div className="flex gap-2 mb-3">
-      <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-linear-to-r from-brand to-accent text-white font-outfit font-semibold text-sm active:scale-[0.98] transition-transform shadow-sm">
-        <MessageCircle size={16} />
-        Message
-      </button>
       <button className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center active:bg-gray-50 transition-colors">
         <Share2 size={16} className="text-gray-600" />
-      </button>
-      <button className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center active:bg-gray-50 transition-colors">
-        <MoreHorizontal size={16} className="text-gray-600" />
       </button>
     </div>
   );
@@ -297,6 +297,12 @@ export default function ProfileViewClient({
 }) {
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    (profile as unknown as Record<string, string>)?.profilePhoto ?? null
+  );
+  const [coverUrl, setCoverUrl] = useState<string | null>(
+    (profile as unknown as Record<string, string>)?.coverPhoto ?? null
+  );
 
   const userData = Array.isArray(profile.user) ? profile.user[0] : profile.user;
   const name = userData?.name || profile.userId?.name || "User";
@@ -353,42 +359,26 @@ export default function ProfileViewClient({
       {/* ── COVER + AVATAR HEADER ── */}
       <div className="relative">
         {/* Cover */}
-        <div
-          className="h-32 md:h-48 w-full relative overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(232,84,122,0.4) 0%, rgba(18,8,16,0.7) 40%, rgba(240,192,112,0.3) 100%)",
-          }}
-        >
-          <div className="absolute top-4 left-8 w-20 h-20 rounded-full bg-brand/20 blur-2xl" />
-          <div className="absolute bottom-2 right-12 w-28 h-28 rounded-full bg-accent/15 blur-3xl" />
-
-          <button className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-lg px-2.5 py-1 text-white text-[10px] font-outfit flex items-center gap-1 active:bg-black/60 transition-colors">
-            <Camera size={10} />
-            Edit Cover
-          </button>
+        <div className="h-32 md:h-48 w-full relative overflow-hidden">
+          <ProfileImageUploader
+            currentImageUrl={coverUrl}
+            name={name}
+            onUploadSuccess={(url) => setCoverUrl(url)}
+            size="cover"
+            className="w-full h-full"
+          />
         </div>
 
         {/* Avatar + name */}
         <div className="px-4">
           <div className="flex items-end justify-between -mt-10 mb-3">
             <div className="relative">
-              <div
-                className="w-20 h-20 md:w-28 md:h-28 rounded-full border-3 border-white flex items-center justify-center"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(232,84,122,0.5) 0%, rgba(240,192,112,0.4) 100%)",
-                  boxShadow: "0 0 20px rgba(232,84,122,0.3)",
-                }}
-              >
-                <span className="font-syne text-white font-extrabold text-2xl md:text-3xl">
-                  {name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" />
-              <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center active:bg-gray-50 transition-colors">
-                <Camera size={10} className="text-gray-600" />
-              </button>
+              <ProfileImageUploader
+                currentImageUrl={avatarUrl}
+                name={name}
+                onUploadSuccess={(url) => setAvatarUrl(url)}
+                size="avatar"
+              />
             </div>
 
             <Link
@@ -547,7 +537,11 @@ export default function ProfileViewClient({
             <InfoRow
               icon={Ruler}
               label="Height"
-              value={profile.height ? `${profile.height} cm` : null}
+              value={
+                profile.height
+                  ? `${profile.height} cm (${cmToFeetIn(Number(profile.height))})`
+                  : null
+              }
             />
             <InfoRow
               icon={Ruler}

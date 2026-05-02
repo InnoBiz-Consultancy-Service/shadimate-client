@@ -1,9 +1,9 @@
 export default function SectionDivider() {
   return (
-    <div className="relative w-full flex items-center justify-center py-4">
+    <div className="relative w-full flex items-center justify-center ">
       {/* Left Line */}
       <div className="flex-1 h-px bg-linear-to-r from-transparent via-brand/30 to-brand/60" />
-      
+
       {/* Heart Icon */}
       <div className="mx-6 relative group">
         <div className="absolute inset-0 bg-brand/20 blur-xl rounded-full animate-pulse group-hover:bg-brand/40 transition-all duration-500" />
