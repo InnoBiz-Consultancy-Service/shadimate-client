@@ -4,7 +4,7 @@ import { Globe, Users, Star } from "lucide-react";
 const ProfilePhone = () => (
   <div
     className="w-full h-full flex flex-col"
-    style={{ background: "linear-gradient(160deg, #2d1b3d 0%, #1a1a2e 100%)" }}
+    style={{ background: "linear-gradient(160deg, #1e1b4b 0%, #0f172a 100%)" }}
   >
     <div className="flex justify-between px-3 pt-2 pb-1">
       <span className="text-white/80 text-[10px] font-semibold">9:41</span>
@@ -36,7 +36,7 @@ const ProfilePhone = () => (
       </div>
       <div
         className="w-11 h-11 rounded-full flex items-center justify-center text-lg text-white shadow-lg"
-        style={{ background: "linear-gradient(135deg, #E8547A, #F0C070)" }}
+        style={{ background: "linear-gradient(135deg, var(--color-brand), var(--color-accent))" }}
       >
         ♥
       </div>
@@ -53,7 +53,7 @@ const MatchPhone = () => (
     className="w-full h-full flex flex-col"
     style={{
       background:
-        "linear-gradient(160deg, #E8547A 0%, #c43060 50%, #7a1535 100%)",
+        "linear-gradient(160deg, var(--color-brand) 0%, #4f46e5 50%, #312e81 100%)",
     }}
   >
     <div className="flex justify-between px-3 pt-2 pb-1">
@@ -69,7 +69,7 @@ const MatchPhone = () => (
     <div className="flex items-center justify-center gap-2 mt-3">
       <div
         className="w-12 h-12 rounded-[14px] border-2 border-white/40 flex items-center justify-center text-xl"
-        style={{ background: "linear-gradient(135deg,#6b4fa0,#c4527a)" }}
+        style={{ background: "linear-gradient(135deg,#6366f1,#818cf8)" }}
       >
         👦
       </div>
@@ -78,7 +78,7 @@ const MatchPhone = () => (
       </div>
       <div
         className="w-12 h-12 rounded-[14px] border-2 border-white/40 flex items-center justify-center text-xl"
-        style={{ background: "linear-gradient(135deg,#e8845a,#F0C070)" }}
+        style={{ background: "linear-gradient(135deg,#0d9488,#5eead4)" }}
       >
         👧
       </div>
@@ -122,14 +122,14 @@ const Stat = ({
   <div className="flex items-center gap-3">
     <div
       className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
-      style={{ background: "rgba(232,84,122,0.10)" }}
+      style={{ background: "rgb(from var(--color-brand) r g b / 0.10)" }}
     >
       {icon}
     </div>
     <div>
       <p
         className="font-outfit font-bold text-[17px] leading-none"
-        style={{ color: "#E8547A" }}
+        style={{ color: "var(--color-brand)" }}
       >
         {value}
       </p>
@@ -146,7 +146,7 @@ export default function AppSection() {
       <div
         className="pointer-events-none absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-[0.06]"
         style={{
-          background: "radial-gradient(circle, #E8547A 0%, transparent 70%)",
+          background: "radial-gradient(circle, var(--color-brand) 0%, transparent 70%)",
         }}
       />
 
@@ -180,7 +180,7 @@ export default function AppSection() {
               transform: "rotate(3deg) translateX(30px)",
               zIndex: 2,
               boxShadow:
-                "0 20px 48px rgba(232,84,122,0.28), 0 0 0 0.5px rgba(232,84,122,0.2)",
+                "0 20px 48px rgb(from var(--color-brand) r g b / 0.28), 0 0 0 0.5px rgb(from var(--color-brand) r g b / 0.2)",
             }}
           >
             <MatchPhone />
@@ -193,7 +193,7 @@ export default function AppSection() {
           >
             <div
               className="w-2 h-2 rounded-full"
-              style={{ background: "#E8547A" }}
+              style={{ background: "var(--color-brand)" }}
             />
             <span className="font-outfit text-[11px] font-bold text-slate-700">
               99% match found!
@@ -206,7 +206,7 @@ export default function AppSection() {
             style={{
               bottom: 20,
               left: 20,
-              background: "linear-gradient(135deg,#E8547A,#F0C070)",
+              background: "linear-gradient(135deg, var(--color-brand), var(--color-accent))",
               transform: "rotate(-8deg)",
             }}
           >
@@ -219,11 +219,11 @@ export default function AppSection() {
           <div className="flex items-center gap-2">
             <div
               className="h-[1.5px] w-7 rounded"
-              style={{ background: "#E8547A" }}
+              style={{ background: "var(--color-brand)" }}
             />
             <span
               className="font-outfit text-[11px] font-bold tracking-[0.14em] uppercase"
-              style={{ color: "#E8547A" }}
+              style={{ color: "var(--color-brand)" }}
             >
               App coming soon
             </span>
@@ -240,8 +240,9 @@ export default function AppSection() {
             The app connecting
             <br />
             <span
+            className="text-transparent bg-clip-text"
               style={{
-                background: "linear-gradient(90deg, #E8547A, #F0A050)",
+                background: "linear-gradient(90deg, var(--color-brand), var(--color-accent))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -259,18 +260,18 @@ export default function AppSection() {
 
           <div className="flex flex-col gap-3">
             <Stat
-              icon={<Globe size={16} style={{ color: "#E8547A" }} />}
+              icon={<Globe size={16} color="var(--color-brand)" />}
               value="500,000+"
               label="Connections made"
             />
             <Stat
-              icon={<Users size={16} style={{ color: "#E8547A" }} />}
+              icon={<Users size={16} color="var(--color-brand)" />}
               value="10M+"
               label="People from all backgrounds"
             />
             <Stat
               icon={
-                <Star size={16} fill="#E8547A" style={{ color: "#E8547A" }} />
+                <Star size={16} fill="var(--color-brand)" color="var(--color-brand)" />
               }
               value="99.9%"
               label="Psychology-backed accuracy"

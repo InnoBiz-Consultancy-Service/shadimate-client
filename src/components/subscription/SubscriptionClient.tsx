@@ -85,6 +85,27 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled: "text-slate-500 bg-slate-100 border-slate-200",
 };
 
+const PLAN_THEMES: Record<string, { bg: string, text: string, border: string, btn: string }> = {
+  "1month": {
+    bg: "bg-blue-50/50",
+    text: "text-blue-600",
+    border: "border-blue-200",
+    btn: "bg-blue-500 hover:bg-blue-600 text-white shadow-blue-500/20",
+  },
+  "3month": {
+    bg: "bg-brand/5",
+    text: "text-brand",
+    border: "border-brand/40 shadow-[0_0_30px_rgba(var(--color-brand),0.12)]",
+    btn: "bg-linear-to-r from-brand to-accent hover:scale-[1.02] text-on-brand shadow-(--shadow-brand-md)",
+  },
+  "6month": {
+    bg: "bg-amber-50/50",
+    text: "text-amber-600",
+    border: "border-amber-200",
+    btn: "bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20",
+  },
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(dateStr: string) {
@@ -299,6 +320,8 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
               const displayAmount = getDisplayAmount(plan);
               const perMonthAmount = getPerMonthAmount(plan);
 
+              const theme = PLAN_THEMES[plan.plan] || PLAN_THEMES["1month"];
+
               return (
                 <div key={plan.plan} className="relative">
                   {isPopular && (
@@ -310,11 +333,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                   )}
 
                   <GlassCard
-                    className={`p-5 h-full flex flex-col ${
-                      isPopular
-                        ? "border-brand/40 shadow-[0_0_30px_rgba(232,84,122,0.12)]"
-                        : ""
-                    }`}
+                    className={`p-5 h-full flex flex-col ${theme.bg} ${theme.border}`}
                   >
                     {/* Plan header */}
                     <div className="mb-4">
@@ -362,8 +381,8 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
                         <div key={feat.label} className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
-                            <Check size={9} className="text-brand" />
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+                            <Check size={9} className={theme.text} />
                           </div>
                           <span className="text-gray-900 text-xs">{feat.label}</span>
                         </div>
@@ -377,12 +396,8 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                       className={`
                         w-full py-3 rounded-2xl text-sm font-bold tracking-wide border-0 cursor-pointer
                         transition-all duration-200 flex items-center justify-center gap-2
-                        disabled:opacity-50 disabled:cursor-not-allowed
-                        ${
-                          isPopular
-                            ? "text-on-brand bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.02] hover:shadow-(--shadow-btn-hover)"
-                            : "text-brand border border-brand/30 bg-brand/8 hover:bg-brand/15"
-                        }
+                        disabled:opacity-50 disabled:cursor-not-allowed shadow-md outline-none
+                        ${theme.btn}
                       `}
                     >
                       {isLoading ? (
@@ -413,6 +428,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
             ].map((plan) => {
               const isPopular = plan.plan === "3month";
               const isLoading = loadingPlan === plan.plan;
+              const theme = PLAN_THEMES[plan.plan] || PLAN_THEMES["1month"];
               
               const displayAmount = currency === 'GBP' 
                 ? `£${(plan.amountBDT * 0.0072).toFixed(2)}`
@@ -428,7 +444,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     </div>
                   )}
                   <GlassCard
-                    className={`p-5 flex flex-col ${isPopular ? "border-brand/40" : ""}`}
+                    className={`p-5 flex flex-col ${theme.bg} ${theme.border}`}
                   >
                     <div className="mb-4">
                       <h3 className="font-syne text-black text-lg font-extrabold mb-1">
@@ -449,8 +465,8 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     <div className="flex-1 space-y-2 mb-5">
                       {PREMIUM_FEATURES.slice(0, 3).map((feat) => (
                         <div key={feat.label} className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-brand/15 border border-brand/20 flex items-center justify-center shrink-0">
-                            <Check size={9} className="text-brand" />
+                          <div className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 bg-white shadow-sm`}>
+                            <Check size={9} className={theme.text} />
                           </div>
                           <span className="text-gray-700 text-xs">{feat.label}</span>
                         </div>
@@ -459,11 +475,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     <button
                       onClick={() => handleSelectPlan(plan.plan)}
                       disabled={!!loadingPlan || (isActive && !isExpiringSoon)}
-                      className={`w-full py-3 rounded-2xl text-sm font-bold border-0 cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                        isPopular
-                          ? "text-on-brand bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.02]"
-                          : "text-brand border border-brand/30 bg-brand/8 hover:bg-brand/15"
-                      }`}
+                      className={`w-full py-3 rounded-2xl text-sm font-bold border-0 cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md outline-none ${theme.btn}`}
                     >
                       {isLoading ? (
                         <><Loader2 size={14} className="animate-spin" /> Processing...</>

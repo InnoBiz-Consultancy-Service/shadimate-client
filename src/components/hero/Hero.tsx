@@ -37,12 +37,12 @@ export default function HeroSection() {
           }}
         />
 
-        {/* Subtle rose-tinted vignette that reinforces the brand palette */}
+        {/* Subtle indigo-tinted vignette that reinforces the brand palette */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at 50% 0%, rgba(232,84,122,0.18) 0%, transparent 70%)",
+              "radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.18) 0%, transparent 70%)",
           }}
         />
       </div>
@@ -56,7 +56,7 @@ export default function HeroSection() {
             style={{ fontWeight: 800, fontSize: "clamp(40px, 10vw, 84px)" }}
           >
             <span className="block opacity-90">FIND YOUR</span>
-            <span className="block text-gradient-rose">SOUL MATE</span>
+            <span className="block text-gradient-brand">SOUL MATE</span>
           </h1>
 
           <p className="font-outfit animate-[fadeUp_0.65s_ease_0.2s_both] text-white/80 leading-relaxed max-w-sm text-[15px] font-medium">
@@ -64,17 +64,25 @@ export default function HeroSection() {
             your 99.9% true connection.
           </p>
 
-          <div className="animate-[fadeUp_0.65s_ease_0.35s_both] w-full md:w-auto">
-            <Link href="/personality-test">
-              <button className="font-outfit w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4.5 rounded-full font-bold text-[13px] tracking-[0.08em] text-white bg-linear-to-r from-brand to-accent shadow-(--shadow-brand-md) hover:scale-[1.04] hover:shadow-(--shadow-btn-hover-lg) active:scale-[0.97] transition-all duration-300 cursor-pointer border-0 relative overflow-hidden group">
+          <div className="animate-[fadeUp_0.65s_ease_0.35s_both] w-full md:w-auto flex flex-col sm:flex-row gap-4">
+            <Link href="/registration" className="flex-1 sm:flex-none">
+              <button className="font-outfit w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full font-bold text-[13px] tracking-[0.08em] text-white bg-linear-to-r from-brand to-accent shadow-md hover:scale-[1.04] hover:shadow-lg active:scale-[0.97] transition-all duration-300 cursor-pointer border-0 relative overflow-hidden group">
                 <span className="relative z-10 uppercase">
-                  Start My Personality Scan
+                  Create Account
                 </span>
                 <ArrowRight
                   size={18}
                   className="relative z-10 group-hover:translate-x-1 transition-transform"
                 />
                 <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              </button>
+            </Link>
+
+            <Link href="/personality-test" className="flex-1 sm:flex-none">
+              <button className="font-outfit w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full font-bold text-[13px] tracking-[0.08em] text-white bg-white/10 backdrop-blur-md border border-white/20 shadow-md hover:bg-white/20 hover:scale-[1.04] hover:shadow-lg active:scale-[0.97] transition-all duration-300 cursor-pointer overflow-hidden group">
+                <span className="relative z-10 uppercase">
+                  Personality Scan
+                </span>
               </button>
             </Link>
           </div>

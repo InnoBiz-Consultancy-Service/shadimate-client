@@ -8,6 +8,8 @@ interface PasswordInputProps {
   label?: string;
   name?: string;
   placeholder?: string;
+  value?: string;
+  onChange?: (v: string) => void;
   error?: string;
   autoComplete?: string;
 }
@@ -16,6 +18,8 @@ export default function PasswordInput({
   label = "Password",
   name = "password",
   placeholder = "••••••••",
+  value,
+  onChange,
   error,
   autoComplete = "current-password",
 }: PasswordInputProps) {
@@ -27,6 +31,8 @@ export default function PasswordInput({
       name={name}
       type={showPass ? "text" : "password"}
       placeholder={placeholder}
+      value={value}
+      onChange={onChange}
       error={error}
       autoComplete={autoComplete}
       rightSlot={
