@@ -17,6 +17,9 @@ import {
 import { getChatHistory } from "@/actions/chat/chat";
 import type { Message } from "@/types/chat";
 import { useSocket } from "@/hooks/useSocket";
+import BlockedBanner from "../report-block-ignore/BlokedBanner";
+import IgnoredMessagesBanner from "../report-block-ignore/IgnoredMessagesBanner";
+import BlockConfirmModal from "../report-block-ignore/BlockConfirmModal";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -180,8 +183,12 @@ interface Props {
   totalPages: number;
   token?: string;
   isPremium: boolean;
+  // ↓ Add these
+  initialIsBlocked?: boolean;
+  initialIBlockedThem?: boolean;
+  initialTheyBlockedMe?: boolean;
+  initialIsIgnored?: boolean;
 }
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ChatRoomClient({
@@ -192,6 +199,10 @@ export default function ChatRoomClient({
   totalPages,
   token,
   isPremium,
+  initialIsBlocked = false,
+  initialIBlockedThem = false,
+  initialTheyBlockedMe = false,
+  initialIsIgnored = false,
 }: Props) {
   const router = useRouter();
 
@@ -215,6 +226,11 @@ export default function ChatRoomClient({
   const [isPartnerOnline, setIsPartnerOnline] = useState(false);
   const [lastSeen, setLastSeen] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isBlocked, setIsBlocked] = useState(initialIsBlocked);
+  const [iBlockedThem, setIBlockedThem] = useState(initialIBlockedThem);
+  const [theyBlockedMe] = useState(initialTheyBlockedMe);
+  const [isIgnored] = useState(initialIsIgnored);
+  const [showUnblockModal, setShowUnblockModal] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null); // ✅ scroll anchor için
@@ -553,7 +569,7 @@ export default function ChatRoomClient({
           <ArrowLeft size={20} />
         </button>
 
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0 relative">
+        <div className="w-10 h-10 rounded-full bg-linear-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0 relative">
           <span className="font-syne text-gray-700 font-bold text-sm">
             {targetName?.charAt(0)?.toUpperCase() || "?"}
           </span>
@@ -591,9 +607,19 @@ export default function ChatRoomClient({
       {/* Body */}
       {!isPremium ? (
         <PremiumGate />
+      ) : isBlocked ? (
+        // ── Blocked state ──
+        <BlockedBanner
+          iBlockedThem={iBlockedThem}
+          theirName={targetName}
+          onUnblock={() => setShowUnblockModal(true)}
+        />
       ) : (
         <>
-          {/* Message Container */}
+          {/* Ignored banner - shown above message container */}
+          {isIgnored && <IgnoredMessagesBanner senderName={targetName} />}
+
+          {/* Message Container - existing code unchanged */}
           <div
             ref={messageContainerRef}
             className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gray-50"
@@ -670,13 +696,29 @@ export default function ChatRoomClient({
                 onClick={handleSend}
                 disabled={!input.trim() || !connected}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
               >
                 <Send size={16} />
               </button>
             </div>
           </div>
         </>
+      )}
+
+      {showUnblockModal && (
+        <BlockConfirmModal
+          targetUserId={targetUserId}
+          targetName={targetName}
+          isCurrentlyBlocked={true}
+          onClose={() => setShowUnblockModal(false)}
+          onSuccess={(action) => {
+            if (action === "unblocked") {
+              setIBlockedThem(false);
+              setIsBlocked(theyBlockedMe); // only still blocked if they blocked us
+            }
+            setShowUnblockModal(false);
+          }}
+        />
       )}
     </div>
   );

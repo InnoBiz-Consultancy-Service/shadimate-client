@@ -6,6 +6,7 @@ import { getLikeCount } from "@/actions/profile-like/like";
 import { getUserAlbum } from "@/actions/album/album";
 import Loading from "@/app/loading";
 import ProfileClient from "./ProfileClient";
+import { getBlockStatus, getIgnoreStatus } from "@/actions/report-block-ignore";
 
 // Helper functions
 function geoName(val: unknown): string {
@@ -21,7 +22,6 @@ function getAge(birthDate?: string): number | null {
   return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
 }
 
-// Check current user profile status
 async function getCurrentUserProfileStatus() {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
@@ -45,9 +45,8 @@ async function getCurrentUserProfileStatus() {
     }
 
     return { hasProfile: false, token, isLoggedIn: true };
-  } catch (error) {
-    console.error("Error checking profile:", error);
-    return { hasProfile: false, token, isLoggedIn: true };
+  } catch {
+    return { hasProfile: false, token: null, isLoggedIn: false };
   }
 }
 
@@ -64,35 +63,67 @@ async function ProfileContent({ id }: { id: string }) {
   const p = res.data;
   const targetUserId = p.userId?._id || p.user?._id || id;
 
-  const [likeCountRes, albumRes] = await Promise.all([
-    getLikeCount(targetUserId).catch(() => ({
-      success: false,
-      data: undefined,
-    })),
-    getUserAlbum(targetUserId).catch(() => ({
-      success: false,
-      data: undefined,
-    })),
-  ]);
+  const isLoggedIn = currentUserProfileStatus.isLoggedIn;
+  const currentUserId =
+    currentUserProfileStatus.profile?.userId?._id ||
+    currentUserProfileStatus.profile?.userId;
+  const isOwnProfile = isLoggedIn && currentUserId === targetUserId;
+
+  // Fetch block/ignore status only if logged in and not own profile
+  const [likeCountRes, albumRes, blockStatusRes, ignoreStatusRes] =
+    await Promise.all([
+      getLikeCount(targetUserId).catch(() => ({
+        success: false,
+        data: undefined,
+      })),
+      getUserAlbum(targetUserId).catch(() => ({
+        success: false,
+        data: undefined,
+      })),
+      isLoggedIn && !isOwnProfile
+        ? getBlockStatus(targetUserId).catch(() => ({
+            success: false,
+            data: undefined,
+          }))
+        : Promise.resolve({ success: false, data: undefined }),
+      isLoggedIn && !isOwnProfile
+        ? getIgnoreStatus(targetUserId).catch(() => ({
+            success: false,
+            data: undefined,
+          }))
+        : Promise.resolve({ success: false, data: undefined }),
+    ]);
 
   const likeCount =
     likeCountRes.success && likeCountRes.data
       ? (likeCountRes.data as { count: number }).count
       : 0;
 
-  // Real album photos
   const albumPhotos =
     albumRes.success && albumRes.data?.photos ? albumRes.data.photos : [];
 
-  // Map to the shape ProfileClient expects
-  const photos = albumPhotos.map((p) => ({
-    id: p._id,
-    url: p.url,
-    caption: p.caption,
+  const photos = albumPhotos.map((photo) => ({
+    id: photo._id,
+    url: photo.url,
+    caption: photo.caption,
     type: "image" as const,
   }));
 
-  // Prepare data for client
+  // Block / Ignore initial states
+  const blockData =
+    blockStatusRes.success && blockStatusRes.data
+      ? (blockStatusRes.data as {
+          iBlockedThem: boolean;
+          theyBlockedMe: boolean;
+          isBlocked: boolean;
+        })
+      : { iBlockedThem: false, theyBlockedMe: false, isBlocked: false };
+
+  const isIgnored =
+    ignoreStatusRes.success && ignoreStatusRes.data
+      ? (ignoreStatusRes.data as { isIgnored: boolean }).isIgnored
+      : false;
+
   const name = p.userId?.name || p.user?.name || "Unknown";
   const gender = p.userId?.gender || p.user?.gender || p.gender;
   const age = getAge(p.birthDate);
@@ -101,14 +132,9 @@ async function ProfileContent({ id }: { id: string }) {
   const thanaName = geoName(p.address?.thanaId) || p.thana?.[0]?.name;
   const location = [thanaName, distName, divName].filter(Boolean).join(", ");
   const uniName =
-    geoName(p.education?.graduation?.universityId) || p.university?.[0]?.name || "";
-
-  const hasCurrentUserProfile = currentUserProfileStatus.hasProfile;
-  const isLoggedIn = currentUserProfileStatus.isLoggedIn;
-  const currentUserId =
-    currentUserProfileStatus.profile?.userId?._id ||
-    currentUserProfileStatus.profile?.userId;
-  const isOwnProfile = isLoggedIn && currentUserId === targetUserId;
+    geoName(p.education?.graduation?.universityId) ||
+    p.university?.[0]?.name ||
+    "";
 
   const profileData = {
     id: targetUserId,
@@ -153,8 +179,11 @@ async function ProfileContent({ id }: { id: string }) {
       mutualMatches={5}
       isOwnProfile={isOwnProfile}
       isLoggedIn={isLoggedIn}
-      hasCurrentUserProfile={hasCurrentUserProfile}
+      hasCurrentUserProfile={currentUserProfileStatus.hasProfile}
       photos={photos}
+      // ↓ New props
+      blockStatus={blockData}
+      isIgnored={isIgnored}
     />
   );
 }
