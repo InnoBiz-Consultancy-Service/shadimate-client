@@ -17,8 +17,6 @@ import {
 } from "@/components/ui";
 import { useCountdown } from "@/hooks/useCountdown";
 
-// Google login removed
-
 export default function LoginPage() {
   const router = useRouter();
   const [toastDismissedFor, setToastDismissedFor] = useState<object | null>(
@@ -31,7 +29,7 @@ export default function LoginPage() {
   );
 
   const countdown = useCountdown(0);
-  
+
   useEffect(() => {
     if (state.retryAfter && state.retryAfter > 0) {
       countdown.start(state.retryAfter);
@@ -74,21 +72,19 @@ export default function LoginPage() {
       )}
 
       <PageShell>
-        <GlassCard className="relative z-10 w-full max-w-md p-8 md:p-10">
-          <div className="animate-[fadeUp_0.6s_ease_0.05s_both] flex justify-center mb-8">
-            <Logo />
-          </div>
+        <div className="animate-[fadeUp_0.55s_ease_0.05s_both] mb-8 z-10">
+          <Logo />
+        </div>
 
+        <GlassCard className="relative z-10 w-full max-w-md p-8 md:p-10">
           <div className="animate-[fadeUp_0.6s_ease_0.15s_both] text-center mb-8">
-            <h1 className="font-syne text-slate-900 text-[30px] font-extrabold tracking-tight leading-tight mb-2">
+            <h1 className="font-syne text-white text-[30px] font-extrabold tracking-tight leading-tight mb-2">
               Welcome back
             </h1>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-100 text-sm">
               Sign in to find your soul&apos;s connection
             </p>
           </div>
-
-
 
           {countdown.isActive && (
             <RateLimitBanner
@@ -133,8 +129,12 @@ export default function LoginPage() {
               loadingText="Signing in..."
               className="mt-2"
             >
-              {countdown.isActive ? `Wait ${countdown.formatted}` : (
-                <>SIGN IN <ArrowRight size={15} /></>
+              {countdown.isActive ? (
+                `Wait ${countdown.formatted}`
+              ) : (
+                <>
+                  SIGN IN <ArrowRight size={15} />
+                </>
               )}
             </GradientButton>
           </form>

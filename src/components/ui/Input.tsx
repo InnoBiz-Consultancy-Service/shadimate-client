@@ -34,7 +34,7 @@ export default function Input({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className={`font-outfit ${dt.inputLabel}`}>
+      <label htmlFor={name} className={`font-outfit text-white ${dt.inputLabel}`}>
         {label}
       </label>
       <div className="relative">
