@@ -19,15 +19,14 @@ import {
   Eye,
   ThumbsUp,
   Share2,
-  Settings,
   X,
   Camera,
-  MessageCircle,
 } from "lucide-react";
 import type { Profile } from "@/types";
 import AlbumManager from "@/components/album/AlbumManager";
 import type { AlbumPhoto } from "@/actions/album/album";
 import ProfileImageUploader from "@/components/shared/ProfileImageUploader";
+import { updateProfile } from "@/actions/profile/profile";
 
 /* ── Helpers ── */
 function getAge(birthDate?: string): number | null {
@@ -106,11 +105,13 @@ function SectionCard({
   title,
   icon: Icon,
   empty,
+  step,
   children,
 }: {
   title: string;
   icon: React.ElementType;
   empty?: boolean;
+  step?: number;
   children?: React.ReactNode;
 }) {
   return (
@@ -123,7 +124,7 @@ function SectionCard({
           </span>
         </div>
         <Link
-          href="/profile/edit"
+          href={step ? `/profile/edit?step=${step}` : "/profile/edit"}
           className="flex items-center gap-1 text-[11px] font-outfit font-medium text-brand/80 hover:text-brand transition-colors"
         >
           <Pencil size={10} />
@@ -134,7 +135,7 @@ function SectionCard({
       <div className="px-4 py-2">
         {empty ? (
           <Link
-            href="/profile/edit"
+            href={step ? `/profile/edit?step=${step}` : "/profile/edit"}
             className="flex items-center justify-between py-3 no-underline group"
           >
             <span className="font-outfit text-gray-400 text-sm">
@@ -211,41 +212,6 @@ function ProfileActionButtons() {
   );
 }
 
-// Bottom Navigation for Mobile
-function MobileBottomNav() {
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-2 px-4 flex items-center justify-around md:hidden z-50">
-      <Link
-        href="/"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <User size={20} />
-        <span className="text-[10px] font-outfit">Profile</span>
-      </Link>
-      <Link
-        href="/matches"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <Heart size={20} />
-        <span className="text-[10px] font-outfit">Matches</span>
-      </Link>
-      <Link
-        href="/messages"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <MessageCircle size={20} />
-        <span className="text-[10px] font-outfit">Messages</span>
-      </Link>
-      <Link
-        href="/settings"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <Settings size={20} />
-        <span className="text-[10px] font-outfit">Settings</span>
-      </Link>
-    </div>
-  );
-}
 
 // Modal Component
 function Modal({
@@ -363,7 +329,10 @@ export default function ProfileViewClient({
           <ProfileImageUploader
             currentImageUrl={coverUrl}
             name={name}
-            onUploadSuccess={(url) => setCoverUrl(url)}
+            onUploadSuccess={async (url) => {
+              setCoverUrl(url);
+              await updateProfile({ coverPhoto: url });
+            }}
             size="cover"
             className="w-full h-full"
           />
@@ -376,7 +345,10 @@ export default function ProfileViewClient({
               <ProfileImageUploader
                 currentImageUrl={avatarUrl}
                 name={name}
-                onUploadSuccess={(url) => setAvatarUrl(url)}
+                onUploadSuccess={async (url) => {
+                  setAvatarUrl(url);
+                  await updateProfile({ profilePhoto: url });
+                }}
                 size="avatar"
               />
             </div>
@@ -499,7 +471,7 @@ export default function ProfileViewClient({
         {/* Info Sections - Collapsible? Can be added later */}
         <div className="space-y-3">
           {/* Basic Info */}
-          <SectionCard title="Basic Info" icon={User} empty={!hasBasic}>
+          <SectionCard title="Basic Info" icon={User} empty={!hasBasic} step={1}>
             <InfoRow
               icon={Briefcase}
               label="Profession"
@@ -533,7 +505,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Physical */}
-          <SectionCard title="Physical" icon={Ruler} empty={!hasPhysical}>
+          <SectionCard title="Physical" icon={Ruler} empty={!hasPhysical} step={2}>
             <InfoRow
               icon={Ruler}
               label="Height"
@@ -552,7 +524,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Location */}
-          <SectionCard title="Location" icon={MapPin} empty={!hasAddress}>
+          <SectionCard title="Location" icon={MapPin} empty={!hasAddress} step={3}>
             <InfoRow icon={MapPin} label="Division" value={divName} />
             <InfoRow icon={MapPin} label="District" value={distName} />
             <InfoRow icon={MapPin} label="Thana" value={thanaName} />
@@ -568,6 +540,7 @@ export default function ProfileViewClient({
             title="Education"
             icon={GraduationCap}
             empty={!hasEducation}
+            step={4}
           >
             <InfoRow
               icon={GraduationCap}
@@ -593,7 +566,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Religion */}
-          <SectionCard title="Religion" icon={BookOpen} empty={!hasReligion}>
+          <SectionCard title="Religion" icon={BookOpen} empty={!hasReligion} step={5}>
             <InfoRow
               icon={BookOpen}
               label="Faith"
@@ -617,7 +590,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Family */}
-          <SectionCard title="Family" icon={Users} empty={!hasFamily}>
+          <SectionCard title="Family" icon={Users} empty={!hasFamily} step={6}>
             <InfoRow icon={Users} label="Guardian" value={profile.relation} />
             <InfoRow
               icon={Briefcase}
@@ -632,7 +605,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Interests & Habits */}
-          <SectionCard title="Interests" icon={Sparkles} empty={!hasHabits}>
+          <SectionCard title="Interests" icon={Sparkles} empty={!hasHabits} step={7}>
             {hasHabits && (
               <div className="pt-2 pb-1">
                 <div className="flex flex-wrap gap-1.5">
@@ -677,9 +650,6 @@ export default function ProfileViewClient({
           </Link>
         )}
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav />
 
       {/* Modals */}
       <Modal
