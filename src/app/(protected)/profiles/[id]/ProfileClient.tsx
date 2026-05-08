@@ -199,16 +199,14 @@ export default function ProfileClient({
             <span className="font-outfit">Back</span>
           </Link>
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
+            <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors cursor-pointer">
               <Share2 size={14} className="text-gray-600" />
             </button>
-            BEFORE:
-            {!isOwnProfile && (
+            {/* {!isOwnProfile && (
               <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
                 <MoreHorizontal size={14} className="text-gray-600" />
               </button>
-            )}
-            AFTER:
+            )} */}
             {isLoggedIn && !isOwnProfile && (
               <UserActionMenu
                 targetUserId={targetUserId}

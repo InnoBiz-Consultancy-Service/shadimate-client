@@ -21,6 +21,8 @@ import {
   Share2,
   X,
   Camera,
+  ShieldOff,
+  BellOff,
 } from "lucide-react";
 import type { Profile } from "@/types";
 import AlbumManager from "@/components/album/AlbumManager";
@@ -212,7 +214,6 @@ function ProfileActionButtons() {
   );
 }
 
-
 // Modal Component
 function Modal({
   title,
@@ -264,10 +265,10 @@ export default function ProfileViewClient({
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    (profile as unknown as Record<string, string>)?.profilePhoto ?? null
+    (profile as unknown as Record<string, string>)?.profilePhoto ?? null,
   );
   const [coverUrl, setCoverUrl] = useState<string | null>(
-    (profile as unknown as Record<string, string>)?.coverPhoto ?? null
+    (profile as unknown as Record<string, string>)?.coverPhoto ?? null,
   );
 
   const userData = Array.isArray(profile.user) ? profile.user[0] : profile.user;
@@ -471,7 +472,12 @@ export default function ProfileViewClient({
         {/* Info Sections - Collapsible? Can be added later */}
         <div className="space-y-3">
           {/* Basic Info */}
-          <SectionCard title="Basic Info" icon={User} empty={!hasBasic} step={1}>
+          <SectionCard
+            title="Basic Info"
+            icon={User}
+            empty={!hasBasic}
+            step={1}
+          >
             <InfoRow
               icon={Briefcase}
               label="Profession"
@@ -505,7 +511,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Physical */}
-          <SectionCard title="Physical" icon={Ruler} empty={!hasPhysical} step={2}>
+          <SectionCard
+            title="Physical"
+            icon={Ruler}
+            empty={!hasPhysical}
+            step={2}
+          >
             <InfoRow
               icon={Ruler}
               label="Height"
@@ -524,7 +535,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Location */}
-          <SectionCard title="Location" icon={MapPin} empty={!hasAddress} step={3}>
+          <SectionCard
+            title="Location"
+            icon={MapPin}
+            empty={!hasAddress}
+            step={3}
+          >
             <InfoRow icon={MapPin} label="Division" value={divName} />
             <InfoRow icon={MapPin} label="District" value={distName} />
             <InfoRow icon={MapPin} label="Thana" value={thanaName} />
@@ -566,7 +582,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Religion */}
-          <SectionCard title="Religion" icon={BookOpen} empty={!hasReligion} step={5}>
+          <SectionCard
+            title="Religion"
+            icon={BookOpen}
+            empty={!hasReligion}
+            step={5}
+          >
             <InfoRow
               icon={BookOpen}
               label="Faith"
@@ -605,7 +626,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Interests & Habits */}
-          <SectionCard title="Interests" icon={Sparkles} empty={!hasHabits} step={7}>
+          <SectionCard
+            title="Interests"
+            icon={Sparkles}
+            empty={!hasHabits}
+            step={7}
+          >
             {hasHabits && (
               <div className="pt-2 pb-1">
                 <div className="flex flex-wrap gap-1.5">
@@ -649,6 +675,59 @@ export default function ProfileViewClient({
             />
           </Link>
         )}
+
+        {/* ── Privacy & Safety ── */}
+        <div className="mt-3 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-gray-50/50 border-b border-gray-100">
+            <p className="font-syne text-gray-800 text-base font-bold">
+              Privacy &amp; Safety
+            </p>
+          </div>
+
+          {/* Blocked Users */}
+          <Link
+            href="/blocked"
+            className="flex items-center gap-3 px-4 py-3.5 no-underline border-b border-gray-50 active:bg-gray-50 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
+              <ShieldOff size={16} className="text-orange-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-outfit font-semibold text-gray-800 text-sm leading-tight">
+                Blocked Users
+              </p>
+              <p className="font-outfit text-gray-400 text-[11px] mt-0.5">
+                Manage people you&apos;ve blocked
+              </p>
+            </div>
+            <ChevronRight
+              size={15}
+              className="text-gray-300 shrink-0 group-active:translate-x-0.5 transition-transform"
+            />
+          </Link>
+
+          {/* Ignored Users */}
+          <Link
+            href="/ignored"
+            className="flex items-center gap-3 px-4 py-3.5 no-underline active:bg-gray-50 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
+              <BellOff size={16} className="text-gray-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-outfit font-semibold text-gray-800 text-sm leading-tight">
+                Ignored Messages
+              </p>
+              <p className="font-outfit text-gray-400 text-[11px] mt-0.5">
+                View messages you&apos;ve silently muted
+              </p>
+            </div>
+            <ChevronRight
+              size={15}
+              className="text-gray-300 shrink-0 group-active:translate-x-0.5 transition-transform"
+            />
+          </Link>
+        </div>
       </div>
 
       {/* Modals */}

@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import Link from "next/link";
 import {
   BellOff,
+  Bell,
   Trash2,
   MessageCircle,
   Loader2,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react";
 import {
   getIgnoredConversations,
   deleteIgnoredMessages,
+  toggleIgnore,
 } from "@/actions/report-block-ignore";
 import type { IgnoredConversation } from "@/actions/report-block-ignore";
 
@@ -33,27 +36,49 @@ function formatTime(dateStr: string): string {
 export default function IgnoredInboxClient() {
   const [convos, setConvos] = useState<IgnoredConversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [unignoringId, setUnignoringId] = useState<string | null>(null);
   const [isPending, startTrans] = useTransition();
 
-  useEffect(() => {
-    (async () => {
-      const res = await getIgnoredConversations();
-      if (res.success && Array.isArray(res.data)) {
-        setConvos(res.data as IgnoredConversation[]);
-      }
-      setLoading(false);
-    })();
+  const fetchConvos = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+
+    const res = await getIgnoredConversations();
+    if (res.success && Array.isArray(res.data)) {
+      setConvos(res.data as IgnoredConversation[]);
+    }
+
+    if (isRefresh) setRefreshing(false);
+    else setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchConvos();
+  }, [fetchConvos]);
 
   function handleDelete(userId: string) {
     setDeletingId(userId);
     startTrans(async () => {
       const res = await deleteIgnoredMessages(userId);
       if (res.success) {
+        // Auto-update: remove from list immediately
         setConvos((prev) => prev.filter((c) => c.userId !== userId));
       }
       setDeletingId(null);
+    });
+  }
+
+  function handleUnignore(userId: string) {
+    setUnignoringId(userId);
+    startTrans(async () => {
+      const res = await toggleIgnore(userId);
+      if (res.success && res.data?.action === "unignored") {
+        // Auto-update: remove from ignored list immediately
+        setConvos((prev) => prev.filter((c) => c.userId !== userId));
+      }
+      setUnignoringId(null);
     });
   }
 
@@ -71,11 +96,11 @@ export default function IgnoredInboxClient() {
       <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-xl border-b border-gray-100 px-4 py-3.5 flex items-center gap-3">
         <Link
           href="/chat"
-          className="flex items-center gap-1 text-gray-500 active:text-gray-900 transition-colors"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 active:bg-gray-100 transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
-        <div>
+        <div className="flex-1">
           <p className="font-syne font-bold text-gray-900 text-base leading-tight">
             Ignored Messages
           </p>
@@ -83,10 +108,17 @@ export default function IgnoredInboxClient() {
             {convos.length} conversation{convos.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <div className="ml-auto">
-          <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
-            <BellOff size={14} className="text-gray-400" />
-          </div>
+        {/* Refresh button */}
+        <button
+          onClick={() => fetchConvos(true)}
+          disabled={refreshing}
+          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 active:bg-gray-100 transition-colors disabled:opacity-50"
+          aria-label="Refresh"
+        >
+          <RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />
+        </button>
+        <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center">
+          <BellOff size={14} className="text-gray-400" />
         </div>
       </div>
 
@@ -107,16 +139,20 @@ export default function IgnoredInboxClient() {
           {convos.map((c) => (
             <li
               key={c.userId}
-              className="flex items-center gap-3 px-4 py-3.5 bg-white active:bg-gray-50 transition-colors"
+              className="flex items-center gap-3 px-4 py-3.5 bg-white"
             >
               {/* Avatar */}
-              <div className="w-11 h-11 rounded-full bg-linear-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-full bg-linear-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0 relative">
                 <span className="font-syne font-bold text-brand text-base">
                   {c.name?.charAt(0)?.toUpperCase() ?? "?"}
                 </span>
+                {/* Muted indicator */}
+                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center border border-gray-100">
+                  <BellOff size={9} className="text-gray-400" />
+                </span>
               </div>
 
-              {/* Info */}
+              {/* Info — tappable to open chat */}
               <Link
                 href={`/chat/${c.userId}?ignored=true`}
                 className="flex-1 min-w-0"
@@ -142,19 +178,38 @@ export default function IgnoredInboxClient() {
                 </div>
               </Link>
 
-              {/* Delete */}
-              <button
-                onClick={() => handleDelete(c.userId)}
-                disabled={isPending && deletingId === c.userId}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 active:bg-red-50 active:text-red-400 transition-colors disabled:opacity-50"
-                aria-label="Delete ignored messages"
-              >
-                {isPending && deletingId === c.userId ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Trash2 size={14} />
-                )}
-              </button>
+              {/* Actions */}
+              <div className="flex items-center gap-1 shrink-0">
+                {/* Unignore button */}
+                <button
+                  onClick={() => handleUnignore(c.userId)}
+                  disabled={isPending && unignoringId === c.userId}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 active:bg-green-50 active:text-green-500 transition-colors disabled:opacity-50"
+                  aria-label="Unignore user"
+                  title="Unignore"
+                >
+                  {isPending && unignoringId === c.userId ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Bell size={14} />
+                  )}
+                </button>
+
+                {/* Delete button */}
+                <button
+                  onClick={() => handleDelete(c.userId)}
+                  disabled={isPending && deletingId === c.userId}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-gray-300 active:bg-red-50 active:text-red-400 transition-colors disabled:opacity-50"
+                  aria-label="Delete ignored messages"
+                  title="Delete messages"
+                >
+                  {isPending && deletingId === c.userId ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Trash2 size={14} />
+                  )}
+                </button>
+              </div>
             </li>
           ))}
         </ul>

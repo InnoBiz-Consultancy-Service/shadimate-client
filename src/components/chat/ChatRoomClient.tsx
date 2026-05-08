@@ -20,6 +20,7 @@ import { useSocket } from "@/hooks/useSocket";
 import BlockedBanner from "../report-block-ignore/BlokedBanner";
 import IgnoredMessagesBanner from "../report-block-ignore/IgnoredMessagesBanner";
 import BlockConfirmModal from "../report-block-ignore/BlockConfirmModal";
+import UserActionMenu from "../report-block-ignore/UserActionMenu";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -97,7 +98,6 @@ function StatusIcon({
 
 // ─── Message Bubble ──────
 
-// MessageBubble Component
 function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
   if (!msg.content || msg.content.trim() === "") return null;
 
@@ -113,7 +113,7 @@ function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
               : "bg-[#1e0c10] text-[#f5e8eb] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl border border-[rgba(232,84,122,0.1)] shadow-sm"
           }`}
         >
-          <p className="break-words whitespace-pre-wrap pr-14">{msg.content}</p>
+          <p className="wrap-break-word whitespace-pre-wrap pr-14">{msg.content}</p>
           <div className="absolute bottom-1.5 right-2.5 flex items-center gap-0.5">
             <span className="text-[9px] text-[#b08890]/70">{timeString}</span>
             <StatusIcon status={msg.status} isMine={isMine} />
@@ -126,7 +126,6 @@ function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
 
 // ─── Typing Indicator ─────────────────────────────────────────────────────────
 
-// TypingIndicator Component
 const TypingIndicator = ({ name }: { name: string }) => (
   <div className="flex justify-start mb-2">
     <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-3 py-2 shadow-sm">
@@ -165,7 +164,7 @@ function PremiumGate() {
       </p>
       <Link
         href="/subscription"
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white bg-linear-to-r from-[#e8547a] to-[#c04060] no-underline hover:scale-[1.02] transition-all duration-200 shadow-[0_0_22px_rgba(232,84,122,0.35)]"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white bg-linear-to-r from-[#e8547a] to-[#c04060] no-underline transition-all duration-200 shadow-[0_0_22px_rgba(232,84,122,0.35)] active:scale-[0.98]"
       >
         Upgrade to Premium
       </Link>
@@ -183,12 +182,12 @@ interface Props {
   totalPages: number;
   token?: string;
   isPremium: boolean;
-  // ↓ Add these
   initialIsBlocked?: boolean;
   initialIBlockedThem?: boolean;
   initialTheyBlockedMe?: boolean;
   initialIsIgnored?: boolean;
 }
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ChatRoomClient({
@@ -226,15 +225,18 @@ export default function ChatRoomClient({
   const [isPartnerOnline, setIsPartnerOnline] = useState(false);
   const [lastSeen, setLastSeen] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  // ── Block / Ignore state — all mutable so UI updates instantly ──
   const [isBlocked, setIsBlocked] = useState(initialIsBlocked);
   const [iBlockedThem, setIBlockedThem] = useState(initialIBlockedThem);
   const [theyBlockedMe] = useState(initialTheyBlockedMe);
-  const [isIgnored] = useState(initialIsIgnored);
+  const [isIgnored, setIsIgnored] = useState(initialIsIgnored); // FIX: was const
+
   const [showUnblockModal, setShowUnblockModal] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const messageContainerRef = useRef<HTMLDivElement>(null); // ✅ scroll anchor için
-  const scrollHeightBeforeRef = useRef(0); // ✅ load more scroll fix
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+  const scrollHeightBeforeRef = useRef(0);
   const typingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seenSet = useRef<Set<string>>(new Set());
@@ -396,7 +398,6 @@ export default function ChatRoomClient({
     }
   }, [messages.length]);
 
-  // ✅ Mark as seen — chat room খোলার 500ms পরে
   useEffect(() => {
     if (!connected || !token) return;
     const timer = setTimeout(() => {
@@ -462,7 +463,6 @@ export default function ChatRoomClient({
     emitStopTyping,
   ]);
 
-  // ✅ Typing indicator fix — 3s timeout, debounce 300ms
   const TYPING_TIMEOUT_MS = 3000;
 
   const handleInputChange = useCallback(
@@ -497,12 +497,10 @@ export default function ChatRoomClient({
     [handleSend],
   );
 
-  // ✅ Load more — scroll position fix
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     const container = messageContainerRef.current;
 
-    // ✅ Load করার আগে scroll height save করো
     if (container) {
       scrollHeightBeforeRef.current = container.scrollHeight;
     }
@@ -522,7 +520,6 @@ export default function ChatRoomClient({
         setPage(nextPage);
         setHasMore(nextPage < (res.meta?.totalPages ?? 1));
 
-        // ✅ DOM update পরে scroll position restore করো
         requestAnimationFrame(() => {
           if (container) {
             const newHeight = container.scrollHeight;
@@ -559,12 +556,12 @@ export default function ChatRoomClient({
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="font-outfit flex flex-col h-[100dvh] md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-white">
+    <div className="font-outfit flex flex-col h-dvh md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-white">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-2 bg-white border-b border-gray-100 shrink-0 z-10">
         <button
           onClick={() => router.back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 transition-all cursor-pointer"
+          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 active:bg-gray-100 transition-all cursor-pointer"
         >
           <ArrowLeft size={20} />
         </button>
@@ -594,6 +591,24 @@ export default function ChatRoomClient({
             {getStatusText()}
           </p>
         </div>
+
+        {/* FIX: UserActionMenu added in chat header for block/ignore/report */}
+        <UserActionMenu
+          targetUserId={targetUserId}
+          targetName={targetName}
+          iBlockedThem={iBlockedThem}
+          isIgnored={isIgnored}
+          onBlockChange={(action) => {
+            const nowBlocked = action === "blocked";
+            setIBlockedThem(nowBlocked);
+            // If I just blocked them, chat is blocked. If unblocked, only blocked if they blocked me.
+            setIsBlocked(nowBlocked || theyBlockedMe);
+          }}
+          onIgnoreChange={(action) => {
+            // FIX: live update ignore state — no reload needed
+            setIsIgnored(action === "ignored");
+          }}
+        />
       </div>
 
       {/* Offline Toast */}
@@ -616,10 +631,10 @@ export default function ChatRoomClient({
         />
       ) : (
         <>
-          {/* Ignored banner - shown above message container */}
+          {/* Ignored banner */}
           {isIgnored && <IgnoredMessagesBanner senderName={targetName} />}
 
-          {/* Message Container - existing code unchanged */}
+          {/* Message Container */}
           <div
             ref={messageContainerRef}
             className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gray-50"
@@ -629,7 +644,7 @@ export default function ChatRoomClient({
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="text-brand text-xs hover:text-brand/70 transition-colors disabled:opacity-50 flex items-center gap-1"
+                  className="text-brand text-xs active:text-brand/70 transition-colors disabled:opacity-50 flex items-center gap-1"
                 >
                   {loadingMore ? (
                     <>
@@ -696,7 +711,7 @@ export default function ChatRoomClient({
                 onClick={handleSend}
                 disabled={!input.trim() || !connected}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
+                className="w-10 h-10 rounded-full flex items-center justify-center bg-linear-to-r from-brand to-accent text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
               >
                 <Send size={16} />
               </button>
@@ -705,6 +720,7 @@ export default function ChatRoomClient({
         </>
       )}
 
+      {/* Unblock modal (from blocked banner) */}
       {showUnblockModal && (
         <BlockConfirmModal
           targetUserId={targetUserId}
@@ -714,7 +730,7 @@ export default function ChatRoomClient({
           onSuccess={(action) => {
             if (action === "unblocked") {
               setIBlockedThem(false);
-              setIsBlocked(theyBlockedMe); // only still blocked if they blocked us
+              setIsBlocked(theyBlockedMe);
             }
             setShowUnblockModal(false);
           }}
