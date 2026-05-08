@@ -16,24 +16,32 @@ import {
   DollarSign,
   Heart,
   ChevronRight,
-  Camera,
   Eye,
   ThumbsUp,
-  MessageCircle,
-  MoreHorizontal,
   Share2,
-  Settings,
   X,
+  Camera,
+  ShieldOff,
+  BellOff,
 } from "lucide-react";
 import type { Profile } from "@/types";
 import AlbumManager from "@/components/album/AlbumManager";
 import type { AlbumPhoto } from "@/actions/album/album";
+import ProfileImageUploader from "@/components/shared/ProfileImageUploader";
+import { updateProfile } from "@/actions/profile/profile";
 
 /* ── Helpers ── */
 function getAge(birthDate?: string): number | null {
   if (!birthDate) return null;
   const diff = Date.now() - new Date(birthDate).getTime();
   return Math.floor(diff / (365.25 * 24 * 60 * 60 * 1000));
+}
+
+function cmToFeetIn(cm: number): string {
+  const totalInches = cm / 2.54;
+  const feet = Math.floor(totalInches / 12);
+  const inches = Math.round(totalInches % 12);
+  return `${feet} ft ${inches} in`;
 }
 
 function geoName(
@@ -99,11 +107,13 @@ function SectionCard({
   title,
   icon: Icon,
   empty,
+  step,
   children,
 }: {
   title: string;
   icon: React.ElementType;
   empty?: boolean;
+  step?: number;
   children?: React.ReactNode;
 }) {
   return (
@@ -116,7 +126,7 @@ function SectionCard({
           </span>
         </div>
         <Link
-          href="/profile/edit"
+          href={step ? `/profile/edit?step=${step}` : "/profile/edit"}
           className="flex items-center gap-1 text-[11px] font-outfit font-medium text-brand/80 hover:text-brand transition-colors"
         >
           <Pencil size={10} />
@@ -127,7 +137,7 @@ function SectionCard({
       <div className="px-4 py-2">
         {empty ? (
           <Link
-            href="/profile/edit"
+            href={step ? `/profile/edit?step=${step}` : "/profile/edit"}
             className="flex items-center justify-between py-3 no-underline group"
           >
             <span className="font-outfit text-gray-400 text-sm">
@@ -193,56 +203,13 @@ function SocialStatsBar({
   );
 }
 
-// Action Buttons Component - Mobile Optimized
+// Action Buttons — own profile: no Message button
 function ProfileActionButtons() {
   return (
     <div className="flex gap-2 mb-3">
-      <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-linear-to-r from-brand to-accent text-white font-outfit font-semibold text-sm active:scale-[0.98] transition-transform shadow-sm">
-        <MessageCircle size={16} />
-        Message
-      </button>
       <button className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center active:bg-gray-50 transition-colors">
         <Share2 size={16} className="text-gray-600" />
       </button>
-      <button className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center active:bg-gray-50 transition-colors">
-        <MoreHorizontal size={16} className="text-gray-600" />
-      </button>
-    </div>
-  );
-}
-
-// Bottom Navigation for Mobile
-function MobileBottomNav() {
-  return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 py-2 px-4 flex items-center justify-around md:hidden z-50">
-      <Link
-        href="/"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <User size={20} />
-        <span className="text-[10px] font-outfit">Profile</span>
-      </Link>
-      <Link
-        href="/matches"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <Heart size={20} />
-        <span className="text-[10px] font-outfit">Matches</span>
-      </Link>
-      <Link
-        href="/messages"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <MessageCircle size={20} />
-        <span className="text-[10px] font-outfit">Messages</span>
-      </Link>
-      <Link
-        href="/settings"
-        className="flex flex-col items-center gap-0.5 text-gray-400 active:text-brand transition-colors"
-      >
-        <Settings size={20} />
-        <span className="text-[10px] font-outfit">Settings</span>
-      </Link>
     </div>
   );
 }
@@ -297,6 +264,12 @@ export default function ProfileViewClient({
 }) {
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(
+    (profile as unknown as Record<string, string>)?.profilePhoto ?? null,
+  );
+  const [coverUrl, setCoverUrl] = useState<string | null>(
+    (profile as unknown as Record<string, string>)?.coverPhoto ?? null,
+  );
 
   const userData = Array.isArray(profile.user) ? profile.user[0] : profile.user;
   const name = userData?.name || profile.userId?.name || "User";
@@ -353,42 +326,32 @@ export default function ProfileViewClient({
       {/* ── COVER + AVATAR HEADER ── */}
       <div className="relative">
         {/* Cover */}
-        <div
-          className="h-32 md:h-48 w-full relative overflow-hidden"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(232,84,122,0.4) 0%, rgba(18,8,16,0.7) 40%, rgba(240,192,112,0.3) 100%)",
-          }}
-        >
-          <div className="absolute top-4 left-8 w-20 h-20 rounded-full bg-brand/20 blur-2xl" />
-          <div className="absolute bottom-2 right-12 w-28 h-28 rounded-full bg-accent/15 blur-3xl" />
-
-          <button className="absolute bottom-2 right-2 bg-black/50 backdrop-blur-sm rounded-lg px-2.5 py-1 text-white text-[10px] font-outfit flex items-center gap-1 active:bg-black/60 transition-colors">
-            <Camera size={10} />
-            Edit Cover
-          </button>
+        <div className="h-32 md:h-48 w-full relative overflow-hidden">
+          <ProfileImageUploader
+            currentImageUrl={coverUrl}
+            name={name}
+            onUploadSuccess={async (url) => {
+              setCoverUrl(url);
+              await updateProfile({ coverPhoto: url });
+            }}
+            size="cover"
+            className="w-full h-full"
+          />
         </div>
 
         {/* Avatar + name */}
         <div className="px-4">
           <div className="flex items-end justify-between -mt-10 mb-3">
             <div className="relative">
-              <div
-                className="w-20 h-20 md:w-28 md:h-28 rounded-full border-3 border-white flex items-center justify-center"
-                style={{
-                  background:
-                    "linear-gradient(135deg, rgba(232,84,122,0.5) 0%, rgba(240,192,112,0.4) 100%)",
-                  boxShadow: "0 0 20px rgba(232,84,122,0.3)",
+              <ProfileImageUploader
+                currentImageUrl={avatarUrl}
+                name={name}
+                onUploadSuccess={async (url) => {
+                  setAvatarUrl(url);
+                  await updateProfile({ profilePhoto: url });
                 }}
-              >
-                <span className="font-syne text-white font-extrabold text-2xl md:text-3xl">
-                  {name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" />
-              <button className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center active:bg-gray-50 transition-colors">
-                <Camera size={10} className="text-gray-600" />
-              </button>
+                size="avatar"
+              />
             </div>
 
             <Link
@@ -509,7 +472,12 @@ export default function ProfileViewClient({
         {/* Info Sections - Collapsible? Can be added later */}
         <div className="space-y-3">
           {/* Basic Info */}
-          <SectionCard title="Basic Info" icon={User} empty={!hasBasic}>
+          <SectionCard
+            title="Basic Info"
+            icon={User}
+            empty={!hasBasic}
+            step={1}
+          >
             <InfoRow
               icon={Briefcase}
               label="Profession"
@@ -543,11 +511,20 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Physical */}
-          <SectionCard title="Physical" icon={Ruler} empty={!hasPhysical}>
+          <SectionCard
+            title="Physical"
+            icon={Ruler}
+            empty={!hasPhysical}
+            step={2}
+          >
             <InfoRow
               icon={Ruler}
               label="Height"
-              value={profile.height ? `${profile.height} cm` : null}
+              value={
+                profile.height
+                  ? `${profile.height} cm (${cmToFeetIn(Number(profile.height))})`
+                  : null
+              }
             />
             <InfoRow
               icon={Ruler}
@@ -558,7 +535,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Location */}
-          <SectionCard title="Location" icon={MapPin} empty={!hasAddress}>
+          <SectionCard
+            title="Location"
+            icon={MapPin}
+            empty={!hasAddress}
+            step={3}
+          >
             <InfoRow icon={MapPin} label="Division" value={divName} />
             <InfoRow icon={MapPin} label="District" value={distName} />
             <InfoRow icon={MapPin} label="Thana" value={thanaName} />
@@ -574,6 +556,7 @@ export default function ProfileViewClient({
             title="Education"
             icon={GraduationCap}
             empty={!hasEducation}
+            step={4}
           >
             <InfoRow
               icon={GraduationCap}
@@ -599,7 +582,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Religion */}
-          <SectionCard title="Religion" icon={BookOpen} empty={!hasReligion}>
+          <SectionCard
+            title="Religion"
+            icon={BookOpen}
+            empty={!hasReligion}
+            step={5}
+          >
             <InfoRow
               icon={BookOpen}
               label="Faith"
@@ -623,7 +611,7 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Family */}
-          <SectionCard title="Family" icon={Users} empty={!hasFamily}>
+          <SectionCard title="Family" icon={Users} empty={!hasFamily} step={6}>
             <InfoRow icon={Users} label="Guardian" value={profile.relation} />
             <InfoRow
               icon={Briefcase}
@@ -638,7 +626,12 @@ export default function ProfileViewClient({
           </SectionCard>
 
           {/* Interests & Habits */}
-          <SectionCard title="Interests" icon={Sparkles} empty={!hasHabits}>
+          <SectionCard
+            title="Interests"
+            icon={Sparkles}
+            empty={!hasHabits}
+            step={7}
+          >
             {hasHabits && (
               <div className="pt-2 pb-1">
                 <div className="flex flex-wrap gap-1.5">
@@ -682,10 +675,60 @@ export default function ProfileViewClient({
             />
           </Link>
         )}
-      </div>
 
-      {/* Mobile Bottom Navigation */}
-      <MobileBottomNav />
+        {/* ── Privacy & Safety ── */}
+        <div className="mt-3 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 bg-gray-50/50 border-b border-gray-100">
+            <p className="font-syne text-gray-800 text-base font-bold">
+              Privacy &amp; Safety
+            </p>
+          </div>
+
+          {/* Blocked Users */}
+          <Link
+            href="/blocked"
+            className="flex items-center gap-3 px-4 py-3.5 no-underline border-b border-gray-50 active:bg-gray-50 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
+              <ShieldOff size={16} className="text-orange-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-outfit font-semibold text-gray-800 text-sm leading-tight">
+                Blocked Users
+              </p>
+              <p className="font-outfit text-gray-400 text-[11px] mt-0.5">
+                Manage people you&apos;ve blocked
+              </p>
+            </div>
+            <ChevronRight
+              size={15}
+              className="text-gray-300 shrink-0 group-active:translate-x-0.5 transition-transform"
+            />
+          </Link>
+
+          {/* Ignored Users */}
+          <Link
+            href="/ignored"
+            className="flex items-center gap-3 px-4 py-3.5 no-underline active:bg-gray-50 transition-colors group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center shrink-0">
+              <BellOff size={16} className="text-gray-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-outfit font-semibold text-gray-800 text-sm leading-tight">
+                Ignored Messages
+              </p>
+              <p className="font-outfit text-gray-400 text-[11px] mt-0.5">
+                View messages you&apos;ve silently muted
+              </p>
+            </div>
+            <ChevronRight
+              size={15}
+              className="text-gray-300 shrink-0 group-active:translate-x-0.5 transition-transform"
+            />
+          </Link>
+        </div>
+      </div>
 
       {/* Modals */}
       <Modal

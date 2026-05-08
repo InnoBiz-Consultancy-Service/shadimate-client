@@ -20,6 +20,10 @@ import { useCountdown } from "@/hooks/useCountdown";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
   const [toastDismissedFor, setToastDismissedFor] = useState<object | null>(
     null,
@@ -30,13 +34,11 @@ export default function RegisterPage() {
     registerAction,
     initialState,
   );
-
   const countdown = useCountdown(0);
-  
+
   useEffect(() => {
-    if (state.retryAfter && state.retryAfter > 0) {
+    if (state.retryAfter && state.retryAfter > 0)
       countdown.start(state.retryAfter);
-    }
   }, [state.retryAfter, countdown]);
 
   const toastData = (() => {
@@ -51,9 +53,10 @@ export default function RegisterPage() {
     return null;
   })();
 
-  const handleToastClose = useCallback(() => {
-    setToastDismissedFor(state);
-  }, [state]);
+  const handleToastClose = useCallback(
+    () => setToastDismissedFor(state),
+    [state],
+  );
 
   useEffect(() => {
     if (!state.success || !state.phone) return;
@@ -74,16 +77,16 @@ export default function RegisterPage() {
       )}
 
       <PageShell>
-        <div className="animate-[fadeUp_0.55s_ease_0.05s_both] mb-8 z-10">
+        <div className="animate-[fadeUp_0.55s_ease_0.05s_both] mb-5 z-10">
           <Logo />
         </div>
 
-        <GlassCard className="relative z-10 w-full max-w-md px-8 py-9 md:px-10">
-          <div className="animate-[fadeUp_0.55s_ease_0.1s_both] mb-7">
-            <h1 className="font-syne text-slate-900 font-extrabold text-[26px] tracking-tight leading-tight mb-1.5">
+        <GlassCard className="relative z-10 w-full max-w-md px-8 py-6 md:px-10">
+          <div className="animate-[fadeUp_0.55s_ease_0.1s_both] mb-4">
+            <h1 className="font-syne text-white font-extrabold text-[24px] tracking-tight leading-tight mb-1">
               Create your account
             </h1>
-            <p className="text-slate-500 text-sm">
+            <p className="text-slate-100 text-sm">
               Start your journey to real connection
             </p>
           </div>
@@ -96,70 +99,76 @@ export default function RegisterPage() {
             />
           )}
 
-          <form action={formAction} className="flex flex-col gap-4">
+          <form action={formAction} className="flex flex-col gap-3">
             <input type="hidden" name="gender" value={gender} />
 
-            <div className="animate-[fadeUp_0.55s_ease_0.15s_both]">
-              <Input
-                label="Full Name"
-                name="name"
-                placeholder="Your full name"
-                autoComplete="name"
-                error={state.errors?.name}
-              />
-            </div>
-            <div className="animate-[fadeUp_0.55s_ease_0.2s_both]">
-              <Input
-                label="Email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-                error={state.errors?.email}
-              />
-            </div>
-            <div className="animate-[fadeUp_0.55s_ease_0.25s_both]">
-              <Input
-                label="Phone Number"
-                name="phone"
-                type="tel"
-                placeholder="01XXXXXXXXX"
-                autoComplete="tel"
-                hint="OTP will be sent to this number"
-                error={state.errors?.phone}
-              />
-            </div>
-            <div className="animate-[fadeUp_0.55s_ease_0.25s_both]">
-              <PasswordInput
-                autoComplete="new-password"
-                placeholder="Min. 6 characters"
-                error={state.errors?.password}
-              />
-            </div>
-            <div className="animate-[fadeUp_0.55s_ease_0.3s_both]">
-              <GenderSelector
-                value={gender}
-                onChange={setGender}
-                error={state.errors?.gender}
-              />
-            </div>
+            <Input
+              label="Full Name"
+              name="name"
+              value={name}
+              onChange={setName}
+              placeholder="Your full name"
+              autoComplete="name"
+              error={state.errors?.name}
+            />
 
-            <div className="animate-[fadeUp_0.55s_ease_0.35s_both] mt-2">
-              <GradientButton
-                type="submit"
-                fullWidth
-                loading={isPending}
-                disabled={countdown.isActive}
-                loadingText="Creating account..."
-              >
-                {countdown.isActive ? `Wait ${countdown.formatted}` : (
-                  <>CREATE ACCOUNT <ArrowRight size={15} /></>
-                )}
-              </GradientButton>
-            </div>
+            <Input
+              label="Email"
+              name="email"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="you@example.com"
+              autoComplete="email"
+              error={state.errors?.email}
+            />
+
+            <Input
+              label="Phone Number"
+              name="phone"
+              type="tel"
+              value={phone}
+              onChange={setPhone}
+              placeholder="01XXXXXXXXX"
+              autoComplete="tel"
+              hint="OTP will be sent to this number"
+              error={state.errors?.phone}
+            />
+
+            <PasswordInput
+              name="password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="new-password"
+              placeholder="Min. 6 characters"
+              error={state.errors?.password}
+            />
+
+            <GenderSelector
+              value={gender}
+              onChange={(g) => setGender(g)}
+              error={state.errors?.gender}
+            />
+
+            <GradientButton
+              type="submit"
+              fullWidth
+              loading={isPending}
+              disabled={countdown.isActive}
+              loadingText="Creating account..."
+              className="mt-1"
+            >
+              {countdown.isActive ? (
+                `Wait ${countdown.formatted}`
+              ) : (
+                <>
+                  CREATE ACCOUNT <ArrowRight size={15} />
+                </>
+              )}
+            </GradientButton>
           </form>
 
-          <p className="animate-[fadeUp_0.55s_ease_0.35s_both] text-center text-slate-500 text-sm mt-6">
+          <p className="text-center text-slate-500 text-sm mt-4">
             Already have an account?{" "}
             <Link
               href="/login"

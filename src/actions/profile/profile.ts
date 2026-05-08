@@ -149,8 +149,7 @@ export async function fetchProfiles(filters: ProfileFilters = {}): Promise<{
     return {
       success: false,
       message: res.message || "Failed to fetch profiles.",
-    };
-console.log("Raw API response:", res.data);
+    }; 
   // Parse nested: res.data = { success, data: { data: [...], meta: {...} } }
   const outer = res.data as Record<string, unknown> | undefined;
   let profiles: Profile[] = [];

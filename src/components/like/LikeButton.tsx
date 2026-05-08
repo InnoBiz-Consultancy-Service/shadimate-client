@@ -32,13 +32,12 @@ export default function LikeButton({
 
   const iconSize = size === "sm" ? 13 : size === "lg" ? 20 : 16;
 
-  // Fetch initial like status and count if not provided
+  // Always fetch like status from server on mount to persist state across page refreshes
   useEffect(() => {
     const fetchLikeStatus = async () => {
       try {
         const countRes = await getLikeCount(targetUserId);
         if (countRes.success && countRes.data) {
-          // universalApi wraps response: countRes.data = { success, data: { count } }
           const outer = countRes.data as unknown as Record<string, unknown>;
           const inner = (outer?.data ?? outer) as { count?: number; isLiked?: boolean };
           setCount(inner?.count ?? 0);
@@ -51,10 +50,8 @@ export default function LikeButton({
       }
     };
 
-    if (!initialLiked && initialLikeCount === 0) {
-      fetchLikeStatus();
-    }
-  }, [targetUserId, initialLiked, initialLikeCount]);
+    fetchLikeStatus();
+  }, [targetUserId]);
 
   const handleLike = () => {
     const wasLiked = isLiked;

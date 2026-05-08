@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MessageCircle, Lock, Search } from "lucide-react";
-import { GlassCard } from "@/components/ui";
 import type { Conversation, Message } from "@/types/chat";
 
 function timeAgo(dateStr: string): string {
@@ -279,20 +278,15 @@ const ConversationRow = memo(
         <div className="relative shrink-0">
           <div className="w-12 h-12 rounded-full bg-linear-to-br from-brand/20 to-accent/20 border border-gray-200 flex items-center justify-center">
             <span className="font-syne text-gray-700 font-bold text-sm">
-              {conv.name?.charAt(0).toUpperCase() ?? "?"}
+              {(conv.name ?? "?").charAt(0).toUpperCase()}
             </span>
           </div>
-          {conv.unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 min-w-4.5 h-4.5 flex items-center justify-center bg-linear-to-r from-brand to-accent text-white text-[10px] font-bold rounded-full px-1 shadow-sm">
-              {conv.unreadCount > 9 ? "9+" : conv.unreadCount}
-            </span>
-          )}
         </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-0.5">
             <p className="font-outfit text-sm font-semibold text-gray-800 truncate">
-              {conv.name ?? "Unknown"}
+              {conv.name ?? <span className="text-gray-400 italic text-xs">Loading…</span>}
             </p>
             <span className="font-outfit text-[10px] text-gray-400 shrink-0">
               {timeAgo(conv.lastMessageTime)}
