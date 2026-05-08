@@ -1730,9 +1730,9 @@ function PreviewSection({
 /* ─────────────────────────────────────────
    Main component
 ───────────────────────────────────────── */
-export default function ProfileEditClient({ profile }: { profile?: Profile }) {
+export default function ProfileEditClient({ profile, initialStep = 1 }: { profile?: Profile, initialStep?: number }) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(initialStep);
   const [showPreview, setShowPreview] = useState(false);
   const [toast, setToast] = useState<ToastData | null>(null);
   const [saving, setSaving] = useState(false);
@@ -1822,7 +1822,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
 
   /* ── Profile Image ── */
   const [profileImage, setProfileImage] = useState<string>(
-    profile?.profileImage || "",
+    (profile as unknown as Record<string, string>)?.profilePhoto || "",
   );
 
   /* ── Geo data ── */
@@ -2003,7 +2003,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
   const handleSave = async () => {
     setSaving(true);
     const payload: Record<string, unknown> = {};
-    if (profileImage) payload.image = profileImage;
+    if (profileImage) payload.profilePhoto = profileImage;
     if (profession) payload.profession = profession;
     if (salaryRange) payload.salaryRange = salaryRange;
     if (economicalStatus) payload.economicalStatus = economicalStatus;
@@ -2053,7 +2053,7 @@ export default function ProfileEditClient({ profile }: { profile?: Profile }) {
       : await createProfile(payload);
     setSaving(false);
     setToast({ message: res.message, type: res.success ? "success" : "error" });
-    if (res.success) setTimeout(() => router.push("/feed"), 1500);
+    if (res.success) setTimeout(() => router.push(profile ? "/profile" : "/feed"), 1500);
   };
 
 

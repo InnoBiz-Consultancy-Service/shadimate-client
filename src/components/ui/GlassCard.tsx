@@ -1,13 +1,16 @@
-import { dt } from "@/lib/design-tokens";
-
 interface GlassCardProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export default function GlassCard({ children, className = "" }: GlassCardProps) {
+export default function GlassCard({
+  children,
+  className = "",
+}: GlassCardProps) {
   return (
-    <div className={`${dt.card} ${className}`}>
+    <div
+      className={`bg-transparent backdrop-blur-xs rounded-2xl border border-white/30 shadow-xl ${className}`}
+    >
       {children}
     </div>
   );

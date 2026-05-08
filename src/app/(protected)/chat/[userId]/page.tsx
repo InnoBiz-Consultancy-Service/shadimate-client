@@ -4,6 +4,7 @@ import { getChatHistory } from "@/actions/chat/chat";
 import { fetchProfileById } from "@/actions/profile/profile";
 import ChatRoomClient from "@/components/chat/ChatRoomClient";
 import { Message } from "@/types/chat";
+import { getBlockStatus, getIgnoreStatus } from "@/actions/report-block-ignore";
 
 // ── JWT decode (no external library needed) ──────────────────────────────────
 function decodeJwt(token: string): Record<string, unknown> | null {
@@ -60,8 +61,25 @@ export default async function ChatRoomPage({
   if (!profileRes.success || !profileRes.data) notFound();
 
   const profile = profileRes.data;
-  const targetName =
-    profile.userId?.name ?? profile.user?.name ?? "Unknown";
+  const targetName = profile.userId?.name ?? profile.user?.name ?? "Unknown";
+  const [blockRes, ignoreRes] = await Promise.all([
+    getBlockStatus(userId).catch(() => ({
+      success: false,
+      data: undefined,
+    })),
+    getIgnoreStatus(userId).catch(() => ({
+      success: false,
+      data: undefined,
+    })),
+  ]);
+
+  const blockData =
+    blockRes.success && blockRes.data
+      ? blockRes.data
+      : { iBlockedThem: false, theyBlockedMe: false, isBlocked: false };
+
+  const isIgnored =
+    ignoreRes.success && ignoreRes.data ? ignoreRes.data.isIgnored : false;
 
   // Initial messages (only for premium users)
   let initialMessages: Message[] = [];
@@ -88,6 +106,10 @@ export default async function ChatRoomPage({
       totalPages={totalPages}
       token={token}
       isPremium={isPremium}
+      initialIsBlocked={blockData.isBlocked}
+      initialIBlockedThem={blockData.iBlockedThem}
+      initialTheyBlockedMe={blockData.theyBlockedMe}
+      initialIsIgnored={isIgnored}
     />
   );
 }

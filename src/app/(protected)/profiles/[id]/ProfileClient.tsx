@@ -21,11 +21,15 @@ import {
   ChevronRight,
   Users,
   CheckCircle,
+  ShieldOff,
+  BellOff,
 } from "lucide-react";
 import LikeButton from "@/components/like/LikeButton";
 import ProfileCompletionCard from "@/components/profile/ProfileCompletionCard";
 import AlbumGallery from "@/components/album/AlbumGallery";
 import type { MissingField } from "@/types";
+import UserActionMenu from "@/components/report-block-ignore/UserActionMenu";
+import BlockConfirmModal from "@/components/report-block-ignore/BlockConfirmModal";
 
 interface AlbumPhoto {
   id: string;
@@ -80,6 +84,13 @@ interface ProfileClientProps {
   isLoggedIn: boolean;
   hasCurrentUserProfile: boolean;
   photos: AlbumPhoto[];
+  // ↓ Add these two new props
+  blockStatus?: {
+    iBlockedThem: boolean;
+    theyBlockedMe: boolean;
+    isBlocked: boolean;
+  };
+  isIgnored?: boolean;
 }
 
 function formatDate(dateStr?: string): string {
@@ -100,6 +111,8 @@ export default function ProfileClient({
   isLoggedIn,
   hasCurrentUserProfile,
   photos,
+  blockStatus, // ← add
+  isIgnored: initialIgnored = false, // ← add
 }: ProfileClientProps) {
   const [expandedSections, setExpandedSections] = useState<
     Record<string, boolean>
@@ -111,6 +124,14 @@ export default function ProfileClient({
     habits: false,
   });
 
+  const [iBlockedThem, setIBlockedThem] = useState(
+    blockStatus?.iBlockedThem ?? false,
+  );
+  const [theyBlockedMe] = useState(blockStatus?.theyBlockedMe ?? false);
+  const [isBlocked, setIsBlocked] = useState(blockStatus?.isBlocked ?? false);
+  const [isIgnored, setIsIgnored] = useState(initialIgnored);
+  const [showUnblockModal, setShowUnblockModal] = useState(false);
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
@@ -121,6 +142,7 @@ export default function ProfileClient({
   const getChatLink = () => {
     if (!isLoggedIn) return "/login";
     if (isOwnProfile) return "/profile/edit";
+    if (isBlocked) return "#"; // ← add: blocked = no navigation
     return hasCurrentUserProfile ? `/chat/${targetUserId}` : "/profile/create";
   };
 
@@ -128,7 +150,9 @@ export default function ProfileClient({
     if (!isLoggedIn) return "Login to Message";
     if (isOwnProfile) return "Edit Profile";
     if (!hasCurrentUserProfile) return "Create Profile to Message";
-    return `Message ${name.split(" ")[0]}`;
+    if (isBlocked) return theyBlockedMe ? "Blocked" : "Unblock to Message"; // ← add
+    if (isIgnored) return "Send Message"; // ← still works, just muted on backend
+    return "Send Message";
   };
 
   const getChatButtonStyle = () => {
@@ -175,13 +199,27 @@ export default function ProfileClient({
             <span className="font-outfit">Back</span>
           </Link>
           <div className="flex items-center gap-2">
-            <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
+            <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors cursor-pointer">
               <Share2 size={14} className="text-gray-600" />
             </button>
-            {!isOwnProfile && (
+            {/* {!isOwnProfile && (
               <button className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center active:bg-gray-200 transition-colors">
                 <MoreHorizontal size={14} className="text-gray-600" />
               </button>
+            )} */}
+            {isLoggedIn && !isOwnProfile && (
+              <UserActionMenu
+                targetUserId={targetUserId}
+                targetName={name}
+                iBlockedThem={iBlockedThem}
+                isIgnored={isIgnored}
+                onBlockChange={(action) => {
+                  const blocked = action === "blocked";
+                  setIBlockedThem(blocked);
+                  setIsBlocked(blocked || theyBlockedMe);
+                }}
+                onIgnoreChange={(action) => setIsIgnored(action === "ignored")}
+              />
             )}
           </div>
         </div>
@@ -304,14 +342,29 @@ export default function ProfileClient({
 
           {/* Action Buttons */}
           <div className="flex gap-2 mt-4">
-            <Link
-              href={getChatLink()}
-              className={`flex-1 no-underline flex items-center justify-center gap-2 py-3 rounded-xl
-                text-sm font-semibold font-outfit transition-all duration-200 ${getChatButtonStyle()}`}
-            >
-              <MessageCircle size={16} />
-              {getChatButtonText()}
-            </Link>
+            {isBlocked ? (
+              <button
+                onClick={() => iBlockedThem && setShowUnblockModal(true)}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all
+        ${
+          iBlockedThem
+            ? "bg-orange-50 border border-orange-200 text-orange-500 active:bg-orange-100"
+            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+        }`}
+              >
+                <ShieldOff size={16} />
+                {iBlockedThem ? "Unblock to Message" : "Blocked"}
+              </button>
+            ) : (
+              <Link
+                href={getChatLink()}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold bg-linear-to-r from-brand to-accent text-white active:from-brand/90 active:to-accent/90 transition-all shadow-sm"
+              >
+                <MessageCircle size={16} />
+                {getChatButtonText()}
+                {isIgnored && <BellOff size={13} className="opacity-60" />}
+              </Link>
+            )}
           </div>
 
           {isLoggedIn && !hasCurrentUserProfile && !isOwnProfile && (
@@ -849,13 +902,29 @@ export default function ProfileClient({
                   ? "bg-white border border-gray-200 text-gray-500"
                   : !hasCurrentUserProfile
                     ? "bg-brand/10 border border-brand/30 text-brand"
-                    : "bg-gradient-to-br from-brand to-accent text-white shadow-[0_8px_20px_rgba(232,84,122,0.4)]"
+                    : "bg-linear-to-br from-brand to-accent text-white shadow-[0_8px_20px_rgba(232,84,122,0.4)]"
               } active:scale-95`}
             aria-label={getChatButtonText()}
           >
             <MessageCircle size={22} />
           </Link>
         </div>
+      )}
+
+      {showUnblockModal && (
+        <BlockConfirmModal
+          targetUserId={targetUserId}
+          targetName={name}
+          isCurrentlyBlocked={true}
+          onClose={() => setShowUnblockModal(false)}
+          onSuccess={(action) => {
+            if (action === "unblocked") {
+              setIBlockedThem(false);
+              setIsBlocked(theyBlockedMe);
+            }
+            setShowUnblockModal(false);
+          }}
+        />
       )}
     </div>
   );
