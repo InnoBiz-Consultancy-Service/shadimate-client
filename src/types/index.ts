@@ -111,8 +111,17 @@ export interface DreamPartnerPreference {
   practiceLevel: string;
   economicalStatus: string;
   habits: string[];
+  agePreference?: { min: number; max: number };
+  heightPreference?: { min: string; max: string };
+  locationPreference?: {
+    divisionId: string;
+    districtId?: string;
+    thanaId?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }
+
+/* matchScore and calculatedAge come back on Profile objects from match endpoint */
 
 export type DreamPartnerMatch = Profile; // matches are Profile objects from backend

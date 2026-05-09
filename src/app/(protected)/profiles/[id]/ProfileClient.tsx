@@ -143,7 +143,7 @@ export default function ProfileClient({
     if (!isLoggedIn) return "/login";
     if (isOwnProfile) return "/profile/edit";
     if (isBlocked) return "#"; // ← add: blocked = no navigation
-    return hasCurrentUserProfile ? `/chat/${targetUserId}` : "/profile/create";
+    return hasCurrentUserProfile ? `/chat/${targetUserId}` : "/profile/edit";
   };
 
   const getChatButtonText = () => {
