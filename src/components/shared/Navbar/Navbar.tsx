@@ -144,7 +144,7 @@ export default function Navbar() {
   // Determine chat link based on profile status
   const getChatLink = () => {
     if (!isLoggedIn) return "/login";
-    return hasProfile ? "/conversations" : "/profile/create";
+    return hasProfile ? "/conversations" : "/profile/edit";
   };
 
   const getChatButtonText = () => {
@@ -212,7 +212,7 @@ export default function Navbar() {
           <div className="relative">
             <MessageCircle size={40} />
             {hasProfile && unreadChatCount > 0 && (
-              <span className="absolute -top-1 -right-2 min-w-[18px] h-[18px] flex items-center justify-center bg-brand text-white text-[9px] font-bold rounded-full px-1">
+              <span className="absolute -top-1 -right-2 min-w-4.5 h-4.5 flex items-center justify-center bg-brand text-white text-[9px] font-bold rounded-full px-1">
                 {unreadChatCount > 99 ? "99+" : unreadChatCount}
               </span>
             )}
@@ -309,7 +309,7 @@ export default function Navbar() {
               >
                 <MessageCircle size={18} />
                 {hasProfile && unreadChatCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center bg-brand text-white text-[8px] font-bold rounded-full px-0.5">
+                  <span className="absolute -top-1 -right-1 min-w-4 h-4 flex items-center justify-center bg-brand text-white text-[8px] font-bold rounded-full px-0.5">
                     {unreadChatCount > 99 ? "99+" : unreadChatCount}
                   </span>
                 )}
@@ -328,7 +328,7 @@ export default function Navbar() {
             {/* Profile Icon */}
             {isLoggedIn && (
               <Link
-                href={hasProfile ? "/profile/my" : "/profile/create"}
+                href={hasProfile ? "/profile" : "/profile/edit"}
                 title={hasProfile ? "My Profile" : "Create Profile"}
                 className="
                   flex items-center justify-center w-9 h-9 rounded-full
