@@ -10,50 +10,46 @@ export interface Question {
   options: {
     label: string;
     text: string;
-    score: number;
   }[];
-}
-
-export interface QuestionsResponse {
-  statusCode: number;
-  success: boolean;
-  message: string;
-  data: Question[];
 }
 
 export interface SubmitAnswer {
   questionId: string;
-  score: number;
+  selectedOption: "agree" | "sometimes" | "disagree";
 }
 
-export interface SubmitState {
-  success: boolean;
-  message: string;
-  testId?: string;
-}
-
-export interface PatchInfoState {
-  success: boolean;
-  message: string;
-}
-
-export interface TestResult {
+export interface SuggestedProfile {
   _id: string;
-  name?: string;
-  email?: string;
-  gender?: string;
-  totalScore?: number;
-  maxScore?: number;
-  percentage?: number;
-  category?: string;
-  [key: string]: unknown;
+  userId: {
+    name: string;
+    gender: string;
+  };
+  personality: string;
 }
 
-export interface ResultResponse {
-  statusCode: number;
-  success: boolean;
+export interface SubmitResult {
+  type: string;
   message: string;
-  data: TestResult;
+}
+
+export interface SubmitResponse {
+  success: boolean;
+  result?: SubmitResult;
+  suggestions?: SuggestedProfile[];
+  total?: number;
+  message?: string;
+}
+
+export interface SaveInfoResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    type?: string;
+    message?: string;
+    email?: string;
+    name?: string;
+    gender?: string;
+  };
 }
 
 /* ── Fetch Questions ── */
@@ -62,7 +58,7 @@ export async function fetchQuestions(): Promise<{
   data?: Question[];
   message?: string;
 }> {
-  const res = await universalApi<QuestionsResponse>({
+  const res = await universalApi<{ success: boolean; data: Question[] }>({
     endpoint: "/personality-test/questions",
     method: "GET",
     requireAuth: false,
@@ -75,22 +71,22 @@ export async function fetchQuestions(): Promise<{
     };
   }
 
-  const raw = res.data as QuestionsResponse;
-  return {
-    success: true,
-    data: raw.data,
-  };
+  const raw = res.data as { success: boolean; data: Question[] };
+  return { success: true, data: raw.data };
 }
 
 /* ── Submit Answers ── */
+
 export async function submitAnswers(
   answers: SubmitAnswer[],
-): Promise<SubmitState> {
+): Promise<SubmitResponse> {
   const res = await universalApi<{
-    statusCode: number;
     success: boolean;
-    message: string;
-    data: { _id: string };
+    data: {
+      result: SubmitResult;
+      suggestions: SuggestedProfile[];
+      total: number;
+    };
   }>({
     endpoint: "/personality-test/submit",
     method: "POST",
@@ -106,66 +102,44 @@ export async function submitAnswers(
   }
 
   const raw = res.data as {
-    statusCode: number;
     success: boolean;
-    message: string;
-    data: { _id: string };
+    data: {
+      result: SubmitResult;
+      suggestions: SuggestedProfile[];
+      total: number;
+    };
   };
 
   return {
     success: true,
-    message: raw.message || "Submitted successfully!",
-    testId: raw.data?._id,
+    result: raw.data?.result,
+    suggestions: raw.data?.suggestions,
+    total: raw.data?.total,
   };
 }
 
-/* ── Patch User Info ── */
-export async function patchUserInfo(
-  testId: string,
+/* ── Save User Info after result ── */
+// PATCH /personality-test/:id  (id = profile _id from suggestions[0])
+export async function saveUserInfo(
+  profileId: string,
   info: { name: string; email: string; gender: string },
-): Promise<PatchInfoState> {
-  const res = await universalApi<{ message?: string }>({
-    endpoint: `/personality-test/${testId}`,
+): Promise<SaveInfoResponse> {
+  const res = await universalApi<{
+    type?: string;
+    message?: string;
+    email?: string;
+    name?: string;
+    gender?: string;
+  }>({
+    endpoint: `/personality-test/${profileId}`,
     method: "PATCH",
     data: info,
     requireAuth: false,
   });
 
   if (!res.success) {
-    return {
-      success: false,
-      message: res.message || "Failed to save info.",
-    };
+    return { success: false, message: res.message || "Failed to save info." };
   }
 
-  return {
-    success: true,
-    message: "Info saved successfully!",
-  };
-}
-
-/* ── Get Result ── */
-export async function fetchResult(testId: string): Promise<{
-  success: boolean;
-  data?: TestResult;
-  message?: string;
-}> {
-  const res = await universalApi<ResultResponse>({
-    endpoint: `/personality-test/${testId}`,
-    method: "GET",
-    requireAuth: false,
-  });
-
-  if (!res.success) {
-    return {
-      success: false,
-      message: res.message || "Failed to fetch result.",
-    };
-  }
-
-  const raw = res.data as ResultResponse;
-  return {
-    success: true,
-    data: raw.data,
-  };
+  return { success: true, data: res.data as SaveInfoResponse["data"] };
 }

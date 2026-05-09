@@ -9,11 +9,38 @@ export const RELATION_OPTIONS = [
 ] as const;
 
 export const EDUCATION_VARIETY_OPTIONS = [
-  "Varsity",
+  "SSC",
+  "HSC",
+  "Diploma",
+  "Bachelor",
+  "Masters",
   "Engineering",
   "Medical",
-  "Graduate",
+  "PhD",
+  "Other",
 ] as const;
+
+/** Maps each education type to the correct institution field label */
+export const EDUCATION_INSTITUTION_LABEL: Record<string, string> = {
+  HSC: "College Name",
+  Bachelor: "University Name",
+  Masters: "University Name",
+  Engineering: "University Name",
+  Medical: "University Name",
+  PhD: "University Name",
+  SSC: "Institution Name",
+  Diploma: "Institution Name",
+  Other: "Institution Name",
+};
+
+/** Returns which API data source to use for institution lookup */
+export const EDUCATION_USES_UNIVERSITY_API = new Set([
+  "Bachelor",
+  "Masters",
+  "Engineering",
+  "Medical",
+  "PhD",
+]);
 
 export const FAITH_OPTIONS = [
   "Islam",
