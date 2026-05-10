@@ -87,6 +87,8 @@ export interface GeoItem {
 }
 
 export interface ProfileFilters {
+  minHeight: any;
+  maxHeight: any;
   search?: string;
   gender?: string;
   minAge?: number;
