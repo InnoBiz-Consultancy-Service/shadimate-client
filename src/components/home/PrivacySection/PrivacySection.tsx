@@ -173,8 +173,8 @@ const PROMISES: string[] = [
 // ─── Sub-components ───────────────────────────────────────────────────────────
 function FeatureCard({ feature }: { feature: PrivacyFeature }) {
   return (
-    <div className="group rounded-2xl border border-slate-200 bg-white shadow-sm p-7 transition-all hover:shadow-md hover:border-indigo-200">
-      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
+    <div className="group rounded-2xl border border-slate-200 bg-white shadow-sm p-7 transition-all hover:shadow-md hover:border-brand/30">
+      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-brand/8">
         {feature.icon}
       </div>
       <h3 className="mb-2 text-[15px] font-medium text-slate-900">
@@ -191,7 +191,7 @@ function PromiseBanner() {
   return (
     <div className="mt-14 flex flex-col items-start gap-8 rounded-2xl bg-slate-900 p-10 sm:flex-row sm:items-center shadow-xl">
       {/* Lock circle */}
-      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
+      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-brand/15">
         <svg
           width="38"
           height="38"
@@ -243,7 +243,7 @@ function PromiseBanner() {
               key={promise}
               className="flex items-center gap-3 text-[13px] text-slate-300"
             >
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-500/20">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand/15">
                 <svg
                   width="11"
                   height="11"
@@ -267,7 +267,7 @@ function PromiseBanner() {
       </div>
 
       {/* Decorative image placeholder — replace src with your actual image */}
-      <div className="relative ml-auto hidden h-40 w-40 overflow-hidden rounded-2xl sm:block bg-indigo-900 border border-indigo-500/30">
+      <div className="relative ml-auto hidden h-40 w-40 overflow-hidden rounded-2xl sm:block bg-text border border-brand/30">
         <Image
           src="/images/privacy-illustration.png"
           alt="Privacy illustration"
@@ -279,7 +279,7 @@ function PromiseBanner() {
           }}
         />
         {/* Fallback if image is missing */}
-        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-indigo-500/10">
+        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-brand/8">
           <svg
             width="56"
             height="56"
@@ -322,7 +322,7 @@ export default function PrivacySection() {
       {/* Subtle background decoration */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 h-80 w-80 -translate-y-1/3 translate-x-1/3 rounded-full bg-indigo-50/80"
+        className="pointer-events-none absolute right-0 top-0 h-80 w-80 -translate-y-1/3 translate-x-1/3 rounded-full bg-brand/8/80"
       />
       <div
         aria-hidden="true"
@@ -333,7 +333,7 @@ export default function PrivacySection() {
         {/* ── Header ── */}
         <div className="mb-14 text-center">
           {/* Badge */}
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-4 py-1.5 text-xs font-medium tracking-widest text-indigo-700 shadow-sm">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand/15 bg-brand/8 px-4 py-1.5 text-xs font-medium tracking-widest text-brand shadow-sm">
             <svg
               width="13"
               height="13"

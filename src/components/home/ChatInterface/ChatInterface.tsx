@@ -77,7 +77,13 @@ const ImageIcon = () => (
       stroke="var(--color-brand)"
       strokeWidth="1.5"
     />
-    <circle cx="8.5" cy="8.5" r="1.5" stroke="var(--color-brand)" strokeWidth="1.5" />
+    <circle
+      cx="8.5"
+      cy="8.5"
+      r="1.5"
+      stroke="var(--color-brand)"
+      strokeWidth="1.5"
+    />
     <path
       d="M21 15l-5-5L5 21"
       stroke="var(--color-brand)"
@@ -143,7 +149,7 @@ const VerifiedIcon = () => (
       stroke="currentColor"
       strokeWidth="1"
       strokeLinejoin="round"
-      className="text-emerald-500"
+      className="text-accent"
     />
   </svg>
 );
@@ -223,10 +229,10 @@ function MockChat() {
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <div className="relative">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-indigo-600 text-sm font-bold text-white">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-brand to-accent text-sm font-bold text-white">
               S
             </div>
-            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
+            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-accent" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
@@ -235,7 +241,7 @@ function MockChat() {
               </p>
               <VerifiedIcon />
             </div>
-            <p className="text-[11px] text-emerald-600 font-medium">Online now</p>
+            <p className="text-[11px] text-accent font-medium">Online now</p>
           </div>
         </div>
         {/* Action icons */}
@@ -277,7 +283,7 @@ function MockChat() {
               className={`max-w-[78%] ${msg.isSender ? "" : "flex items-end gap-2"}`}
             >
               {!msg.isSender && (
-                <div className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-indigo-600 text-[10px] font-bold text-white">
+                <div className="mb-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand to-accent text-[10px] font-bold text-white">
                   S
                 </div>
               )}
@@ -288,7 +294,9 @@ function MockChat() {
                       ? "rounded-tr-sm text-white"
                       : "rounded-tl-sm bg-white text-slate-700 border border-slate-100"
                   }`}
-                  style={msg.isSender ? { background: "var(--color-brand)" } : {}}
+                  style={
+                    msg.isSender ? { background: "var(--color-brand)" } : {}
+                  }
                 >
                   {msg.text}
                 </div>
@@ -296,9 +304,7 @@ function MockChat() {
                   className={`mt-1 text-[10px] text-slate-400 ${msg.isSender ? "text-right" : "text-left"}`}
                 >
                   {msg.time}
-                  {msg.isSender && (
-                    <span className="ml-1 text-emerald-500">✓✓</span>
-                  )}
+                  {msg.isSender && <span className="ml-1 text-accent">✓✓</span>}
                 </p>
               </div>
             </div>
@@ -307,20 +313,20 @@ function MockChat() {
 
         {/* Typing indicator */}
         <div className="flex items-end gap-2">
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-indigo-500 to-indigo-600 text-[10px] font-bold text-white">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-brand to-accent text-[10px] font-bold text-white">
             S
           </div>
           <div className="flex items-center gap-1.5 rounded-2xl rounded-tl-sm bg-white border border-slate-100 shadow-sm px-4 py-3">
             <span
-              className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-300"
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/40"
               style={{ animationDelay: "0ms" }}
             />
             <span
-              className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-300"
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/40"
               style={{ animationDelay: "150ms" }}
             />
             <span
-              className="h-1.5 w-1.5 animate-bounce rounded-full bg-indigo-300"
+              className="h-1.5 w-1.5 animate-bounce rounded-full bg-brand/40"
               style={{ animationDelay: "300ms" }}
             />
           </div>
@@ -392,12 +398,12 @@ function MockChat() {
 // ─── Feature Card ─────────────────────────────────────────────────────────────
 function FeatureCard({ feature }: { feature: ChatFeature }) {
   return (
-    <div className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 transition-all hover:border-indigo-200 hover:shadow-md">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-50/80 border border-indigo-100/50">
+    <div className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white shadow-sm p-5 transition-all hover:border-brand/30 hover:shadow-md">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand/8 border border-brand/15">
         {feature.icon}
       </div>
       <div>
-        <h4 className="text-[14px] font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors">
+        <h4 className="text-[14px] font-semibold text-slate-900 group-hover:text-brand transition-colors">
           {feature.title}
         </h4>
         <p className="mt-1 text-[12px] leading-relaxed text-slate-500">
@@ -418,17 +424,17 @@ export default function ChatSection() {
       {/* Glowing background blobs */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-400/10 blur-3xl"
+        className="pointer-events-none absolute left-0 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/8 blur-3xl"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-teal-400/10 blur-3xl"
+        className="pointer-events-none absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-accent/8 blur-3xl"
       />
 
       <div className="relative mx-auto max-w-6xl">
         {/* ── Header ── */}
         <div className="mb-16 text-center">
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-4 py-1.5 text-xs font-medium tracking-widest text-indigo-600 shadow-sm">
+          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/8 px-4 py-1.5 text-xs font-medium tracking-widest text-brand shadow-sm">
             <svg
               width="12"
               height="12"
@@ -456,7 +462,13 @@ export default function ChatSection() {
             Talk, Connect &{" "}
             <span
               className="text-transparent bg-clip-text"
-              style={{ background: "linear-gradient(to right, var(--color-brand), var(--color-accent))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              style={{
+                background:
+                  "linear-gradient(to right, var(--color-brand), var(--color-accent))",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
               Find Your One
             </span>
           </h2>
@@ -476,17 +488,17 @@ export default function ChatSection() {
 
               {/* Floating badges */}
               <div className="mt-5 flex flex-wrap justify-center gap-3">
-                <div className="flex items-center gap-2 rounded-full border border-emerald-200 bg-white shadow-sm px-4 py-2 text-[12px] font-medium text-slate-700">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                <div className="flex items-center gap-2 rounded-full border border-accent/20 bg-white shadow-sm px-4 py-2 text-[12px] font-medium text-slate-700">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-accent" />
                   1,240 active conversations
                 </div>
-                <div className="flex items-center gap-2 rounded-full border border-indigo-200 bg-white shadow-sm px-4 py-2 text-[12px] font-medium text-slate-700">
+                <div className="flex items-center gap-2 rounded-full border border-brand/20 bg-white shadow-sm px-4 py-2 text-[12px] font-medium text-slate-700">
                   <svg
                     width="12"
                     height="12"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="text-indigo-500"
+                    className="text-accent"
                   >
                     <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
                   </svg>
@@ -506,8 +518,8 @@ export default function ChatSection() {
             </div>
 
             {/* CTA */}
-            <div className="mt-2 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-6 shadow-sm">
-              <p className="text-[15px] font-semibold text-indigo-950">
+            <div className="mt-2 rounded-2xl border border-brand/15 bg-brand/5 p-6 shadow-sm">
+              <p className="text-[15px] font-semibold text-text">
                 Ready to start a conversation?
               </p>
               <p className="mt-1 text-[13px] text-slate-600">
@@ -547,7 +559,9 @@ export default function ChatSection() {
               >
                 {stat.value}
               </p>
-              <p className="mt-1 text-[12px] font-medium text-slate-500">{stat.label}</p>
+              <p className="mt-1 text-[12px] font-medium text-slate-500">
+                {stat.label}
+              </p>
             </div>
           ))}
         </div>
