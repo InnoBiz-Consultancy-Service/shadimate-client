@@ -8,13 +8,13 @@ export interface UploadResult {
   width: number;
   height: number;
   format: string;
-  thumbnailUrl: string; // 200x200 crop
+  thumbnailUrl: string;
 }
 
 export interface UseCloudinaryUploadReturn {
   upload: (file: File) => Promise<UploadResult | null>;
   uploading: boolean;
-  progress: number; // 0–100
+  progress: number;
   error: string | null;
   reset: () => void;
 }
@@ -23,19 +23,6 @@ const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "";
 const UPLOAD_PRESET =
   process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "primehalf_profiles";
 
-/**
- * useCloudinaryUpload
- *
- * Reusable hook — Cloudinary unsigned upload.
- * Required env vars:
- *   NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
- *   NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_unsigned_preset
- *
- * Usage:
- *   const { upload, uploading, progress, error } = useCloudinaryUpload();
- *   const result = await upload(file);
- *   if (result) console.log(result.url);
- */
 export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -50,33 +37,11 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
   const upload = useCallback(
     async (file: File): Promise<UploadResult | null> => {
       if (!CLOUD_NAME) {
-        setError(
-          "Cloudinary cloud name not configured. Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME.",
-        );
+        setError("Cloudinary not configured");
         return null;
       }
       if (!UPLOAD_PRESET) {
-        setError(
-          "Cloudinary upload preset not configured. Set NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.",
-        );
-        return null;
-      }
-
-      // Validate file
-      const MAX_SIZE_MB = 10;
-      if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-        setError(`File too large. Maximum size is ${MAX_SIZE_MB}MB.`);
-        return null;
-      }
-      const ALLOWED_TYPES = [
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-        "image/gif",
-      ];
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        setError("Invalid file type. Please upload JPEG, PNG, WebP or GIF.");
+        setError("Upload preset not configured");
         return null;
       }
 
@@ -84,7 +49,7 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
       setProgress(0);
       setError(null);
 
-      return new Promise<UploadResult | null>((resolve) => {
+      return new Promise((resolve) => {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", UPLOAD_PRESET);
@@ -100,12 +65,12 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
         });
 
         xhr.addEventListener("load", () => {
-          if (xhr.status >= 200 && xhr.status < 300) {
+          if (xhr.status === 200) {
             try {
               const data = JSON.parse(xhr.responseText);
               const thumbnailUrl = data.secure_url.replace(
                 "/upload/",
-                "/upload/c_fill,w_200,h_200,g_face,q_auto,f_auto/",
+                "/upload/c_fill,w_200,h_200,g_face,q_auto,f_auto/"
               );
               const result: UploadResult = {
                 url: data.secure_url,
@@ -119,44 +84,31 @@ export function useCloudinaryUpload(): UseCloudinaryUploadReturn {
               setUploading(false);
               resolve(result);
             } catch {
-              setError("Failed to parse upload response.");
+              setError("Failed to parse response");
               setUploading(false);
               resolve(null);
             }
           } else {
-            try {
-              const err = JSON.parse(xhr.responseText);
-              setError(
-                err.error?.message || "Upload failed. Please try again.",
-              );
-            } catch {
-              setError("Upload failed. Please try again.");
-            }
+            setError("Upload failed");
             setUploading(false);
             resolve(null);
           }
         });
 
         xhr.addEventListener("error", () => {
-          setError("Network error. Please check your connection.");
-          setUploading(false);
-          resolve(null);
-        });
-
-        xhr.addEventListener("abort", () => {
-          setError("Upload was cancelled.");
+          setError("Network error");
           setUploading(false);
           resolve(null);
         });
 
         xhr.open(
           "POST",
-          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`
         );
         xhr.send(formData);
       });
     },
-    [],
+    []
   );
 
   return { upload, uploading, progress, error, reset };

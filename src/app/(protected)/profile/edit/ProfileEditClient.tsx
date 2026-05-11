@@ -43,7 +43,7 @@ import {
   SKIN_TONE_OPTIONS,
 } from "@/constants/profile";
 import { useDebounce } from "@/hooks/useDebounce";
-import { StepImageUploadPanel } from "@/components/shared/ProfileImageUploader";
+import ProfileImageUploader from "@/components/shared/ProfileImageUploader";
 import type { Profile, ToastData } from "@/types";
 
 /* ─────────────────────────────────────────
@@ -572,7 +572,6 @@ export default function ProfileEditClient({
     const errs = validateStep(step);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
-      // Scroll to top of card so user sees errors
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
@@ -614,8 +613,8 @@ export default function ProfileEditClient({
         };
       case 2:
         return {
-          ...(height && { height }),
-          ...(weight && { weight }),
+          ...(height && { height: Number(height) }),
+          ...(weight && { weight: Number(weight) }),
           ...(skinTone && { skinTone }),
         };
       case 3:
@@ -691,8 +690,6 @@ export default function ProfileEditClient({
     setSaving(true);
     const isEdit = !!profile;
 
-    // Edit mode — শুধু current step এর payload পাঠাও
-    // Create mode — সব steps এর payload একসাথে পাঠাও
     const payload = isEdit
       ? buildStepPayload(stepOverride ?? step)
       : buildFullPayload();
@@ -712,7 +709,6 @@ export default function ProfileEditClient({
   ───────────────────────────────────────── */
   const renderPreview = () => (
     <div className="space-y-4">
-      {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <div className="w-8 h-8 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center">
@@ -729,7 +725,6 @@ export default function ProfileEditClient({
         </p>
       </div>
 
-      {/* Section: Basic Info */}
       <PreviewSection
         title="Basic Info"
         stepId={1}
@@ -754,7 +749,6 @@ export default function ProfileEditClient({
         )}
       </PreviewSection>
 
-      {/* Section: Physical */}
       <PreviewSection
         title="Physical"
         stepId={2}
@@ -766,7 +760,6 @@ export default function ProfileEditClient({
         <PreviewRow label="Skin Tone" value={skinTone} />
       </PreviewSection>
 
-      {/* Section: Address */}
       <PreviewSection
         title="Address"
         stepId={3}
@@ -779,7 +772,6 @@ export default function ProfileEditClient({
         <PreviewRow label="Details" value={addressDetails} />
       </PreviewSection>
 
-      {/* Section: Education */}
       <PreviewSection
         title="Education"
         stepId={4}
@@ -795,7 +787,6 @@ export default function ProfileEditClient({
         <PreviewRow label="Passing Year" value={passingYear} />
       </PreviewSection>
 
-      {/* Section: Religion */}
       <PreviewSection
         title="Religion"
         stepId={5}
@@ -818,7 +809,6 @@ export default function ProfileEditClient({
         )}
       </PreviewSection>
 
-      {/* Section: Family */}
       <PreviewSection
         title="Family"
         stepId={6}
@@ -830,7 +820,6 @@ export default function ProfileEditClient({
         <PreviewRow label="Mother's Occupation" value={motherOcc} />
       </PreviewSection>
 
-      {/* Section: Interests */}
       <PreviewSection
         title="Interests & Habits"
         stepId={7}
@@ -856,7 +845,6 @@ export default function ProfileEditClient({
         )}
       </PreviewSection>
 
-      {/* Submit notice */}
       <div className="rounded-2xl bg-brand/5 border border-brand/20 p-4 mt-2">
         <p className="font-outfit text-gray-700 text-sm leading-relaxed">
           🎉 Everything looks good! Press{" "}
@@ -874,7 +862,6 @@ export default function ProfileEditClient({
   ───────────────────────────────────────── */
   const renderStep = () => {
     switch (step) {
-      /* STEP 1 — Basic Info */
       case 1:
         return (
           <div className="space-y-4">
@@ -883,8 +870,7 @@ export default function ProfileEditClient({
               subtitle="Tell us about yourself to find the best match"
             />
 
-            {/* ── Profile Photo Upload ── */}
-            <StepImageUploadPanel
+            <ProfileImageUploader
               currentImageUrl={profileImage || null}
               name={
                 typeof profile?.userId === "object"
@@ -892,9 +878,10 @@ export default function ProfileEditClient({
                   : typeof profile?.user === "object" &&
                       !Array.isArray(profile?.user)
                     ? (profile?.user as { name: string })?.name
-                    : "U"
+                    : "User"
               }
               onUploadSuccess={(url) => setProfileImage(url)}
+              size="avatar"
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -989,7 +976,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 2 — Physical */
       case 2:
         return (
           <div className="space-y-4">
@@ -1038,7 +1024,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 3 — Address */
       case 3:
         return (
           <div className="space-y-4">
@@ -1142,7 +1127,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 4 — Education */
       case 4:
         return (
           <div className="space-y-4">
@@ -1154,7 +1138,6 @@ export default function ProfileEditClient({
                 value={eduVariety}
                 onChange={(v) => {
                   setEduVariety(v);
-                  // Reset institution fields when type changes
                   setUniversityId("");
                   setUniversityName("");
                   setCustomInstituteName("");
@@ -1166,12 +1149,9 @@ export default function ProfileEditClient({
                 error={errors.eduVariety}
               />
 
-              {/* Smart Institution Field — adapts based on education type */}
               {eduVariety && (
                 <div className="flex flex-col gap-1.5">
                   {EDUCATION_USES_UNIVERSITY_API.has(eduVariety) ? (
-                    /* University search dropdown — allowCustom=true হলে list এ না পেলে
-                       dropdown এর ভেতরেই "Add …" option দেখাবে */
                     <SearchableDropdown
                       label={`${EDUCATION_INSTITUTION_LABEL[eduVariety] ?? "University Name"} *`}
                       placeholder={`Search ${EDUCATION_INSTITUTION_LABEL[eduVariety] ?? "University"}…`}
@@ -1182,7 +1162,7 @@ export default function ProfileEditClient({
                       searchValue={uniSearch}
                       onSearchChange={setUniSearch}
                       onSelect={(id, n) => {
-                        setUniversityId(id); // id="" হলে manually typed
+                        setUniversityId(id);
                         setUniversityName(n);
                         setCustomInstituteName(n);
                         clearError("instituteName");
@@ -1198,7 +1178,6 @@ export default function ProfileEditClient({
                       }
                     />
                   ) : (
-                    /* Simple text input for SSC / HSC / Diploma / Other */
                     <Field
                       label={`${EDUCATION_INSTITUTION_LABEL[eduVariety] ?? "Institution Name"}`}
                       name="instituteName"
@@ -1254,7 +1233,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 5 — Religion */
       case 5:
         return (
           <div className="space-y-4">
@@ -1319,7 +1297,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 6 — Family */
       case 6:
         return (
           <div className="space-y-4">
@@ -1368,7 +1345,6 @@ export default function ProfileEditClient({
           </div>
         );
 
-      /* STEP 7 — Habits & Interests */
       case 7:
         return (
           <div className="space-y-5">
@@ -1413,9 +1389,6 @@ export default function ProfileEditClient({
     }
   };
 
-  /* ─────────────────────────────────────────
-     Render
-  ───────────────────────────────────────── */
   return (
     <>
       {toast && (
@@ -1423,10 +1396,8 @@ export default function ProfileEditClient({
       )}
 
       <div className="font-outfit min-h-screen px-4 py-8 md:py-12 max-w-2xl mx-auto bg-white">
-        {/* Progress bar — hidden on preview */}
         {!showPreview && <ProgressBar current={step} total={TOTAL_STEPS} />}
 
-        {/* Preview badge */}
         {showPreview && (
           <div className="flex items-center gap-2 mb-6">
             <div className="flex-1 h-px bg-gray-200" />
@@ -1437,14 +1408,11 @@ export default function ProfileEditClient({
           </div>
         )}
 
-        {/* Content */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 md:p-7 mb-5">
           {showPreview ? renderPreview() : renderStep()}
         </div>
 
-        {/* Navigation */}
         <div className="flex items-center gap-3">
-          {/* Edit mode তে Back বা Previous দেখাব না — সরাসরি Update করবে */}
           {!profile && (step > 1 || showPreview) && (
             <button
               onClick={prev}
@@ -1454,7 +1422,6 @@ export default function ProfileEditClient({
             </button>
           )}
 
-          {/* Preview page এ Back to Edit */}
           {profile && showPreview && (
             <button
               onClick={prev}
@@ -1466,7 +1433,6 @@ export default function ProfileEditClient({
 
           {!showPreview ? (
             profile ? (
-              /* ── Edit mode — সরাসরি Update ── */
               <button
                 onClick={async () => {
                   const errs = validateStep(step);
@@ -1508,7 +1474,6 @@ export default function ProfileEditClient({
                 )}
               </button>
             ) : (
-              /* ── Create mode — Next / Preview ── */
               <button
                 onClick={next}
                 className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-outfit font-semibold text-sm text-white bg-linear-to-r from-brand to-accent hover:from-brand/90 hover:to-accent/90 active:scale-[0.98] transition-all duration-200 shadow-sm"
@@ -1525,7 +1490,6 @@ export default function ProfileEditClient({
               </button>
             )
           ) : (
-            /* ── Preview page এর Submit ── */
             <button
               onClick={() => handleSave()}
               disabled={saving}
@@ -1566,9 +1530,6 @@ export default function ProfileEditClient({
   );
 }
 
-/* ─────────────────────────────────────────
-   Step title helper
-───────────────────────────────────────── */
 function StepTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-5">

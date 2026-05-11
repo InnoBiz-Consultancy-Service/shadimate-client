@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   User,
   Ruler,
@@ -264,13 +264,12 @@ export default function ProfileViewClient({
 }) {
   const [showLikeModal, setShowLikeModal] = useState(false);
   const [showViewerModal, setShowViewerModal] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(
-    (profile as unknown as Record<string, string>)?.profilePhoto ?? null,
-  );
-  const [coverUrl, setCoverUrl] = useState<string | null>(
-    (profile as unknown as Record<string, string>)?.coverPhoto ?? null,
-  );
-
+ const [avatarUrl, setAvatarUrl] = useState<string | null>(
+  (profile as unknown as Record<string, string>)?.image || null,
+);
+const [coverUrl, setCoverUrl] = useState<string | null>(
+  (profile as unknown as Record<string, string>)?.coverImage || null,
+);
   const userData = Array.isArray(profile.user) ? profile.user[0] : profile.user;
   const name = userData?.name || profile.userId?.name || "User";
   const age = getAge(profile.birthDate);
@@ -332,7 +331,7 @@ export default function ProfileViewClient({
             name={name}
             onUploadSuccess={async (url) => {
               setCoverUrl(url);
-              await updateProfile({ coverPhoto: url });
+              await updateProfile({ coverImage: url });
             }}
             size="cover"
             className="w-full h-full"
@@ -348,7 +347,7 @@ export default function ProfileViewClient({
                 name={name}
                 onUploadSuccess={async (url) => {
                   setAvatarUrl(url);
-                  await updateProfile({ profilePhoto: url });
+              await updateProfile({ image: url });
                 }}
                 size="avatar"
               />
