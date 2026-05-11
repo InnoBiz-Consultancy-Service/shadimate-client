@@ -77,7 +77,7 @@ function groupByDate(
   return Array.from(groups.entries()).map(([label, msgs]) => ({ label, msgs }));
 }
 
-// ─── Status Icons ─────────────────────────────────────────────────────────────
+// ─── Status Icon ──────────────────────────────────────────────────────────────
 
 function StatusIcon({
   status,
@@ -109,6 +109,8 @@ function StatusIcon({
     />
   );
 }
+
+// ─── Message Bubble ───────────────────────────────────────────────────────────
 
 function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
   if (!msg.content || msg.content.trim() === "") return null;
@@ -146,6 +148,8 @@ function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
   );
 }
 
+// ─── Typing Indicator ─────────────────────────────────────────────────────────
+
 const TypingIndicator = ({ name }: { name: string }) => (
   <div className="flex justify-start mb-2">
     <div
@@ -174,6 +178,8 @@ const TypingIndicator = ({ name }: { name: string }) => (
     </div>
   </div>
 );
+
+// ─── Premium Gate ─────────────────────────────────────────────────────────────
 
 function PremiumGate() {
   return (
@@ -268,12 +274,10 @@ export default function ChatRoomClient({
   const [lastSeen, setLastSeen] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // ── Block / Ignore state — all mutable so UI updates instantly ──
   const [isBlocked, setIsBlocked] = useState(initialIsBlocked);
   const [iBlockedThem, setIBlockedThem] = useState(initialIBlockedThem);
   const [theyBlockedMe] = useState(initialTheyBlockedMe);
-  const [isIgnored, setIsIgnored] = useState(initialIsIgnored); // FIX: was const
-
+  const [isIgnored, setIsIgnored] = useState(initialIsIgnored);
   const [showUnblockModal, setShowUnblockModal] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -283,7 +287,7 @@ export default function ChatRoomClient({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seenSet = useRef<Set<string>>(new Set());
 
-  // ─── Socket Handlers ───────────────────────────────────────────────────────
+  // ─── Socket Handlers ──────────────────────────────────────────────────────
 
   const handleNewMessage = useCallback(
     (msg: Message) => {
@@ -415,7 +419,7 @@ export default function ChatRoomClient({
       onUserOffline: handleUserOffline,
     });
 
-  // ─── Effects ───────────────────────────────────────────────────────────────
+  // ─── Effects ──────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!connected) {
@@ -428,9 +432,7 @@ export default function ChatRoomClient({
   }, [connected]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -458,7 +460,7 @@ export default function ChatRoomClient({
     return () => clearTimeout(timer);
   }, [messages, connected, targetUserId, markSeen, token]);
 
-  // ─── Handlers ──────────────────────────────────────────────────────────────
+  // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleSend = useCallback(() => {
     const text = input.trim();
@@ -542,14 +544,10 @@ export default function ChatRoomClient({
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     const container = messageContainerRef.current;
-
-    if (container) {
-      scrollHeightBeforeRef.current = container.scrollHeight;
-    }
+    if (container) scrollHeightBeforeRef.current = container.scrollHeight;
 
     startLoadMore(async () => {
       const res = await getChatHistory(targetUserId, nextPage, 30);
-
       if (res.success && res.data && res.data.length > 0) {
         const filtered = res.data
           .filter((m) => m?.content?.trim())
@@ -557,15 +555,13 @@ export default function ChatRoomClient({
             (a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
           );
-
         setMessages((prev) => [...filtered, ...prev]);
         setPage(nextPage);
         setHasMore(nextPage < (res.meta?.totalPages ?? 1));
-
         requestAnimationFrame(() => {
           if (container) {
-            const newHeight = container.scrollHeight;
-            container.scrollTop = newHeight - scrollHeightBeforeRef.current;
+            container.scrollTop =
+              container.scrollHeight - scrollHeightBeforeRef.current;
           }
         });
       } else {
@@ -574,7 +570,7 @@ export default function ChatRoomClient({
     });
   }, [page, targetUserId]);
 
-  // ─── Status Text ───────────────────────────────────────────────────────────
+  // ─── Status Text ──────────────────────────────────────────────────────────
 
   const getStatusText = () => {
     if (partnerTyping) return "typing...";
@@ -595,14 +591,18 @@ export default function ChatRoomClient({
 
   const groups = groupByDate(messages);
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div
-      className="font-outfit flex flex-col"
+      className="font-outfit flex flex-col w-full"
       style={{
-        height: "100dvh",
-        maxHeight: "100dvh",
+        /**
+         * Inside the two-panel shell the parent already has fixed height.
+         * We just need to fill it (100% of flex parent), not set dvh again.
+         * For standalone mobile (no shell), 100% of flex parent also works.
+         */
+        height: "100%",
         background: "#FAF0E4",
       }}
     >
@@ -614,12 +614,13 @@ export default function ChatRoomClient({
           boxShadow: "0 2px 12px rgba(184,92,110,0.30)",
         }}
       >
-        <button
-          onClick={() => router.back()}
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white/80 active:bg-white/10 transition-all cursor-pointer shrink-0"
+        {/* Back — goes to /chat on mobile, no-op on desktop since sidebar is always visible */}
+        <Link
+          href="/chat"
+          className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-white/80 active:bg-white/10 transition-all cursor-pointer shrink-0"
         >
           <ArrowLeft size={20} />
-        </button>
+        </Link>
 
         <div className="relative shrink-0">
           <div
