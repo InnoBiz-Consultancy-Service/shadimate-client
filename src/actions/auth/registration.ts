@@ -1,7 +1,7 @@
 "use server";
 
 import { universalApi } from "../universal-api";
-import { isValidEmail, isValidBDPhone } from "@/lib/validators";
+import { isValidEmail, isValidPhone } from "@/lib/validators";
 
 export interface RegisterState {
   success: boolean;
@@ -13,6 +13,7 @@ export interface RegisterState {
     phone?: string;
     password?: string;
     gender?: string;
+    country?: string;
   };
   retryAfter?: number;
 }
@@ -26,26 +27,35 @@ export async function registerAction(
   const phone = (formData.get("phone") as string)?.trim() ?? "";
   const password = (formData.get("password") as string) ?? "";
   const gender = (formData.get("gender") as string) ?? "";
+  const country = (formData.get("country") as string)?.trim() ?? "";
 
   const errors: RegisterState["errors"] = {};
 
   if (!name || name.length < 2)
     errors.name = "Full name is required (min. 2 characters).";
+
   if (!email) {
     errors.email = "Email is required.";
   } else if (!isValidEmail(email)) {
     errors.email = "Please enter a valid email address.";
   }
+
+  if (!country) {
+    errors.country = "Please select a country.";
+  }
+
   if (!phone) {
     errors.phone = "Phone number is required.";
-  } else if (!isValidBDPhone(phone)) {
-    errors.phone = "Enter a valid BD phone number (01XXXXXXXXX).";
+  } else if (!isValidPhone(phone)) {
+    errors.phone = "Enter a valid phone number.";
   }
+
   if (!password) {
     errors.password = "Password is required.";
   } else if (password.length < 6) {
     errors.password = "Password must be at least 6 characters.";
   }
+
   if (!gender || !["male", "female"].includes(gender))
     errors.gender = "Please select a gender.";
 
@@ -55,10 +65,11 @@ export async function registerAction(
   const res = await universalApi<{ message?: string }>({
     endpoint: "/auth",
     method: "POST",
-    data: { name, email, phone, password, gender },
+    // Backend resolves dialCode from country name and prefixes the phone
+    data: { name, email, phone, password, gender, country },
     requireAuth: false,
   });
-  console.log(res)
+  console.log(res);
 
   if (!res.success) {
     return {

@@ -319,7 +319,7 @@ const [coverUrl, setCoverUrl] = useState<string | null>(
     profile.motherOccupation
   );
   const hasHabits = !!(profile.habits && profile.habits.length > 0);
-
+console.log(profile)
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
       {/* ── COVER + AVATAR HEADER ── */}

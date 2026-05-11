@@ -95,3 +95,50 @@ export async function fetchUniversities(
   }
   return [];
 }
+
+/* ── Countries ── */
+
+export interface Country {
+  name: string;
+  code: string;
+  dialCode: string;
+  flag: string;
+}
+
+interface CountryResponse {
+  success: boolean;
+  data: Country[];
+}
+
+interface SingleCountryResponse {
+  success: boolean;
+  data: Country;
+}
+
+export async function fetchCountries(search = ""): Promise<Country[]> {
+  const query = search ? `?search=${encodeURIComponent(search)}` : "";
+  const res = await universalApi<CountryResponse>({
+    endpoint: `/geo/countries${query}`,
+    method: "GET",
+    requireAuth: false,
+  });
+  if (res.success && res.data) {
+    return (res.data as CountryResponse).data;
+  }
+  return [];
+}
+
+export async function fetchCountryByCode(
+  code: string,
+): Promise<Country | null> {
+  if (!code) return null;
+  const res = await universalApi<SingleCountryResponse>({
+    endpoint: `/geo/countries/${code.toUpperCase()}`,
+    method: "GET",
+    requireAuth: false,
+  });
+  if (res.success && res.data) {
+    return (res.data as SingleCountryResponse).data;
+  }
+  return null;
+}

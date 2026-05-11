@@ -3,7 +3,13 @@
 import { registerAction, RegisterState } from "@/actions/auth/registration";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useActionState, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useActionState,
+  useCallback,
+  useTransition,
+} from "react";
 import { ArrowRight } from "lucide-react";
 import {
   Logo,
@@ -15,20 +21,47 @@ import {
   GenderSelector,
   PageShell,
   RateLimitBanner,
+  CountryPhoneInput,
 } from "@/components/ui";
 import { useCountdown } from "@/hooks/useCountdown";
+import { fetchCountries } from "@/actions/geo/geo";
+import type { Country } from "@/actions/geo/geo";
+
+// Bangladesh as default — most users are BD
+const DEFAULT_COUNTRY: Country = {
+  name: "Bangladesh",
+  code: "BD",
+  dialCode: "+880",
+  flag: "🇧🇩",
+};
 
 export default function RegisterPage() {
   const router = useRouter();
+
+  // ── Form fields ──────────────────────────────────────────────────────────
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [gender, setGender] = useState<"male" | "female" | "">("");
+  const [selectedCountry, setSelectedCountry] =
+    useState<Country>(DEFAULT_COUNTRY);
+
+  // ── Countries ────────────────────────────────────────────────────────────
+  const [countries, setCountries] = useState<Country[]>([DEFAULT_COUNTRY]);
+  const [, startCountryLoad] = useTransition();
+
+  useEffect(() => {
+    startCountryLoad(async () => {
+      const list = await fetchCountries();
+      if (list.length > 0) setCountries(list);
+    });
+  }, []);
+
+  // ── Server action ────────────────────────────────────────────────────────
   const [toastDismissedFor, setToastDismissedFor] = useState<object | null>(
     null,
   );
-
   const initialState: RegisterState = { success: false, message: "" };
   const [state, formAction, isPending] = useActionState(
     registerAction,
@@ -100,6 +133,7 @@ export default function RegisterPage() {
           )}
 
           <form action={formAction} className="flex flex-col gap-3">
+            {/* Hidden fields */}
             <input type="hidden" name="gender" value={gender} />
 
             <Input
@@ -123,16 +157,17 @@ export default function RegisterPage() {
               error={state.errors?.email}
             />
 
-            <Input
-              label="Phone Number"
-              name="phone"
-              type="tel"
-              value={phone}
-              onChange={setPhone}
-              placeholder="01XXXXXXXXX"
-              autoComplete="tel"
-              hint="OTP will be sent to this number"
-              error={state.errors?.phone}
+            {/* Country + Phone — combined input */}
+            <CountryPhoneInput
+              phoneValue={phone}
+              onPhoneChange={setPhone}
+              selectedCountry={selectedCountry}
+              onCountryChange={setSelectedCountry}
+              countries={countries}
+              phoneInputName="phone"
+              countryInputName="country"
+              phoneError={state.errors?.phone}
+              countryError={state.errors?.country}
             />
 
             <PasswordInput
