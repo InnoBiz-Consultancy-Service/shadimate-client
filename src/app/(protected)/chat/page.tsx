@@ -4,13 +4,15 @@ import ChatClient from "@/components/chat/ChatClient";
 
 export const metadata = { title: "Messages – primehalf" };
 
-// JWT payload decode — middleware.ts-এর মতো same logic
 function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const part = token.split(".")[1];
     if (!part) return null;
     const base64 = part.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
+    const padded = base64.padEnd(
+      base64.length + ((4 - (base64.length % 4)) % 4),
+      "=",
+    );
     return JSON.parse(atob(padded));
   } catch {
     return null;
@@ -21,7 +23,6 @@ export default async function ChatPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
 
-  // currentUserId — server-side JWT decode, stable prop হিসেবে client-এ পাঠাই
   const payload = token ? decodeJwt(token) : null;
   const currentUserId = (payload?.id as string) ?? "";
 
@@ -35,6 +36,7 @@ export default async function ChatPage() {
       initialConversations={res.success && res.data ? res.data : []}
       token={token}
       currentUserId={currentUserId}
+      // No chatRoomSlot — will show WelcomePanel on desktop right side
     />
   );
 }

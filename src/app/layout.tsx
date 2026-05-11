@@ -1,18 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Outfit, Syne } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import { Outfit, Syne, Cormorant_Garamond, Lato } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
+// Primary display/heading font — elegant serif for matrimony
+const cormorant = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+// Body font — clean, highly readable
+const lato = Lato({
+  variable: "--font-lato",
+  subsets: ["latin"],
+  weight: ["300", "400", "700"],
+});
+
+// Kept for backward compatibility with font-outfit className usages
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -61,7 +72,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${outfit.variable} ${syne.variable} antialiased`}
+        className={`${cormorant.variable} ${lato.variable} ${geistMono.variable} ${outfit.variable} ${syne.variable} antialiased`}
       >
         <div className="relative min-h-screen overflow-x-hidden">
           <a

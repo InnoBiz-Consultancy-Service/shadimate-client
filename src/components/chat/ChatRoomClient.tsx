@@ -77,7 +77,7 @@ function groupByDate(
   return Array.from(groups.entries()).map(([label, msgs]) => ({ label, msgs }));
 }
 
-// ─── Status Icons ─────────────────────────────────────────────────────────────
+// ─── Status Icon ──────────────────────────────────────────────────────────────
 
 function StatusIcon({
   status,
@@ -88,34 +88,58 @@ function StatusIcon({
 }) {
   if (!isMine) return null;
   if (status === "seen")
-    return <CheckCheck size={16} className="text-[#88d9f9] shrink-0" />;
+    return (
+      <CheckCheck size={14} style={{ color: "#B07A1E" }} className="shrink-0" />
+    );
   if (status === "delivered")
-    return <CheckCheck size={14} className="text-[#b08890] shrink-0" />;
+    return (
+      <CheckCheck
+        size={14}
+        style={{ color: "rgba(184,92,110,0.5)" }}
+        className="shrink-0"
+      />
+    );
   if (status === "error")
     return <Clock size={12} className="text-red-400 shrink-0" />;
-  return <Check size={14} className="text-[#b08890] shrink-0" />;
+  return (
+    <Check
+      size={14}
+      style={{ color: "rgba(184,92,110,0.4)" }}
+      className="shrink-0"
+    />
+  );
 }
 
-// ─── Message Bubble ──────
+// ─── Message Bubble ───────────────────────────────────────────────────────────
 
 function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
   if (!msg.content || msg.content.trim() === "") return null;
-
   const timeString = formatWhatsAppTime(msg.createdAt);
-
   return (
-    <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-1`}>
-      <div className={`relative max-w-[75%]`}>
+    <div className={`flex ${isMine ? "justify-end" : "justify-start"} mb-0.5`}>
+      <div className="relative max-w-[78%] sm:max-w-[70%]">
         <div
-          className={`relative px-3 py-2 text-sm leading-relaxed ${
-            isMine
-              ? "bg-[#7a1d30] text-[#f5e8eb] rounded-tl-2xl rounded-bl-2xl rounded-br-sm rounded-tr-2xl border border-[rgba(232,84,122,0.2)] shadow-sm"
-              : "bg-[#1e0c10] text-[#f5e8eb] rounded-tr-2xl rounded-br-2xl rounded-bl-sm rounded-tl-2xl border border-[rgba(232,84,122,0.1)] shadow-sm"
-          }`}
+          className="relative px-3.5 py-2.5 text-[14px] leading-relaxed"
+          style={{
+            background: isMine
+              ? "linear-gradient(135deg, #B85C6E 0%, #9A4F5E 100%)"
+              : "#ffffff",
+            color: isMine ? "#ffffff" : "#2E1A14",
+            borderRadius: isMine ? "18px 4px 18px 18px" : "4px 18px 18px 18px",
+            border: isMine ? "none" : "1px solid rgba(184,92,110,0.12)",
+            boxShadow: isMine
+              ? "0 2px 8px rgba(184,92,110,0.30)"
+              : "0 1px 4px rgba(46,26,20,0.06)",
+          }}
         >
-          <p className="wrap-break-word whitespace-pre-wrap pr-14">{msg.content}</p>
+          <p className="whitespace-pre-wrap break-words pr-14">{msg.content}</p>
           <div className="absolute bottom-1.5 right-2.5 flex items-center gap-0.5">
-            <span className="text-[9px] text-[#b08890]/70">{timeString}</span>
+            <span
+              className="text-[10px]"
+              style={{ color: isMine ? "rgba(255,255,255,0.65)" : "#A8896C" }}
+            >
+              {timeString}
+            </span>
             <StatusIcon status={msg.status} isMine={isMine} />
           </div>
         </div>
@@ -128,22 +152,29 @@ function MessageBubble({ msg, isMine }: { msg: Message; isMine: boolean }) {
 
 const TypingIndicator = ({ name }: { name: string }) => (
   <div className="flex justify-start mb-2">
-    <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-md px-3 py-2 shadow-sm">
-      <div className="flex items-center gap-1">
+    <div
+      className="flex items-center gap-1.5 px-4 py-2.5"
+      style={{
+        background: "#ffffff",
+        borderRadius: "4px 18px 18px 18px",
+        border: "1px solid rgba(184,92,110,0.12)",
+        boxShadow: "0 1px 4px rgba(46,26,20,0.06)",
+      }}
+    >
+      {[0, 150, 300].map((d) => (
         <span
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-          style={{ animationDelay: "0ms" }}
+          key={d}
+          className="w-1.5 h-1.5 rounded-full animate-bounce"
+          style={{
+            background: "#B85C6E",
+            animationDelay: `${d}ms`,
+            opacity: 0.75,
+          }}
         />
-        <span
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-          style={{ animationDelay: "150ms" }}
-        />
-        <span
-          className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"
-          style={{ animationDelay: "300ms" }}
-        />
-        <span className="text-xs text-gray-500 ml-1">{name} is typing...</span>
-      </div>
+      ))}
+      <span className="text-[11px] ml-1" style={{ color: "#8C5A3C" }}>
+        {name} is typing...
+      </span>
     </div>
   </div>
 );
@@ -153,18 +184,35 @@ const TypingIndicator = ({ name }: { name: string }) => (
 function PremiumGate() {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-6 py-12 text-center">
-      <div className="w-16 h-16 rounded-2xl bg-[#e8547a]/10 border border-[#e8547a]/20 flex items-center justify-center mb-4 shadow-[0_0_22px_rgba(232,84,122,0.2)]">
-        <Lock size={28} className="text-[#e8547a]" />
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+        style={{
+          background: "rgba(184,92,110,0.08)",
+          border: "1px solid rgba(184,92,110,0.2)",
+          boxShadow: "0 0 22px rgba(184,92,110,0.15)",
+        }}
+      >
+        <Lock size={28} style={{ color: "#B85C6E" }} />
       </div>
-      <h2 className="font-syne text-[#f5e8eb] text-xl font-bold mb-2">
+      <h2
+        className="font-syne text-xl font-bold mb-2"
+        style={{ color: "#2E1A14" }}
+      >
         Premium Required
       </h2>
-      <p className="text-[#b08890] text-sm max-w-xs leading-relaxed mb-6">
+      <p
+        className="text-sm max-w-xs leading-relaxed mb-6"
+        style={{ color: "#8C5A3C" }}
+      >
         Upgrade to Premium to send and receive messages on primehalf.
       </p>
       <Link
         href="/subscription"
-        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white bg-linear-to-r from-[#e8547a] to-[#c04060] no-underline transition-all duration-200 shadow-[0_0_22px_rgba(232,84,122,0.35)] active:scale-[0.98]"
+        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold text-white no-underline transition-all duration-200 active:scale-[0.98]"
+        style={{
+          background: "linear-gradient(135deg, #B85C6E, #9A4F5E)",
+          boxShadow: "0 4px 18px rgba(184,92,110,0.40)",
+        }}
       >
         Upgrade to Premium
       </Link>
@@ -226,12 +274,10 @@ export default function ChatRoomClient({
   const [lastSeen, setLastSeen] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // ── Block / Ignore state — all mutable so UI updates instantly ──
   const [isBlocked, setIsBlocked] = useState(initialIsBlocked);
   const [iBlockedThem, setIBlockedThem] = useState(initialIBlockedThem);
   const [theyBlockedMe] = useState(initialTheyBlockedMe);
-  const [isIgnored, setIsIgnored] = useState(initialIsIgnored); // FIX: was const
-
+  const [isIgnored, setIsIgnored] = useState(initialIsIgnored);
   const [showUnblockModal, setShowUnblockModal] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -241,7 +287,7 @@ export default function ChatRoomClient({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seenSet = useRef<Set<string>>(new Set());
 
-  // ─── Socket Handlers ───────────────────────────────────────────────────────
+  // ─── Socket Handlers ──────────────────────────────────────────────────────
 
   const handleNewMessage = useCallback(
     (msg: Message) => {
@@ -373,7 +419,7 @@ export default function ChatRoomClient({
       onUserOffline: handleUserOffline,
     });
 
-  // ─── Effects ───────────────────────────────────────────────────────────────
+  // ─── Effects ──────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!connected) {
@@ -386,9 +432,7 @@ export default function ChatRoomClient({
   }, [connected]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -416,7 +460,7 @@ export default function ChatRoomClient({
     return () => clearTimeout(timer);
   }, [messages, connected, targetUserId, markSeen, token]);
 
-  // ─── Handlers ──────────────────────────────────────────────────────────────
+  // ─── Handlers ─────────────────────────────────────────────────────────────
 
   const handleSend = useCallback(() => {
     const text = input.trim();
@@ -500,14 +544,10 @@ export default function ChatRoomClient({
   const loadMore = useCallback(() => {
     const nextPage = page + 1;
     const container = messageContainerRef.current;
-
-    if (container) {
-      scrollHeightBeforeRef.current = container.scrollHeight;
-    }
+    if (container) scrollHeightBeforeRef.current = container.scrollHeight;
 
     startLoadMore(async () => {
       const res = await getChatHistory(targetUserId, nextPage, 30);
-
       if (res.success && res.data && res.data.length > 0) {
         const filtered = res.data
           .filter((m) => m?.content?.trim())
@@ -515,15 +555,13 @@ export default function ChatRoomClient({
             (a, b) =>
               new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
           );
-
         setMessages((prev) => [...filtered, ...prev]);
         setPage(nextPage);
         setHasMore(nextPage < (res.meta?.totalPages ?? 1));
-
         requestAnimationFrame(() => {
           if (container) {
-            const newHeight = container.scrollHeight;
-            container.scrollTop = newHeight - scrollHeightBeforeRef.current;
+            container.scrollTop =
+              container.scrollHeight - scrollHeightBeforeRef.current;
           }
         });
       } else {
@@ -532,7 +570,7 @@ export default function ChatRoomClient({
     });
   }, [page, targetUserId]);
 
-  // ─── Status Text ───────────────────────────────────────────────────────────
+  // ─── Status Text ──────────────────────────────────────────────────────────
 
   const getStatusText = () => {
     if (partnerTyping) return "typing...";
@@ -553,46 +591,67 @@ export default function ChatRoomClient({
 
   const groups = groupByDate(messages);
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className="font-outfit flex flex-col h-dvh md:h-[calc(100vh-4rem)] max-w-2xl mx-auto bg-white">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2 bg-white border-b border-gray-100 shrink-0 z-10">
-        <button
-          onClick={() => router.back()}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 active:bg-gray-100 transition-all cursor-pointer"
+    <div
+      className="font-outfit flex flex-col w-full"
+      style={{
+        /**
+         * Inside the two-panel shell the parent already has fixed height.
+         * We just need to fill it (100% of flex parent), not set dvh again.
+         * For standalone mobile (no shell), 100% of flex parent also works.
+         */
+        height: "100%",
+        background: "#FAF0E4",
+      }}
+    >
+      {/* ── Header ── */}
+      <div
+        className="flex items-center gap-3 px-4 py-3 shrink-0 z-10"
+        style={{
+          background: "linear-gradient(135deg, #B85C6E 0%, #9A4F5E 100%)",
+          boxShadow: "0 2px 12px rgba(184,92,110,0.30)",
+        }}
+      >
+        {/* Back — goes to /chat on mobile, no-op on desktop since sidebar is always visible */}
+        <Link
+          href="/chat"
+          className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-white/80 active:bg-white/10 transition-all cursor-pointer shrink-0"
         >
           <ArrowLeft size={20} />
-        </button>
+        </Link>
 
-        <div className="w-10 h-10 rounded-full bg-linear-to-br from-brand/20 to-accent/20 flex items-center justify-center shrink-0 relative">
-          <span className="font-syne text-gray-700 font-bold text-sm">
+        <div className="relative shrink-0">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white"
+            style={{ background: "rgba(255,255,255,0.25)" }}
+          >
             {targetName?.charAt(0)?.toUpperCase() || "?"}
-          </span>
+          </div>
           {isPartnerOnline && (
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-white" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-gray-800 font-semibold text-sm truncate">
+          <p className="text-white font-semibold text-[15px] truncate leading-tight">
             {targetName}
           </p>
           <p
-            className={`text-[11px] truncate transition-colors duration-300 ${
-              partnerTyping
-                ? "text-brand"
+            className="text-[11px] truncate leading-tight transition-colors duration-300"
+            style={{
+              color: partnerTyping
+                ? "#FAF0E4"
                 : isPartnerOnline
-                  ? "text-green-500"
-                  : "text-gray-400"
-            }`}
+                  ? "#86efac"
+                  : "rgba(255,255,255,0.60)",
+            }}
           >
             {getStatusText()}
           </p>
         </div>
 
-        {/* FIX: UserActionMenu added in chat header for block/ignore/report */}
         <UserActionMenu
           targetUserId={targetUserId}
           targetName={targetName}
@@ -601,29 +660,32 @@ export default function ChatRoomClient({
           onBlockChange={(action) => {
             const nowBlocked = action === "blocked";
             setIBlockedThem(nowBlocked);
-            // If I just blocked them, chat is blocked. If unblocked, only blocked if they blocked me.
             setIsBlocked(nowBlocked || theyBlockedMe);
           }}
           onIgnoreChange={(action) => {
-            // FIX: live update ignore state — no reload needed
             setIsIgnored(action === "ignored");
           }}
         />
       </div>
 
-      {/* Offline Toast */}
+      {/* ── Offline Toast ── */}
       {showOffline && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 text-white px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50 shadow-lg">
-          <WifiOff size={12} className="text-brand" />
+        <div
+          className="absolute top-16 left-1/2 -translate-x-1/2 text-white px-4 py-2 rounded-full text-xs flex items-center gap-2 z-50"
+          style={{
+            background: "#2E1A14",
+            boxShadow: "0 4px 16px rgba(46,26,20,0.3)",
+          }}
+        >
+          <WifiOff size={12} style={{ color: "#B85C6E" }} />
           <span>Connecting...</span>
         </div>
       )}
 
-      {/* Body */}
+      {/* ── Body ── */}
       {!isPremium ? (
         <PremiumGate />
       ) : isBlocked ? (
-        // ── Blocked state ──
         <BlockedBanner
           iBlockedThem={iBlockedThem}
           theirName={targetName}
@@ -631,24 +693,29 @@ export default function ChatRoomClient({
         />
       ) : (
         <>
-          {/* Ignored banner */}
           {isIgnored && <IgnoredMessagesBanner senderName={targetName} />}
 
-          {/* Message Container */}
+          {/* Messages */}
           <div
             ref={messageContainerRef}
-            className="flex-1 overflow-y-auto px-4 py-3 overscroll-contain bg-gray-50"
+            className="flex-1 overflow-y-auto px-3 py-3 overscroll-contain"
+            style={{ background: "#FAF0E4" }}
           >
             {hasMore && (
               <div className="flex justify-center py-3">
                 <button
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="text-brand text-xs active:text-brand/70 transition-colors disabled:opacity-50 flex items-center gap-1"
+                  className="text-xs active:opacity-70 transition-opacity disabled:opacity-50 flex items-center gap-1 px-4 py-1.5 rounded-full"
+                  style={{
+                    color: "#B85C6E",
+                    background: "rgba(184,92,110,0.08)",
+                    border: "1px solid rgba(184,92,110,0.15)",
+                  }}
                 >
                   {loadingMore ? (
                     <>
-                      <Loader2 size={14} className="animate-spin" /> Loading...
+                      <Loader2 size={12} className="animate-spin" /> Loading...
                     </>
                   ) : (
                     "Load older messages"
@@ -659,22 +726,38 @@ export default function ChatRoomClient({
 
             {groups.length === 0 && (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-14 h-14 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center mb-3">
-                  <MessageCircle size={24} className="text-gray-400" />
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
+                  style={{
+                    background: "rgba(184,92,110,0.08)",
+                    border: "1px solid rgba(184,92,110,0.15)",
+                  }}
+                >
+                  <MessageCircle size={24} style={{ color: "#B85C6E" }} />
                 </div>
-                <p className="text-gray-700 font-medium text-sm mb-1">
+                <p
+                  className="font-semibold text-sm mb-1"
+                  style={{ color: "#2E1A14" }}
+                >
                   No messages yet
                 </p>
-                <p className="text-gray-400 text-xs">
+                <p className="text-xs" style={{ color: "#8C5A3C" }}>
                   Say hello to {targetName}!
                 </p>
               </div>
             )}
 
             {groups.map(({ label, msgs }) => (
-              <div key={label} className="mb-3">
+              <div key={label} className="mb-2">
                 <div className="flex items-center justify-center py-2">
-                  <span className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-3 py-1">
+                  <span
+                    className="text-[10px] px-3 py-1 rounded-full"
+                    style={{
+                      color: "#8C5A3C",
+                      background: "rgba(184,92,110,0.08)",
+                      border: "1px solid rgba(184,92,110,0.12)",
+                    }}
+                  >
                     {label}
                   </span>
                 </div>
@@ -689,12 +772,17 @@ export default function ChatRoomClient({
             ))}
 
             {partnerTyping && <TypingIndicator name={targetName} />}
-
             <div ref={bottomRef} />
           </div>
 
-          {/* Input Bar */}
-          <div className="px-3 py-2.5 bg-white border-t border-gray-100 shrink-0">
+          {/* ── Input Bar ── */}
+          <div
+            className="px-3 py-3 shrink-0"
+            style={{
+              background: "#ffffff",
+              borderTop: "1px solid rgba(184,92,110,0.12)",
+            }}
+          >
             <div className="flex items-end gap-2">
               <textarea
                 ref={inputRef}
@@ -704,14 +792,26 @@ export default function ChatRoomClient({
                 onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
                 disabled={!connected}
-                className="flex-1 px-4 py-2.5 rounded-2xl text-sm text-gray-700 placeholder-gray-400 bg-gray-50 border border-gray-200 outline-none focus:border-brand/50 focus:ring-2 focus:ring-brand/10 resize-none disabled:opacity-50 leading-relaxed transition-all duration-200"
-                style={{ minHeight: "42px", maxHeight: "120px" }}
+                className="flex-1 px-4 py-2.5 text-[14px] outline-none resize-none disabled:opacity-50 leading-relaxed transition-all duration-200"
+                style={{
+                  minHeight: "44px",
+                  maxHeight: "120px",
+                  borderRadius: "99px",
+                  background: "#FAF0E4",
+                  border: "1px solid rgba(184,92,110,0.20)",
+                  color: "#2E1A14",
+                }}
               />
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || !connected}
                 aria-label="Send message"
-                className="w-10 h-10 rounded-full flex items-center justify-center bg-linear-to-r from-brand to-accent text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer shadow-sm active:scale-[0.95]"
+                className="w-11 h-11 rounded-full flex items-center justify-center text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 cursor-pointer active:scale-[0.93]"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #B85C6E 0%, #9A4F5E 100%)",
+                  boxShadow: "0 3px 12px rgba(184,92,110,0.45)",
+                }}
               >
                 <Send size={16} />
               </button>
@@ -720,7 +820,6 @@ export default function ChatRoomClient({
         </>
       )}
 
-      {/* Unblock modal (from blocked banner) */}
       {showUnblockModal && (
         <BlockConfirmModal
           targetUserId={targetUserId}
