@@ -9,7 +9,7 @@
   --color-on-brand: #ffffff;
 
   /* ── Semantic Surface ── */
-  --color-surface: #FAF0E4;        /* Ivory — warm, not washed out */
+  --color-surface: #f9fafb;        /* Ivory — warm, not washed out */
   --color-surface-card: #ffffff;   /* cards, inputs, modals */
   --color-surface-raised: #F2E2CF; /* hover states, pills, tags */
 
