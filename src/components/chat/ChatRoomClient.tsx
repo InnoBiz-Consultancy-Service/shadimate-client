@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { getChatHistory } from "@/actions/chat/chat";
 import type { Message } from "@/types/chat";
-import { useSocket } from "@/hooks/useSocket";
+import { useSocketContext } from "@/context/SocketContext";
 import BlockedBanner from "../report-block-ignore/BlokedBanner";
 import IgnoredMessagesBanner from "../report-block-ignore/IgnoredMessagesBanner";
 import BlockConfirmModal from "../report-block-ignore/BlockConfirmModal";
@@ -244,7 +244,6 @@ export default function ChatRoomClient({
   currentUserId,
   initialMessages,
   totalPages,
-  token,
   isPremium,
   initialIsBlocked = false,
   initialIBlockedThem = false,
@@ -287,13 +286,31 @@ export default function ChatRoomClient({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const seenSet = useRef<Set<string>>(new Set());
 
-  // ─── Socket Handlers ──────────────────────────────────────────────────────
+  // ✅ Global socket context
+  const {
+    connected,
+    sendMessage,
+    markSeen,
+    emitTyping,
+    emitStopTyping,
+    clearUnread,
+    onNewMessage,
+    onMessageSent,
+    onMessageSeen,
+    onMessageDelivered,
+    onTyping,
+    onStopTyping,
+    onUserOnline,
+    onUserOffline,
+  } = useSocketContext();
 
-  const handleNewMessage = useCallback(
-    (msg: Message) => {
-      if (!msg.content?.trim()) return;
+  // ── Socket event subscriptions ─────────────────────────────────────────────
+
+  useEffect(() => {
+    const unsubNewMsg = onNewMessage((msg: Message) => {
       if (msg.senderId !== targetUserId && msg.receiverId !== targetUserId)
         return;
+      if (!msg.content?.trim()) return;
 
       setMessages((prev) => {
         if (prev.some((m) => m._id === msg._id)) return prev;
@@ -316,12 +333,9 @@ export default function ChatRoomClient({
         () => bottomRef.current?.scrollIntoView({ behavior: "smooth" }),
         100,
       );
-    },
-    [targetUserId, currentUserId],
-  );
+    });
 
-  const handleMessageSent = useCallback(
-    (msg: Message) => {
+    const unsubMsgSent = onMessageSent((msg: Message) => {
       setMessages((prev) => {
         const tempIndex = prev.findIndex(
           (m) =>
@@ -337,89 +351,89 @@ export default function ChatRoomClient({
         if (!prev.some((m) => m._id === msg._id)) return [...prev, msg];
         return prev;
       });
-    },
-    [currentUserId],
-  );
+    });
 
-  const handleMessageSeen = useCallback(
-    (payload: { messageId: string; conversationWith: string }) => {
-      if (payload.conversationWith !== targetUserId) return;
-      setMessages((prev) =>
-        prev.map((m) =>
-          m._id === payload.messageId && m.senderId === currentUserId
-            ? { ...m, status: "seen" as const }
-            : m,
-        ),
-      );
-    },
-    [targetUserId, currentUserId],
-  );
+    const unsubMsgSeen = onMessageSeen(
+      (payload: { messageId: string; conversationWith: string }) => {
+        if (payload.conversationWith !== targetUserId) return;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._id === payload.messageId && m.senderId === currentUserId
+              ? { ...m, status: "seen" as const }
+              : m,
+          ),
+        );
+      },
+    );
 
-  const handleMessageDelivered = useCallback(
-    (payload: { messageId: string; conversationWith: string }) => {
-      if (payload.conversationWith !== targetUserId) return;
-      setMessages((prev) =>
-        prev.map((m) =>
-          m._id === payload.messageId &&
-          m.senderId === currentUserId &&
-          m.status !== "seen"
-            ? { ...m, status: "delivered" as const }
-            : m,
-        ),
-      );
-    },
-    [targetUserId, currentUserId],
-  );
+    const unsubMsgDelivered = onMessageDelivered(
+      (payload: { messageId: string; conversationWith: string }) => {
+        if (payload.conversationWith !== targetUserId) return;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m._id === payload.messageId &&
+            m.senderId === currentUserId &&
+            m.status !== "seen"
+              ? { ...m, status: "delivered" as const }
+              : m,
+          ),
+        );
+      },
+    );
 
-  const handleTyping = useCallback(
-    (fromUserId: string) => {
+    const unsubTyping = onTyping((fromUserId: string) => {
       if (fromUserId === targetUserId) setPartnerTyping(true);
-    },
-    [targetUserId],
-  );
+    });
 
-  const handleStopTyping = useCallback(
-    (fromUserId: string) => {
+    const unsubStopTyping = onStopTyping((fromUserId: string) => {
       if (fromUserId === targetUserId) setPartnerTyping(false);
-    },
-    [targetUserId],
-  );
+    });
 
-  const handleUserOnline = useCallback(
-    (userId: string) => {
+    const unsubOnline = onUserOnline((userId: string) => {
       if (userId === targetUserId) {
         setIsPartnerOnline(true);
         setLastSeen(null);
       }
-    },
-    [targetUserId],
-  );
-
-  const handleUserOffline = useCallback(
-    (payload: { userId: string; lastSeen: string }) => {
-      if (payload.userId === targetUserId) {
-        setIsPartnerOnline(false);
-        setLastSeen(new Date(payload.lastSeen));
-      }
-    },
-    [targetUserId],
-  );
-
-  const { connected, sendMessage, markSeen, emitTyping, emitStopTyping } =
-    useSocket({
-      token,
-      myUserId: currentUserId,
-      onNewMessage: handleNewMessage,
-      onMessageSent: handleMessageSent,
-      onMessageSeen: handleMessageSeen,
-      onMessageDelivered: handleMessageDelivered,
-      onTyping: handleTyping,
-      onStopTyping: handleStopTyping,
-      onUserOnline: handleUserOnline,
-      onUserOffline: handleUserOffline,
     });
 
-  // ─── Effects ──────────────────────────────────────────────────────────────
+    const unsubOffline = onUserOffline(
+      (payload: { userId: string; lastSeen: string }) => {
+        if (payload.userId === targetUserId) {
+          setIsPartnerOnline(false);
+          setLastSeen(new Date(payload.lastSeen));
+        }
+      },
+    );
+
+    return () => {
+      unsubNewMsg();
+      unsubMsgSent();
+      unsubMsgSeen();
+      unsubMsgDelivered();
+      unsubTyping();
+      unsubStopTyping();
+      unsubOnline();
+      unsubOffline();
+    };
+  }, [
+    targetUserId,
+    currentUserId,
+    onNewMessage,
+    onMessageSent,
+    onMessageSeen,
+    onMessageDelivered,
+    onTyping,
+    onStopTyping,
+    onUserOnline,
+    onUserOffline,
+  ]);
+
+  // ── Effects ────────────────────────────────────────────────────────────────
+
+  // ✅ Chat room খুললে badge clear
+  useEffect(() => {
+    clearUnread(targetUserId);
+  }, [targetUserId, clearUnread]);
 
   useEffect(() => {
     if (!connected) {
@@ -442,8 +456,9 @@ export default function ChatRoomClient({
     }
   }, [messages.length]);
 
+  // ✅ Unseen message গুলো automatically seen mark করব
   useEffect(() => {
-    if (!connected || !token) return;
+    if (!connected) return;
     const timer = setTimeout(() => {
       const unseenMessages = messages.filter(
         (m) =>
@@ -458,9 +473,9 @@ export default function ChatRoomClient({
       });
     }, 500);
     return () => clearTimeout(timer);
-  }, [messages, connected, targetUserId, markSeen, token]);
+  }, [messages, connected, targetUserId, markSeen]);
 
-  // ─── Handlers ─────────────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleSend = useCallback(() => {
     const text = input.trim();
@@ -570,7 +585,7 @@ export default function ChatRoomClient({
     });
   }, [page, targetUserId]);
 
-  // ─── Status Text ──────────────────────────────────────────────────────────
+  // ── Status Text ────────────────────────────────────────────────────────────
 
   const getStatusText = () => {
     if (partnerTyping) return "typing...";
@@ -597,11 +612,6 @@ export default function ChatRoomClient({
     <div
       className="font-outfit flex flex-col w-full"
       style={{
-        /**
-         * Inside the two-panel shell the parent already has fixed height.
-         * We just need to fill it (100% of flex parent), not set dvh again.
-         * For standalone mobile (no shell), 100% of flex parent also works.
-         */
         height: "100%",
         background: "#FAF0E4",
       }}
@@ -614,7 +624,6 @@ export default function ChatRoomClient({
           boxShadow: "0 2px 12px rgba(184,92,110,0.30)",
         }}
       >
-        {/* Back — goes to /chat on mobile, no-op on desktop since sidebar is always visible */}
         <Link
           href="/chat"
           className="md:hidden w-9 h-9 rounded-full flex items-center justify-center text-white/80 active:bg-white/10 transition-all cursor-pointer shrink-0"

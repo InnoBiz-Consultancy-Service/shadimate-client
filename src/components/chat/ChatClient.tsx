@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MessageCircle, Lock, Search, X, CheckCheck } from "lucide-react";
 import type { Conversation, Message } from "@/types/chat";
+import { useSocketContext } from "@/context/SocketContext";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,6 @@ interface Props {
   initialConversations: Conversation[];
   token?: string;
   currentUserId: string;
-  /** Inject the active ChatRoomClient here for the desktop right panel */
   chatRoomSlot?: React.ReactNode;
 }
 
@@ -37,7 +37,6 @@ interface Props {
 
 export default function ChatClient({
   initialConversations,
-  token,
   currentUserId,
   chatRoomSlot,
 }: Props) {
@@ -45,8 +44,11 @@ export default function ChatClient({
     useState<Conversation[]>(initialConversations);
   const [search, setSearch] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const socketRef = useRef<import("socket.io-client").Socket | null>(null);
   const pathname = usePathname();
+
+  // ✅ Global socket context
+  const { onNewMessage, onMessageSent, onMessageSeen, clearUnread } =
+    useSocketContext();
 
   // Which chat is open (from URL)
   const openChatUserId = useMemo(() => {
@@ -54,8 +56,14 @@ export default function ChatClient({
     return null;
   }, [pathname]);
 
-  // On mobile, hide sidebar when inside a chat room
   const isMobileOnChat = pathname.startsWith("/chat/");
+
+  // ── Conversation update helper ─────────────────────────────────────────────
+
+  const openChatUserIdRef = useRef(openChatUserId);
+  useEffect(() => {
+    openChatUserIdRef.current = openChatUserId;
+  }, [openChatUserId]);
 
   const updateConversation = useCallback(
     (msg: Message, isMine: boolean) => {
@@ -63,7 +71,7 @@ export default function ChatClient({
 
       setConversations((prev) => {
         const idx = prev.findIndex((c) => c.userId === partnerId);
-        const isCurrentlyOpen = openChatUserId === partnerId;
+        const isCurrentlyOpen = openChatUserIdRef.current === partnerId;
 
         if (idx === -1) {
           const newConv: Conversation = {
@@ -72,7 +80,7 @@ export default function ChatClient({
             lastMessage: msg.content,
             lastMessageType: msg.type,
             lastMessageTime: msg.createdAt,
-            unreadCount: isMine ? 0 : 1,
+            unreadCount: isMine || isCurrentlyOpen ? 0 : 1,
             isLocked: false,
           };
           return [newConv, ...prev];
@@ -86,16 +94,19 @@ export default function ChatClient({
           lastMessageTime: msg.createdAt,
           status: isMine ? "sent" : updated[idx].status,
           unreadCount:
-            isMine || isCurrentlyOpen ? 0 : (updated[idx].unreadCount ?? 0) + 1,
+            isMine || isCurrentlyOpen
+              ? 0
+              : (updated[idx].unreadCount ?? 0) + 1,
         };
         const [entry] = updated.splice(idx, 1);
         return [entry, ...updated];
       });
     },
-    [openChatUserId],
+    [],
   );
 
-  // Reset unread when chat opens
+  // ── Reset unread when chat opens ───────────────────────────────────────────
+
   useEffect(() => {
     if (!openChatUserId) return;
     setConversations((prev) =>
@@ -103,95 +114,43 @@ export default function ChatClient({
         c.userId === openChatUserId ? { ...c, unreadCount: 0 } : c,
       ),
     );
-  }, [openChatUserId]);
+    // ✅ AppBar badge থেকেও clear করি
+    clearUnread(openChatUserId);
+  }, [openChatUserId, clearUnread]);
 
-  // Socket
+  // ── Socket event subscriptions ─────────────────────────────────────────────
+
   useEffect(() => {
-    if (!token || !currentUserId) return;
-    let mounted = true;
+    // ✅ Global socket context এর event subscribe করছি
+    const unsubNewMsg = onNewMessage((msg: Message) => {
+      if (msg.senderId !== currentUserId && msg.receiverId !== currentUserId)
+        return;
+      updateConversation(msg, msg.senderId === currentUserId);
+    });
 
-    const setup = async () => {
-      try {
-        const { io } = await import("socket.io-client");
-        const serverUrl =
-          process.env.NEXT_PUBLIC_SOCKET_URL ||
-          process.env.NEXT_PUBLIC_BASE_URL ||
-          "";
-        if (!serverUrl || !mounted) return;
+    const unsubMsgSent = onMessageSent((msg: Message) => {
+      if (msg.senderId !== currentUserId) return;
+      updateConversation(msg, true);
+    });
 
-        const socket = io(serverUrl, {
-          query: { token, userId: currentUserId },
-          transports: ["websocket", "polling"],
-          reconnection: true,
-          reconnectionDelay: 1000,
-          reconnectionDelayMax: 10000,
-          reconnectionAttempts: Infinity,
-        });
-
-        socketRef.current = socket;
-
-        socket.on("receive-message", (msg: Message) => {
-          if (!mounted) return;
-          updateConversation(msg, false);
-        });
-        socket.on("message-sent", (msg: Message) => {
-          if (!mounted) return;
-          updateConversation(msg, true);
-        });
-        socket.on(
-          "message-seen",
-          ({
-            conversationWith,
-          }: {
-            messageId: string;
-            conversationWith: string;
-          }) => {
-            if (!mounted) return;
-            setConversations((prev) =>
-              prev.map((c) =>
-                c.userId === conversationWith ? { ...c, status: "seen" } : c,
-              ),
-            );
-          },
+    const unsubMsgSeen = onMessageSeen(
+      ({ conversationWith }: { messageId: string; conversationWith: string }) => {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.userId === conversationWith ? { ...c, status: "seen" } : c,
+          ),
         );
-        socket.on("pending-notifications", (notifications: unknown[]) => {
-          if (!mounted) return;
-          const msgNotifs = (
-            notifications as Array<{
-              type: string;
-              metadata?: { conversationWith?: string };
-            }>
-          ).filter(
-            (n) => n.type === "new_message" && n.metadata?.conversationWith,
-          );
-          if (!msgNotifs.length) return;
-          setConversations((prev) => {
-            const updated = [...prev];
-            for (const notif of msgNotifs) {
-              const partnerId = notif.metadata!.conversationWith!;
-              const idx = updated.findIndex((c) => c.userId === partnerId);
-              if (idx !== -1) {
-                updated[idx] = {
-                  ...updated[idx],
-                  unreadCount: (updated[idx].unreadCount ?? 0) + 1,
-                };
-              }
-            }
-            return updated;
-          });
-        });
-      } catch {
-        /* socket.io-client unavailable */
-      }
-    };
+      },
+    );
 
-    setup();
     return () => {
-      mounted = false;
-      socketRef.current?.disconnect();
-      socketRef.current = null;
+      unsubNewMsg();
+      unsubMsgSent();
+      unsubMsgSeen();
     };
-  }, [token, currentUserId, updateConversation]);
+  }, [currentUserId, updateConversation, onNewMessage, onMessageSent, onMessageSeen]);
+
+  // ── Filtered + totals ──────────────────────────────────────────────────────
 
   const filtered = useMemo(
     () =>
@@ -207,16 +166,9 @@ export default function ChatClient({
   );
 
   return (
-    /**
-     * Two-panel shell:
-     * - Desktop: sidebar (fixed width) + right panel (flex-1), both fixed height
-     * - Mobile: sidebar OR chat room fills full screen (routing handles it)
-     */
     <div
       className="flex w-full overflow-hidden"
       style={{
-        /* Desktop: subtract fixed top AppBar (64px)
-           Mobile: subtract fixed bottom nav (64px) via same value */
         height: "calc(100dvh - 64px)",
         background: "#FAF0E4",
       }}
@@ -384,7 +336,7 @@ function EmptyState() {
         Start a conversation by visiting someone&apos;s profile.
       </p>
       <Link
-        href="/profiles"
+        href="/search"
         className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-white no-underline transition-all duration-200 active:scale-[0.98]"
         style={{
           background: "linear-gradient(135deg, #B85C6E, #9A4F5E)",

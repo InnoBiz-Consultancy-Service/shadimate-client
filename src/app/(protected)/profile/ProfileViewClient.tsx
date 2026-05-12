@@ -267,9 +267,6 @@ export default function ProfileViewClient({
  const [avatarUrl, setAvatarUrl] = useState<string | null>(
   (profile as unknown as Record<string, string>)?.image || null,
 );
-const [coverUrl, setCoverUrl] = useState<string | null>(
-  (profile as unknown as Record<string, string>)?.coverImage || null,
-);
   const userData = Array.isArray(profile.user) ? profile.user[0] : profile.user;
   const name = userData?.name || profile.userId?.name || "User";
   const age = getAge(profile.birthDate);
@@ -319,13 +316,12 @@ const [coverUrl, setCoverUrl] = useState<string | null>(
     profile.motherOccupation
   );
   const hasHabits = !!(profile.habits && profile.habits.length > 0);
-console.log(profile)
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">
+    <div className="min-h-screen bg-gray-50 pb-20 md:pb-6 mt-10 max-w-6xl mx-auto">
       {/* ── COVER + AVATAR HEADER ── */}
       <div className="relative">
         {/* Cover */}
-        <div className="h-32 md:h-48 w-full relative overflow-hidden">
+        {/* <div className="h-32 md:h-48 w-full relative overflow-hidden">
           <ProfileImageUploader
             currentImageUrl={coverUrl}
             name={name}
@@ -336,7 +332,7 @@ console.log(profile)
             size="cover"
             className="w-full h-full"
           />
-        </div>
+        </div> */}
 
         {/* Avatar + name */}
         <div className="px-4">

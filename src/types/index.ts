@@ -71,7 +71,7 @@ export interface Profile {
   thana?: { name: string }[];
   isPremium: boolean;
   visitCount: number;
-  profileImage?: string;
+  image?: string;
 }
 
 export interface ProfileListMeta {
@@ -87,8 +87,8 @@ export interface GeoItem {
 }
 
 export interface ProfileFilters {
-  minHeight: any;
-  maxHeight: any;
+  minHeight?: string;
+  maxHeight?: string;
   search?: string;
   gender?: string;
   minAge?: number;

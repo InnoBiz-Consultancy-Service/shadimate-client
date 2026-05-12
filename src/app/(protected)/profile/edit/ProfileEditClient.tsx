@@ -43,7 +43,6 @@ import {
   SKIN_TONE_OPTIONS,
 } from "@/constants/profile";
 import { useDebounce } from "@/hooks/useDebounce";
-import ProfileImageUploader from "@/components/shared/ProfileImageUploader";
 import type { Profile, ToastData } from "@/types";
 
 /* ─────────────────────────────────────────
@@ -868,20 +867,6 @@ export default function ProfileEditClient({
             <StepTitle
               title="Basic Information"
               subtitle="Tell us about yourself to find the best match"
-            />
-
-            <ProfileImageUploader
-              currentImageUrl={profileImage || null}
-              name={
-                typeof profile?.userId === "object"
-                  ? profile?.userId?.name
-                  : typeof profile?.user === "object" &&
-                      !Array.isArray(profile?.user)
-                    ? (profile?.user as { name: string })?.name
-                    : "User"
-              }
-              onUploadSuccess={(url) => setProfileImage(url)}
-              size="avatar"
             />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
