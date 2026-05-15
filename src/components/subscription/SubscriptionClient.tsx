@@ -192,14 +192,6 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
 
   // ── Payment initiate ───────────────────────────────────────────────────────
   const handleSelectPlan = async (plan: string) => {
-    if (isActive) {
-      setToast({
-        message: `Your active subscription expires on ${formatDate(subscription!.endDate)}.`,
-        type: "error",
-      });
-      return;
-    }
-
     setLoadingPlan(plan);
     try {
       const result = await initiatePaymentAction(plan);
@@ -293,19 +285,21 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                   }`}
                 >
                   {daysLeft} day{daysLeft !== 1 && "s"} left
-                  {isExpiringSoon && " — Subscription is expiring soon!"}
+                  {isExpiringSoon && " — Expiring soon!"}
                 </p>
               </div>
             </div>
 
-            {isExpiringSoon && (
-              <div className="mt-3 pt-3 border-t border-amber-500/15">
-                <div className="flex items-center gap-2 text-amber-400/80 text-xs">
-                  <AlertCircle size={13} />
-                  <span>Subscription renew to keep your premium access.</span>
-                </div>
+            <div className="mt-3 pt-3 border-t border-brand/10">
+              <div className="flex items-center gap-2 text-slate-500 text-xs">
+                <AlertCircle size={13} />
+                <span>
+                  {isExpiringSoon
+                    ? "Renew now to keep your premium access without interruption."
+                    : "You can extend your subscription anytime — remaining days will be added on top."}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         )}
 
@@ -392,7 +386,7 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     {/* CTA */}
                     <button
                       onClick={() => handleSelectPlan(plan.plan)}
-                      disabled={!!loadingPlan || (isActive && !isExpiringSoon)}
+                      disabled={!!loadingPlan}
                       className={`
                         w-full py-3 rounded-2xl text-sm font-bold tracking-wide border-0 cursor-pointer
                         transition-all duration-200 flex items-center justify-center gap-2
@@ -405,8 +399,10 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                           <Loader2 size={14} className="animate-spin" />
                           Processing...
                         </>
-                      ) : isActive && !isExpiringSoon ? (
-                        "Subscribed"
+                      ) : isActive ? (
+                        <>
+                          Extend Plan <ChevronRight size={14} />
+                        </>
                       ) : (
                         <>
                           Select Plan <ChevronRight size={14} />
@@ -474,11 +470,13 @@ export default function SubscriptionClient({ plans, subscription, paymentHistory
                     </div>
                     <button
                       onClick={() => handleSelectPlan(plan.plan)}
-                      disabled={!!loadingPlan || (isActive && !isExpiringSoon)}
+                      disabled={!!loadingPlan}
                       className={`w-full py-3 rounded-2xl text-sm font-bold border-0 cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md outline-none ${theme.btn}`}
                     >
                       {isLoading ? (
                         <><Loader2 size={14} className="animate-spin" /> Processing...</>
+                      ) : isActive ? (
+                        <>Extend Plan <ChevronRight size={14} /></>
                       ) : (
                         <>Select Plan <ChevronRight size={14} /></>
                       )}

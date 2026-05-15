@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, XCircle, XOctagon, Crown, ArrowRight } from "lucide-react";
@@ -9,8 +9,11 @@ import { GlassCard } from "@/components/ui";
 // ── SUCCESS PAGE ──
 export function PaymentSuccessPage() {
   const router = useRouter();
+  const [isExtended, setIsExtended] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsExtended(params.get("status") === "already_processed");
     const t = setTimeout(() => router.push("/feed"), 5000);
     return () => clearTimeout(t);
   }, [router]);
@@ -22,14 +25,18 @@ export function PaymentSuccessPage() {
           <CheckCircle size={32} className="text-emerald-500" />
         </div>
         <h1 className="font-syne text-slate-900 text-2xl font-extrabold mb-2">
-          Payment Successful!
+          {isExtended ? "Subscription Extended!" : "Payment Successful!"}
         </h1>
         <p className="text-slate-500 text-sm mb-5 leading-relaxed">
-          Your Premium subscription is now activated. You can now access all premium features.
+          {isExtended
+            ? "Your subscription has been extended. The new days have been added on top of your current plan."
+            : "Your Premium subscription is now activated. You can now access all premium features."}
         </p>
         <div className="flex items-center justify-center gap-2 mb-6 px-3 py-2.5 rounded-xl bg-brand/8 border border-brand/15">
           <Crown size={14} className="text-brand" />
-          <span className="text-brand text-sm font-semibold">Premium Activated ✓</span>
+          <span className="text-brand text-sm font-semibold">
+            {isExtended ? "Subscription Extended ✓" : "Premium Activated ✓"}
+          </span>
         </div>
         <div className="flex flex-col gap-3">
           <Link
