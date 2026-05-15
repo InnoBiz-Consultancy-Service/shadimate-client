@@ -33,6 +33,7 @@ import AlbumGallery from "@/components/album/AlbumGallery";
 import type { MissingField } from "@/types";
 import UserActionMenu from "@/components/report-block-ignore/UserActionMenu";
 import BlockConfirmModal from "@/components/report-block-ignore/BlockConfirmModal";
+import Image from "next/image";
 
 interface AlbumPhoto {
   id: string;
@@ -76,6 +77,7 @@ interface ProfileData {
   completionLabel?: string;
   missingFields: MissingField[];
   isVerified?: boolean;
+  image: string;
 }
 
 interface ProfileClientProps {
@@ -86,6 +88,7 @@ interface ProfileClientProps {
   isOwnProfile: boolean;
   isLoggedIn: boolean;
   hasCurrentUserProfile: boolean;
+  image: string;
   photos: AlbumPhoto[];
   blockStatus?: {
     iBlockedThem: boolean;
@@ -224,7 +227,6 @@ export default function ProfileClient({
   profileData,
   likeCount,
   viewCount,
-  mutualMatches,
   isOwnProfile,
   isLoggedIn,
   hasCurrentUserProfile,
@@ -239,9 +241,10 @@ export default function ProfileClient({
   const [isBlocked, setIsBlocked] = useState(blockStatus?.isBlocked ?? false);
   const [isIgnored, setIsIgnored] = useState(initialIgnored);
   const [showUnblockModal, setShowUnblockModal] = useState(false);
-console.log(profileData)
+  console.log(profileData);
   const name = profileData.name;
   const targetUserId = profileData.id;
+  const profileImage = profileData.image;
 
   const getChatLink = () => {
     if (!isLoggedIn) return "/login";
@@ -257,7 +260,7 @@ console.log(profileData)
     if (isBlocked) return theyBlockedMe ? "Blocked" : "Unblock to Message";
     return "Send Message";
   };
-console.log(profileData)
+  console.log(profileData);
   // ── section visibility guards ──────────────────────────────────────────────
   const hasPersonal = !!(
     profileData.profession ||
@@ -268,7 +271,8 @@ console.log(profileData)
     profileData.skinTone ||
     profileData.maritalStatus ||
     profileData.economicalStatus ||
-    profileData.salaryRange
+    profileData.salaryRange || 
+    profileData.image
   );
 
   const hasEducation = !!(
@@ -334,10 +338,20 @@ console.log(profileData)
           {/* avatar + name row */}
           <div className="flex items-start gap-4">
             <div className="relative shrink-0">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-brand/30 to-accent/30 flex items-center justify-center shadow-sm">
-                <span className="font-syne text-brand-dark text-2xl font-bold">
-                  {name.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-linear-to-br from-brand/30 to-accent/30 flex items-center justify-center shadow-sm relative">
+                {profileImage ? (
+                  <Image
+                    src={profileImage}
+                    alt={name}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                ) : (
+                  <span className="font-syne text-brand-dark text-2xl font-bold">
+                    {name.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
               <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-white" />
             </div>

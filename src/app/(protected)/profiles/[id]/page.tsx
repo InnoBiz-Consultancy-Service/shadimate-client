@@ -169,6 +169,7 @@ async function ProfileContent({ id }: { id: string }) {
     completionPercentage: p.completionPercentage,
     completionLabel: p.completionLabel,
     missingFields: p.missingFields || [],
+    image: p.image
   };
 
   return (
