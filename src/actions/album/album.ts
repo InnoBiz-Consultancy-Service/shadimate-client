@@ -35,6 +35,7 @@ export async function getUserAlbum(userId: string): Promise<{
   data?: AlbumData;
   message?: string;
 }> {
+  console.log("this is user id", userId)
   const res = await universalApi<unknown>({
     endpoint: `/album/${userId}`,
     method: "GET",

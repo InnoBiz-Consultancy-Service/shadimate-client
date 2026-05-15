@@ -21,7 +21,7 @@ export interface Conversation {
   status?: string;
   unreadCount: number;
   isLocked: boolean;
-  profileImage: string;
+  profileImage?: string;
 }
 
 export interface MessageMeta {

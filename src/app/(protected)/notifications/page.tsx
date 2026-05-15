@@ -195,7 +195,7 @@ function VisitorsList() {
         const res = await getProfileVisitors();
         if (res.success && res.data) {
           setVisitors(res.data.visitors || []);
-          setTotalCount(res.data.total || 0);
+          setTotalCount(res.data.meta.total || 0);
         }
       } catch (error) {
         console.error("Failed to fetch visitors:", error);
@@ -237,8 +237,8 @@ function VisitorsList() {
           No Visitors Yet
         </h2>
         <p className="text-slate-400 text-sm max-w-xs mx-auto">
-          When someone visits your profile, they'll appear here. Complete your
-          profile to get more attention!
+          When someone visits your profile, they&apos;ll appear here. Complete
+          your profile to get more attention!
         </p>
         <Link
           href="/profiles"
