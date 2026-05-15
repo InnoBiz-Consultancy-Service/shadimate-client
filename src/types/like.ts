@@ -57,7 +57,7 @@ export interface NotificationItem {
   message: string;
   senderId: string | { _id: string; name: string };
   senderName?: string;
-  metadata?: { conversationWith?: string };
+  metadata?: { conversationWith?: string, matchedUserId: string };
   isRead: boolean;
   createdAt: string;
 }
