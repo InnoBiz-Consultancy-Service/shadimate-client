@@ -8,3 +8,4 @@ export { default as PasswordInput } from "./PasswordInput";
 export { default as PageShell } from "./PageShell";
 export { default as SearchableDropdown } from "./SearchableDropdown";
 export * from "./RateLimitBanner";
+export { default as CountryPhoneInput } from "./CountryPhoneInput";

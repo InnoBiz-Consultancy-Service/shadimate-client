@@ -18,6 +18,7 @@ export async function getProfileVisitCount() {
 /* ── GET /api/v1/profile-visits?page=&limit= (Premium only) ── */
 export async function getProfileVisitors(page = 1, limit = 20) {
   return universalApi<{
+    visitors: never[];
     data: ProfileVisitor[];
     meta: {
       total: number;

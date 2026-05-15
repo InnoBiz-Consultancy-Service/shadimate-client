@@ -2,11 +2,12 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { getChatHistory } from "@/actions/chat/chat";
 import { fetchProfileById } from "@/actions/profile/profile";
+import { getConversations } from "@/actions/chat/chat";
+import ChatClient from "@/components/chat/ChatClient";
 import ChatRoomClient from "@/components/chat/ChatRoomClient";
 import { Message } from "@/types/chat";
 import { getBlockStatus, getIgnoreStatus } from "@/actions/report-block-ignore";
 
-// ── JWT decode (no external library needed) ──────────────────────────────────
 function decodeJwt(token: string): Record<string, unknown> | null {
   try {
     const part = token.split(".")[1];
@@ -46,32 +47,26 @@ export default async function ChatRoomPage({
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken")?.value;
 
-  // Decode JWT server-side — stable, never changes per render
   const payload = token ? decodeJwt(token) : null;
   const currentUserId = (payload?.id as string) ?? "";
   const subscription = (payload?.subscription as string) ?? "free";
   const isPremium = subscription === "premium";
 
-  // Fetch target profile for the header name
-  const profileRes = await fetchProfileById(userId).catch(() => ({
-    success: false,
-    data: undefined,
-  }));
+  // Fetch all data in parallel
+  const [profileRes, convsRes, blockRes, ignoreRes] = await Promise.all([
+    fetchProfileById(userId).catch(() => ({ success: false, data: undefined })),
+    getConversations().catch(() => ({
+      success: false as const,
+      data: undefined,
+    })),
+    getBlockStatus(userId).catch(() => ({ success: false, data: undefined })),
+    getIgnoreStatus(userId).catch(() => ({ success: false, data: undefined })),
+  ]);
 
   if (!profileRes.success || !profileRes.data) notFound();
 
   const profile = profileRes.data;
   const targetName = profile.userId?.name ?? profile.user?.name ?? "Unknown";
-  const [blockRes, ignoreRes] = await Promise.all([
-    getBlockStatus(userId).catch(() => ({
-      success: false,
-      data: undefined,
-    })),
-    getIgnoreStatus(userId).catch(() => ({
-      success: false,
-      data: undefined,
-    })),
-  ]);
 
   const blockData =
     blockRes.success && blockRes.data
@@ -81,7 +76,6 @@ export default async function ChatRoomPage({
   const isIgnored =
     ignoreRes.success && ignoreRes.data ? ignoreRes.data.isIgnored : false;
 
-  // Initial messages (only for premium users)
   let initialMessages: Message[] = [];
   let totalPages = 1;
 
@@ -97,7 +91,7 @@ export default async function ChatRoomPage({
     }
   }
 
-  return (
+  const chatRoom = (
     <ChatRoomClient
       targetUserId={userId}
       targetName={targetName}
@@ -110,6 +104,23 @@ export default async function ChatRoomPage({
       initialIBlockedThem={blockData.iBlockedThem}
       initialTheyBlockedMe={blockData.theyBlockedMe}
       initialIsIgnored={isIgnored}
+    />
+  );
+
+  return (
+    /**
+     * On desktop: ChatClient renders the two-panel shell
+     *   — sidebar on the left, chatRoom injected into the right panel.
+     * On mobile: ChatClient hides the sidebar (md:hidden logic),
+     *   the right panel fills the screen with the chat room.
+     */
+    <ChatClient
+      initialConversations={
+        convsRes.success && convsRes.data ? convsRes.data : []
+      }
+      token={token}
+      currentUserId={currentUserId}
+      chatRoomSlot={chatRoom}
     />
   );
 }

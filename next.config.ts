@@ -4,10 +4,15 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/webp", "image/avif"],
     remotePatterns: [
+      // {
+      //   protocol: "https",
+      //   hostname: "res.cloudinary.com",
+      //   pathname: "/**",
+      // },
+
       {
         protocol: "https",
-        hostname: "res.cloudinary.com",
-        pathname: "/**",
+        hostname: "**", // Allows all domains
       },
     ],
   },

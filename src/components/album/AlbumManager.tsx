@@ -45,7 +45,6 @@ function PhotoCard({
 
   return (
     <div className="relative aspect-square rounded-xl overflow-hidden bg-gray-100 group">
-      {/* Image */}
       {photo.url ? (
         <Image
           src={photo.url}
@@ -72,7 +71,7 @@ function PhotoCard({
         </div>
       )}
 
-      {/* Action buttons (visible on hover) */}
+      {/* Action buttons */}
       {!editMode && (
         <div className="absolute top-1.5 right-1.5 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-30">
           <button
@@ -254,7 +253,7 @@ export default function AlbumManager({ initialPhotos }: AlbumManagerProps) {
         </div>
       )}
 
-      {/* Photo count info */}
+      {/* Photo count */}
       <div className="flex items-center justify-between mb-3">
         <span className="font-outfit text-xs text-gray-400">
           {photos.length}/10 photos
