@@ -19,6 +19,9 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 const GUEST_PUBLIC_PATHS = ["/", "/personality-test"];
 const AUTH_PATHS = ["/login", "/registration", "/verify-otp"];
 
+// ── FIX: (user-agreement) routes — public for everyone, no auth needed ──
+const USER_AGREEMENT_PATHS = ["/privacy", "/terms", "/trust", "/contact"];
+
 function isGuestPublic(pathname: string) {
   return GUEST_PUBLIC_PATHS.some((p) =>
     p === "/"
@@ -31,6 +34,12 @@ function isAuthPage(pathname: string) {
   return AUTH_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/"));
 }
 
+function isUserAgreementPage(pathname: string) {
+  return USER_AGREEMENT_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(p + "/"),
+  );
+}
+
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -40,6 +49,11 @@ export default function proxy(request: NextRequest) {
     pathname.startsWith("/favicon") ||
     /\.\w+$/.test(pathname)
   ) {
+    return NextResponse.next();
+  }
+
+  // ── User agreement pages are always public (no token required) ──
+  if (isUserAgreementPage(pathname)) {
     return NextResponse.next();
   }
 
