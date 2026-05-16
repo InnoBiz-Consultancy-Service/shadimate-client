@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { Check, XCircle } from "lucide-react";
+import { Check, XCircle, AlertTriangle } from "lucide-react";
 
 interface ToastProps {
   message: string;
-  type: "success" | "error";
+  type: "success" | "error" | "warning";
   onClose: () => void;
   duration?: number;
 }
@@ -21,22 +21,52 @@ export default function Toast({
     return () => clearTimeout(timer);
   }, [onClose, duration]);
 
+  const config = {
+    success: {
+      bg: "bg-emerald-600",
+      border: "border-emerald-500",
+      text: "text-white",
+      icon: <Check size={20} strokeWidth={2.5} />,
+    },
+    error: {
+      bg: "bg-red-600",
+      border: "border-red-500",
+      text: "text-white",
+      icon: <XCircle size={20} strokeWidth={2.5} />,
+    },
+    warning: {
+      bg: "bg-amber-500",
+      border: "border-amber-400",
+      text: "text-white",
+      icon: <AlertTriangle size={20} strokeWidth={2.5} />,
+    },
+  }[type];
+
   return (
-    <div
-      className={`
-        fixed top-6 right-6 left-6 md:left-auto z-50 px-5 py-3.5 rounded-2xl
-        backdrop-blur-xl border text-sm font-medium
-        animate-[fadeUp_0.3s_ease]
-        ${
-          type === "success"
-            ? "bg-brand/10 border-brand/30 text-brand"
-            : "bg-red-500/10 border-red-500/30 text-red-400"
-        }
-      `}
-    >
-      <div className="flex items-center gap-2.5">
-        {type === "success" ? <Check size={16} /> : <XCircle size={16} />}
-        {message}
+    /* Overlay backdrop for centering */
+    <div className="fixed inset-0 z-999 flex items-start justify-center pt-6 px-4 pointer-events-none">
+      <div
+        className={`
+          pointer-events-auto
+          flex items-center gap-3
+          px-5 py-4 rounded-2xl
+          border shadow-2xl
+          text-sm font-semibold
+          max-w-sm w-full
+          animate-[fadeUp_0.3s_ease]
+          ${config.bg} ${config.border} ${config.text}
+        `}
+        style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.25)" }}
+      >
+        <span className="shrink-0">{config.icon}</span>
+        <span className="flex-1 leading-snug">{message}</span>
+        <button
+          onClick={onClose}
+          className="shrink-0 ml-1 opacity-70 hover:opacity-100 transition-opacity cursor-pointer"
+          aria-label="Close"
+        >
+          <XCircle size={16} />
+        </button>
       </div>
     </div>
   );

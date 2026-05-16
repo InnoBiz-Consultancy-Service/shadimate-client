@@ -411,13 +411,19 @@ export default function ProfileEditClient({
   const [relation, setRelation] = useState(profile?.relation || "");
   const [fatherOcc, setFatherOcc] = useState(profile?.fatherOccupation || "");
   const [motherOcc, setMotherOcc] = useState(profile?.motherOccupation || "");
+  const [numberOfSiblings, setNumberOfSiblings] = useState(
+    profile?.numberOfSiblings || "",
+  );
+  const [siblingDetails, setSiblingDetails] = useState(
+    profile?.siblingDetails || "",
+  );
 
   const [habits, setHabits] = useState<string[]>(profile?.habits || []);
 
   /* ── Profile Image ── */
-  const [profileImage, setProfileImage] = useState<string>(
-    (profile as unknown as Record<string, string>)?.profilePhoto || "",
-  );
+  // const [profileImage, setProfileImage] = useState<string>(
+  //   (profile as unknown as Record<string, string>)?.profilePhoto || "",
+  // );
 
   /* ── Geo data ── */
   const [divisions, setDivisions] = useState<Division[]>([]);
@@ -601,7 +607,6 @@ export default function ProfileEditClient({
     switch (s) {
       case 1:
         return {
-          ...(profileImage && { profilePhoto: profileImage }),
           ...(profession && { profession }),
           ...(salaryRange && { salaryRange }),
           ...(economicalStatus && { economicalStatus }),
@@ -668,6 +673,10 @@ export default function ProfileEditClient({
           ...(relation && { relation }),
           ...(fatherOcc && { fatherOccupation: fatherOcc }),
           ...(motherOcc && { motherOccupation: motherOcc }),
+          ...(numberOfSiblings && {
+            numberOfSiblings: Number(numberOfSiblings),
+          }),
+          ...(siblingDetails && { siblingDetails }),
         };
       case 7:
         return habits.length ? { habits } : {};
@@ -1325,6 +1334,22 @@ export default function ProfileEditClient({
                 placeholder="e.g. Housewife, Teacher, Doctor, etc."
                 required
                 error={errors.motherOcc}
+              />
+
+              <Field
+                label="Number of Siblings"
+                name="numberOfSiblings"
+                type="number"
+                value={numberOfSiblings}
+                onChange={(v) => setNumberOfSiblings(v)}
+                placeholder="e.g. 2"
+              />
+              <Field
+                label="Sibling Details (Optional)"
+                name="siblingDetails"
+                value={siblingDetails}
+                onChange={(v) => setSiblingDetails(v)}
+                placeholder="e.g. 1 elder brother, 1 younger sister"
               />
             </div>
           </div>
