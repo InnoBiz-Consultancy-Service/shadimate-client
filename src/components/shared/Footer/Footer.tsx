@@ -1,12 +1,29 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
-import { ArrowUpRight, Heart } from "lucide-react";
+import {
+  ArrowUpRight,
+  Heart,
+  Home,
+  HeartHandshake,
+  MessageCircle,
+  Bell,
+  User,
+} from "lucide-react";
 
 const footerLinks = [
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
-  { label: "Trust & Safety", href: "#" },
-  { label: "Contact Us", href: "#" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+  { label: "Trust & Safety", href: "/trust" },
+  { label: "Contact Us", href: "/contact" },
+];
+
+// FIX: Copy primary nav routes from AppBar/Navbar into footer
+const navLinks = [
+  { label: "Feed", href: "/feed", icon: Home },
+  { label: "Dream Partner", href: "/dream-partner", icon: HeartHandshake },
+  { label: "Chat", href: "/chat", icon: MessageCircle },
+  { label: "Notifications", href: "/notifications", icon: Bell },
+  { label: "Profile", href: "/profile", icon: User },
 ];
 
 export default function Footer() {
@@ -47,7 +64,8 @@ export default function Footer() {
 
       {/* ── Main Footer Links ── */}
       <div className="relative z-10 border-t border-slate-200/80 mt-4">
-        <div className="max-w-6xl mx-auto px-5 md:px-10 pt-12 pb-8 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="max-w-6xl mx-auto px-5 md:px-10 pt-12 pb-8 flex flex-col md:flex-row items-start justify-between gap-10">
+          {/* Brand column */}
           <div className="flex flex-col items-center md:items-start gap-4 text-center md:text-left">
             <Logo />
             <p className="text-slate-500 text-sm max-w-70">
@@ -56,15 +74,36 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-8 gap-y-4">
+          {/* FIX: Nav links column (copied from AppBar) */}
+          <div className="flex flex-col gap-2">
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-1">
+              Navigate
+            </p>
+            {navLinks.map(({ label, href, icon: Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-2 text-slate-600 text-sm font-medium transition-colors hover:text-brand no-underline"
+              >
+                <Icon size={14} className="text-slate-400" />
+                {label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Legal links column */}
+          <div className="flex flex-col gap-2">
+            <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-1">
+              Legal
+            </p>
             {footerLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
-                className="text-slate-600 text-[14px] font-medium transition-colors hover:text-brand hover:underline underline-offset-4"
+                className="text-slate-600 text-sm font-medium transition-colors hover:text-brand no-underline"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

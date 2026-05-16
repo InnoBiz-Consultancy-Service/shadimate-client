@@ -72,6 +72,8 @@ export interface Profile {
   isPremium: boolean;
   visitCount: number;
   image?: string;
+  numberOfSiblings?: string;
+  siblingDetails?: string;
 }
 
 export interface ProfileListMeta {
